@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Servicio de desarrollo
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: libremercado-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Montar código fuente para hot reload
+      - ./src:/app/src
+      - ./public:/app/public
+      # Evitar sobrescribir node_modules del contenedor
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    stdin_open: true
+    tty: true
+    networks:
+      - app-network
+
+  # Servicio de producción
+  frontend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: libremercado-prod
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+    restart: unless-stopped
+    # Para escalar: docker-compose up -d --scale frontend-prod=3
+    # Combinar con un load balancer para múltiples instancias
+
+networks:
+  app-network:
+    driver: bridge
