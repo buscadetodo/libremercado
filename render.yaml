@@ -1,0 +1,14 @@
+services:
+  # Frontend React con Docker
+  - type: web
+    name: libremercado-frontend
+    runtime: docker
+    dockerfilePath: ./Dockerfile.prod
+    plan: free  # Cambiar a 'starter' o superior si necesitas más recursos
+    region: ohio  # Cambiar según tu preferencia: oregon, frankfurt, singapore
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /
+    autoDeploy: true
+    # El puerto 80 se detecta automáticamente desde el EXPOSE en Dockerfile

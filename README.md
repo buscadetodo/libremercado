@@ -16,18 +16,23 @@ Aplicación web React completamente dockerizada con entornos de desarrollo y pro
 ```
 libremercado/
 ├── src/
+│   ├── api/                # Cliente HTTP (Axios)
+│   ├── components/         # Componentes reutilizables
+│   ├── hooks/              # Custom hooks
+│   ├── pages/              # Páginas de la aplicación
+│   ├── services/           # Servicios de API
 │   ├── App.js              # Componente principal
-│   ├── App.css             # Estilos del componente
-│   ├── index.js            # Punto de entrada
-│   └── index.css           # Estilos globales
+│   └── index.js            # Punto de entrada
 ├── public/
 │   └── index.html          # HTML base
 ├── Dockerfile.dev          # Dockerfile para desarrollo
 ├── Dockerfile.prod         # Dockerfile para producción
 ├── docker-compose.yml      # Orquestación de servicios
 ├── nginx.conf              # Configuración de Nginx
-├── package.json            # Dependencias del proyecto
-└── README.md               # Documentación
+├── render.yaml             # Configuración para Render
+├── DEPLOYMENT.md           # Guía de deployment
+├── .env.example            # Variables de entorno ejemplo
+└── package.json            # Dependencias del proyecto
 ```
 
 ## 🛠️ Requisitos
@@ -131,12 +136,32 @@ docker run -p 8080:80 libremercado-prod
 
 ## 📝 Variables de Entorno
 
-Para desarrollo, puedes crear un archivo `.env` con variables personalizadas:
+Copia el archivo `.env.example` a `.env` y configura las variables:
 
-```env
-PORT=3000
-REACT_APP_API_URL=http://localhost:4000
+```bash
+cp .env.example .env
 ```
+
+Variables disponibles:
+```env
+REACT_APP_API_URL=https://api.tudominio.com
+NODE_ENV=production
+```
+
+**Nota:** Las variables deben empezar con `REACT_APP_` para estar disponibles en React.
+
+## ☁️ Deployment en Render
+
+Este proyecto está pre-configurado para deployar en Render. Consulta la guía completa en [DEPLOYMENT.md](DEPLOYMENT.md).
+
+**Inicio rápido:**
+1. Sube tu código a GitHub
+2. Crea una cuenta en [Render](https://render.com)
+3. Conecta tu repositorio (Render detectará `render.yaml`)
+4. Configura `REACT_APP_API_URL` en variables de entorno
+5. ¡Deploy automático!
+
+Tu app estará disponible en `https://tu-app.onrender.com` con SSL gratis.
 
 ## 🎨 Personalización
 

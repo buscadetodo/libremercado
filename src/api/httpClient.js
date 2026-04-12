@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// URL base de la API
-const BASE_URL = 'https://libremercadodev.daelsoft.com';
+// URL base de la API desde variables de entorno
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://libremercadodev.daelsoft.com';
 
 // Crear instancia de axios
 const httpClient = axios.create({
