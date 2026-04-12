@@ -54,7 +54,7 @@ function Register() {
         estado_cuenta: 'y'
       };
 
-      await usersService.create(userData);
+      await usersService.register(userData);
       setSuccess(true);
       
       setTimeout(() => {
