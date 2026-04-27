@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 // URL base de la API desde variables de entorno
+// Usar la misma URL tanto en desarrollo como en producción
 const BASE_URL = process.env.REACT_APP_API_URL || 'https://libremercadodev.daelsoft.com';
 
 // Crear instancia de axios

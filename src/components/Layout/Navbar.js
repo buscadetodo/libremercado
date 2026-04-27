@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks';
+import PerfilSelector from '../PerfilSelector/PerfilSelector';
 import './Navbar.css';
 
 function Navbar() {
@@ -35,6 +36,10 @@ function Navbar() {
               <Link to="/transportistas" className="navbar-link">
                 Transportistas
               </Link>
+              
+              {/* Selector de Perfil Activo */}
+              <PerfilSelector />
+              
               <button onClick={handleLogout} className="navbar-button navbar-logout">
                 <span>🚪</span> Cerrar Sesión
               </button>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import usersService from '../../services/usersService';
-import authService from '../../services/authService';
 import './Perfil.css';
 
 function Perfil() {

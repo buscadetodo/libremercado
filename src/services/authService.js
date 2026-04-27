@@ -37,6 +37,16 @@ const authService = {
   },
 
   /**
+   * Registrar un nuevo usuario
+   * @param {Object} userData - Datos del usuario
+   * @returns {Promise} - datos del usuario creado
+   */
+  register: async (userData) => {
+    const response = await httpClient.post('/users/', userData);
+    return response.data;
+  },
+
+  /**
    * Refrescar access token
    * @param {string} refreshToken 
    * @returns {Promise} - nuevos tokens

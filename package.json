@@ -2,6 +2,7 @@
   "name": "libremercado",
   "version": "1.0.0",
   "private": true,
+  "proxy": "https://libremercadodev.daelsoft.com",
   "dependencies": {
     "axios": "^1.6.0",
     "react": "^18.2.0",

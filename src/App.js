@@ -1,9 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
 // Toast Provider
 import { ToastProvider } from './components/Toast/Toast';
+
+// Context
+import { PerfilProvider } from './context/PerfilContext';
 
 // Layout
 import Layout from './components/Layout/Layout';
@@ -14,8 +17,18 @@ import Home from './pages/Home/Home';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 
+// Auth Mejorada
+import SeleccionTipoCuenta from './pages/Auth/SeleccionTipoCuenta';
+import RegisterDinamico from './pages/Auth/RegisterDinamico';
+
 // Dashboard
 import Dashboard from './pages/Dashboard/Dashboard';
+
+// Dashboards Específicos
+import MayoristaDashboard from './pages/Dashboards/MayoristaDashboard';
+import MinoristaDashboard from './pages/Dashboards/MinoristaDashboard';
+import CompradorHome from './pages/Dashboards/CompradorHome';
+import TransportistaDashboard from './pages/Dashboards/TransportistaDashboard';
 
 // Mayoristas
 import MayoristasList from './pages/Mayoristas/MayoristasList';
@@ -43,6 +56,7 @@ import UsuariosList from './pages/Admin/UsuariosList';
 
 // Perfil
 import Perfil from './pages/Perfil/Perfil';
+import AgregarPerfil from './pages/Perfil/AgregarPerfil';
 
 // 404
 import NotFound from './pages/NotFound/NotFound';
@@ -50,14 +64,67 @@ import NotFound from './pages/NotFound/NotFound';
 function App() {
   return (
     <ToastProvider>
-      <Router>
-        <Routes>
-          {/* Rutas públicas */}
+      <PerfilProvider>
+        <Router>
+          <Routes>
+            {/* Rutas públicas */}
           <Route path="/" element={<Home />} />
+          
+          {/* Auth - Sistema antiguo (mantener por compatibilidad) */}
+          <Route path="/login-old" element={<Login />} />
+          <Route path="/registro-old" element={<Register />} />
+          
+          {/* Auth Mejorado - Sistema nuevo */}
           <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Register />} />
+          <Route path="/registro" element={<SeleccionTipoCuenta />} />
+          <Route path="/registro/:tipo" element={<RegisterDinamico />} />
 
-        {/* Rutas protegidas */}
+        {/* Dashboards Específicos por Perfil */}
+        <Route
+          path="/mayorista/dashboard"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <MayoristaDashboard />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/minorista/dashboard"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <MinoristaDashboard />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/comprador/home"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <CompradorHome />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/transportista/dashboard"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <TransportistaDashboard />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        {/* Dashboard Administrativo */}
         <Route
           path="/dashboard/*"
           element={
@@ -185,10 +252,23 @@ function App() {
           }
         />
 
+        {/* Agregar Perfil */}
+        <Route
+          path="/agregar-perfil"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <AgregarPerfil />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
         {/* Ruta 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
+    </PerfilProvider>
     </ToastProvider>
   );
 }
