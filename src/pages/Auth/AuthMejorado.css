@@ -19,6 +19,92 @@
   width: 100%;
   max-width: 650px;
   animation: slideUp 0.5s ease;
+  position: relative;
+}
+
+/* Botón volver al inicio */
+.btn-back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-bottom: 24px;
+  cursor: pointer;
+}
+
+.btn-back-home:hover {
+  background: rgba(102, 126, 234, 0.08);
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateX(-4px);
+}
+
+.btn-back-home .back-icon {
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+
+.btn-back-home:hover .back-icon {
+  transform: translateX(-3px);
+}
+
+.btn-back-home .back-text {
+  font-size: 14px;
+}
+
+/* Logo clickeable */
+.login-logo-wrapper {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.login-logo-wrapper:hover {
+  opacity: 0.9;
+}
+
+.login-logo-wrapper:hover .login-logo-icon {
+  transform: scale(1.1) translateY(-5px);
+}
+
+.login-logo-wrapper:hover .brand-name {
+  background: linear-gradient(135deg, #5568d3 0%, #6a4391 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Indicador sutil de clickeabilidad */
+.login-logo-wrapper::after {
+  content: '🏠 Ir al inicio';
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background: #2d3748;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.login-logo-wrapper:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  top: -40px;
 }
 
 @keyframes slideUp {
@@ -704,6 +790,97 @@
   }
 }
 
+/* ========================================
+   BANNER DE ERROR DE LOGIN
+   ======================================== */
+
+.login-error-banner {
+  background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+  border: 2px solid #fc8181;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideDown 0.4s ease, shake 0.5s ease;
+  box-shadow: 0 4px 12px rgba(252, 129, 129, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-error-banner::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #fc8181;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-error-banner .error-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.login-error-banner .error-content {
+  flex: 1;
+}
+
+.login-error-banner .error-content strong {
+  display: block;
+  color: #c53030;
+  font-size: 15px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.login-error-banner .error-content p {
+  color: #742a2a;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.login-error-banner .error-close {
+  background: none;
+  border: none;
+  color: #c53030;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  line-height: 1;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.login-error-banner .error-close:hover {
+  background: rgba(252, 129, 129, 0.2);
+  opacity: 1;
+  transform: rotate(90deg);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .auth-card {
@@ -724,5 +901,33 @@
 
   .auth-icon {
     font-size: 48px;
+  }
+
+  /* Botón volver - responsive */
+  .btn-back-home {
+    padding: 8px 12px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .btn-back-home .back-text {
+    font-size: 13px;
+  }
+
+  .btn-back-home .back-icon {
+    font-size: 14px;
+  }
+
+  /* Logo en mobile */
+  .login-logo-icon {
+    font-size: 48px;
+  }
+
+  .brand-name {
+    font-size: 26px;
+  }
+
+  .brand-tagline {
+    font-size: 12px;
   }
 }

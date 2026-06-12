@@ -18,6 +18,7 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 
 // Auth Mejorada
+import RegisterUniversal from './pages/Auth/RegisterUniversal';
 import SeleccionTipoCuenta from './pages/Auth/SeleccionTipoCuenta';
 import RegisterDinamico from './pages/Auth/RegisterDinamico';
 
@@ -70,13 +71,14 @@ function App() {
             {/* Rutas públicas */}
           <Route path="/" element={<Home />} />
           
-          {/* Auth - Sistema antiguo (mantener por compatibilidad) */}
+          {/* Auth - Sistema nuevo (Universal) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/registro" element={<RegisterUniversal />} />
+          
+          {/* Auth - Sistema antiguo (deprecated - mantener por compatibilidad) */}
           <Route path="/login-old" element={<Login />} />
           <Route path="/registro-old" element={<Register />} />
-          
-          {/* Auth Mejorado - Sistema nuevo */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<SeleccionTipoCuenta />} />
+          <Route path="/registro-tipos" element={<SeleccionTipoCuenta />} />
           <Route path="/registro/:tipo" element={<RegisterDinamico />} />
 
         {/* Dashboards Específicos por Perfil */}

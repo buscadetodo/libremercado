@@ -12,6 +12,10 @@ function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(false);
+  const [detectandoUbicacion, setDetectandoUbicacion] = useState(false);
+  const [ubicacionError, setUbicacionError] = useState('');
+  const [showUbicacionModal, setShowUbicacionModal] = useState(false);
+  const [ubicacionModalData, setUbicacionModalData] = useState({ tipo: '', mensaje: '', detalles: '' });
 
   const categorias = [
     { nombre: 'Alimentos', icon: '🍎' },
@@ -69,19 +73,131 @@ function Home() {
     }
   ];
 
-  const detectarUbicacion = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // Aquí implementarías la lógica para obtener el CP basado en las coordenadas
-          alert('Ubicación detectada. Funcionalidad pendiente de implementar.');
-        },
-        (error) => {
-          alert('No se pudo detectar la ubicación');
+  const detectarUbicacion = async () => {
+    // Limpiar error anterior
+    setUbicacionError('');
+    
+    // Verificar soporte de geolocalización
+    if (!navigator.geolocation) {
+      setUbicacionError('Tu navegador no soporta geolocalización');
+      setUbicacionModalData({
+        tipo: 'error',
+        mensaje: 'Navegador no compatible',
+        detalles: 'Tu navegador no soporta la detección de ubicación automática. Por favor, ingresá tu código postal manualmente.'
+      });
+      setShowUbicacionModal(true);
+      return;
+    }
+
+    setDetectandoUbicacion(true);
+
+    try {
+      // Obtener posición del usuario
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      });
+
+      const { latitude, longitude } = position.coords;
+      
+      // Hacer reverse geocoding con Nominatim (OpenStreetMap)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
+        {
+          headers: {
+            'Accept-Language': 'es'
+          }
         }
       );
-    } else {
-      alert('Tu navegador no soporta geolocalización');
+
+      if (!response.ok) {
+        throw new Error('Error al obtener la dirección');
+      }
+
+      const data = await response.json();
+      
+      // Extraer información de la dirección
+      const address = data.address || {};
+      const postalCode = address.postcode || address.postal_code || '';
+      const city = address.city || address.town || address.village || '';
+      const state = address.state || '';
+      
+      // Si hay código postal, usarlo
+      if (postalCode) {
+        setCodigoPostal(postalCode);
+        setUbicacionModalData({
+          tipo: 'success',
+          mensaje: '¡Ubicación detectada!',
+          detalles: `${data.display_name}\n\nCódigo Postal: ${postalCode}`
+        });
+        setShowUbicacionModal(true);
+      } else if (city) {
+        // Si no hay CP pero hay ciudad, mostrar la ciudad
+        setCodigoPostal(city);
+        setUbicacionModalData({
+          tipo: 'success',
+          mensaje: '¡Ubicación detectada!',
+          detalles: `${data.display_name}\n\nNota: No se pudo obtener el código postal exacto, pero estás en ${city}`
+        });
+        setShowUbicacionModal(true);
+      } else {
+        // Mostrar la dirección completa
+        const displayAddress = data.display_name || `${latitude}, ${longitude}`;
+        setCodigoPostal(displayAddress.split(',')[0]);
+        setUbicacionModalData({
+          tipo: 'success',
+          mensaje: '¡Ubicación detectada!',
+          detalles: `${displayAddress}\n\nPodés ajustar manualmente tu ubicación en el campo de búsqueda.`
+        });
+        setShowUbicacionModal(true);
+      }
+
+    } catch (error) {
+      console.error('Error al detectar ubicación:', error);
+      
+      // Mensajes de error específicos
+      let mensaje = '';
+      let detalles = '';
+
+      if (error.code) {
+        switch (error.code) {
+          case 1: // PERMISSION_DENIED
+            mensaje = 'Permiso denegado';
+            detalles = 'Has denegado el permiso de ubicación.\n\nPara usar esta función, debés permitir el acceso a tu ubicación en la configuración de tu navegador.';
+            break;
+          case 2: // POSITION_UNAVAILABLE
+            mensaje = 'Ubicación no disponible';
+            detalles = 'No se pudo determinar tu ubicación.\n\nVerificá tu conexión a internet y que los servicios de ubicación estén activados.';
+            break;
+          case 3: // TIMEOUT
+            mensaje = 'Tiempo agotado';
+            detalles = 'Se agotó el tiempo de espera para detectar tu ubicación.\n\nIntentá nuevamente o ingresá tu código postal manualmente.';
+            break;
+          default:
+            mensaje = 'Error desconocido';
+            detalles = 'Error desconocido al detectar la ubicación.\n\nPor favor, ingresá tu código postal manualmente.';
+        }
+      } else {
+        mensaje = 'Error al procesar';
+        detalles = 'Error al procesar la ubicación.\n\nPor favor, ingresá tu código postal manualmente.';
+      }
+
+      setUbicacionError(detalles);
+      setUbicacionModalData({
+        tipo: 'error',
+        mensaje: mensaje,
+        detalles: detalles
+      });
+      setShowUbicacionModal(true);
+    } finally {
+      setDetectandoUbicacion(false);
     }
   };
 
@@ -173,15 +289,36 @@ function Home() {
               <span className="zona-icon">📍</span>
               <input
                 type="text"
-                placeholder="Ingresar código postal"
+                placeholder="Ingresar código postal o ciudad"
                 value={codigoPostal}
                 onChange={(e) => setCodigoPostal(e.target.value)}
                 className="zona-input"
+                disabled={detectandoUbicacion}
               />
-              <button onClick={detectarUbicacion} className="btn-detectar">
-                Detectar ubicación
+              <button 
+                onClick={detectarUbicacion} 
+                className={`btn-detectar ${detectandoUbicacion ? 'loading' : ''}`}
+                disabled={detectandoUbicacion}
+              >
+                {detectandoUbicacion ? (
+                  <>
+                    <span className="spinner-icon">⏳</span>
+                    <span>Detectando...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📍</span>
+                    <span>Detectar ubicación</span>
+                  </>
+                )}
               </button>
             </div>
+            {ubicacionError && (
+              <div className="ubicacion-error-hint">
+                <span>⚠️</span>
+                <span>Permiso de ubicación denegado. Ingresá tu código postal manualmente.</span>
+              </div>
+            )}
           </div>
         </section>
 
@@ -294,6 +431,31 @@ function Home() {
             </div>
           </div>
         </section>
+
+        {/* Modal Ubicación */}
+        {showUbicacionModal && (
+          <div className="modal-overlay" onClick={() => setShowUbicacionModal(false)}>
+            <div className="modal-content ubicacion-modal" onClick={(e) => e.stopPropagation()}>
+              <div className={`modal-icon ${ubicacionModalData.tipo === 'success' ? 'success' : 'error'}`}>
+                {ubicacionModalData.tipo === 'success' ? '✅' : '⚠️'}
+              </div>
+              <h3>{ubicacionModalData.mensaje}</h3>
+              <p style={{ whiteSpace: 'pre-line' }}>{ubicacionModalData.detalles}</p>
+              <button 
+                className="btn-modal-ubicacion-ok"
+                onClick={() => setShowUbicacionModal(false)}
+              >
+                Entendido
+              </button>
+              <button 
+                className="modal-close"
+                onClick={() => setShowUbicacionModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -323,15 +485,36 @@ function Home() {
             <span className="zona-icon">📍</span>
             <input
               type="text"
-              placeholder="Ingresar código postal"
+              placeholder="Ingresar código postal o ciudad"
               value={codigoPostal}
               onChange={(e) => setCodigoPostal(e.target.value)}
               className="zona-input"
+              disabled={detectandoUbicacion}
             />
-            <button onClick={detectarUbicacion} className="btn-detectar">
-              Detectar ubicación
+            <button 
+              onClick={detectarUbicacion} 
+              className={`btn-detectar ${detectandoUbicacion ? 'loading' : ''}`}
+              disabled={detectandoUbicacion}
+            >
+              {detectandoUbicacion ? (
+                <>
+                  <span className="spinner-icon">⏳</span>
+                  <span>Detectando...</span>
+                </>
+              ) : (
+                <>
+                  <span>📍</span>
+                  <span>Detectar ubicación</span>
+                </>
+              )}
             </button>
           </div>
+          {ubicacionError && (
+            <div className="ubicacion-error-hint">
+              <span>⚠️</span>
+              <span>Permiso de ubicación denegado. Ingresá tu código postal manualmente.</span>
+            </div>
+          )}
         </div>
       </section>
 
@@ -463,6 +646,31 @@ function Home() {
             <button 
               className="modal-close"
               onClick={() => setShowLoginModal(false)}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Ubicación */}
+      {showUbicacionModal && (
+        <div className="modal-overlay" onClick={() => setShowUbicacionModal(false)}>
+          <div className="modal-content ubicacion-modal" onClick={(e) => e.stopPropagation()}>
+            <div className={`modal-icon ${ubicacionModalData.tipo === 'success' ? 'success' : 'error'}`}>
+              {ubicacionModalData.tipo === 'success' ? '✅' : '⚠️'}
+            </div>
+            <h3>{ubicacionModalData.mensaje}</h3>
+            <p style={{ whiteSpace: 'pre-line' }}>{ubicacionModalData.detalles}</p>
+            <button 
+              className="btn-modal-ubicacion-ok"
+              onClick={() => setShowUbicacionModal(false)}
+            >
+              Entendido
+            </button>
+            <button 
+              className="modal-close"
+              onClick={() => setShowUbicacionModal(false)}
             >
               ✕
             </button>
