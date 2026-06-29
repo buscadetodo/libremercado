@@ -127,7 +127,6 @@ function Home() {
       const address = data.address || {};
       const postalCode = address.postcode || address.postal_code || '';
       const city = address.city || address.town || address.village || '';
-      const state = address.state || '';
       
       // Si hay código postal, usarlo
       if (postalCode) {

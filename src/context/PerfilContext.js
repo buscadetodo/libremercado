@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import usuarioPerfilesService from '../services/usuarioPerfilesService';
 import useAuth from '../hooks/useAuth';
 
@@ -18,18 +18,9 @@ export const PerfilProvider = ({ children }) => {
   const [perfilActivo, setPerfilActivo] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Cargar perfiles del usuario
-  useEffect(() => {
-    if (isAuthenticated && user?.id) {
-      cargarPerfiles();
-    } else {
-      setPerfiles([]);
-      setPerfilActivo(null);
-      setLoading(false);
-    }
-  }, [isAuthenticated, user]);
+  const cargarPerfiles = useCallback(async () => {
+    if (!user?.id) return;
 
-  const cargarPerfiles = async () => {
     try {
       setLoading(true);
       const response = await usuarioPerfilesService.getByUserId(user.id);
@@ -52,7 +43,18 @@ export const PerfilProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  // Cargar perfiles del usuario
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      cargarPerfiles();
+    } else {
+      setPerfiles([]);
+      setPerfilActivo(null);
+      setLoading(false);
+    }
+  }, [isAuthenticated, user?.id, cargarPerfiles]);
 
   const cambiarPerfil = (perfilId) => {
     const perfil = perfiles.find(p => p.id_perfil === perfilId);
