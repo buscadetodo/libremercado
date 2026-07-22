@@ -13,7 +13,8 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loginError, setLoginError] = useState('');
-  const { login, loading } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -67,45 +68,42 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Limpiar error anterior
     setLoginError('');
-    
+
+    // Evitar envíos duplicados (varios llamados al backend)
+    if (submitting) return;
     if (!validateForm()) {
       return;
     }
 
+    setSubmitting(true);
+
     const result = await login(email, password);
-    
+
     if (!result.success) {
-      // Si el login falló
       const mensaje = result.error || 'Email o contraseña incorrectos. Verificá tus datos e intentá nuevamente.';
-      console.log('Login falló - Mensaje:', mensaje);
       setLoginError(mensaje);
       toast.error(mensaje);
+      setSubmitting(false); // permitir reintento solo si falló
       return;
     }
 
     try {
-      // Login exitoso - obtener datos del usuario
+      // Login exitoso: obtener datos del usuario y redirigir de inmediato
       const userId = localStorage.getItem('user_id');
       const userResponse = await usersService.getById(userId);
       // La API envuelve la respuesta en { success, data } → tomar el payload real
       const userData = userResponse?.data ?? userResponse;
 
-      toast.success('¡Bienvenido de nuevo!');
       const redirectUrl = await determinarRedireccion(userData);
-      setTimeout(() => {
-        navigate(redirectUrl, { replace: true });
-      }, 500);
-    } catch (error) {
-      console.log('Error al obtener datos del usuario:', error);
-      // Si falla obtener los datos, redirigir a dashboard por defecto
       toast.success('¡Bienvenido de nuevo!');
-      setTimeout(() => {
-        navigate('/dashboard', { replace: true });
-      }, 500);
+      navigate(redirectUrl, { replace: true });
+    } catch (error) {
+      toast.success('¡Bienvenido de nuevo!');
+      navigate('/dashboard', { replace: true });
     }
+    // No reseteamos submitting: navegamos y el componente se desmonta,
+    // así el botón queda deshabilitado y no se puede volver a clickear.
   };
 
   return (
@@ -217,12 +215,12 @@ function Login() {
             </div>
 
             {/* Botón submit */}
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="btn-submit-login"
-              disabled={loading}
+              disabled={submitting}
             >
-              {loading ? (
+              {submitting ? (
                 <>
                   <span className="loading-spinner"></span> Iniciando sesión...
                 </>

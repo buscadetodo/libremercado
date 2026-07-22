@@ -1,15 +1,25 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks';
 import { usePerfilActivo } from '../../context/PerfilContext';
 import { esAdmin } from '../../config/roles';
 import { FEATURE_PRODUCTOS } from '../../config/features';
+import { APP_VERSION } from '../../config/version';
 import './Sidebar.css';
 
-function Sidebar() {
+function Sidebar({ onNavigate }) {
   const location = useLocation();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const { perfilActivo, obtenerDashboardUrl } = usePerfilActivo();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const confirmarLogout = () => {
+    setShowLogoutConfirm(false);
+    if (onNavigate) onNavigate();
+    logout();
+    navigate('/login');
+  };
 
   // Menú completo de administración
   const adminMenu = [
@@ -43,12 +53,15 @@ function Sidebar() {
   );
 
   return (
-    <aside className="sidebar">
+    <>
+      <aside className="sidebar">
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
+            title={item.label}
+            onClick={onNavigate}
             className={`sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
           >
             <span className="sidebar-icon">{item.icon}</span>
@@ -56,7 +69,50 @@ function Sidebar() {
           </Link>
         ))}
       </nav>
-    </aside>
+
+      <div className="sidebar-footer">
+        <button
+          type="button"
+          className="sidebar-item sidebar-logout"
+          onClick={() => setShowLogoutConfirm(true)}
+          title="Cerrar sesión"
+        >
+          <span className="sidebar-icon">🚪</span>
+          <span className="sidebar-label">Cerrar sesión</span>
+        </button>
+        <div className="sidebar-version">v{APP_VERSION}</div>
+      </div>
+      </aside>
+
+      {showLogoutConfirm && (
+        <div
+          className="logout-modal-overlay"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div className="logout-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="logout-modal-icon">🚪</div>
+            <h3>¿Cerrar sesión?</h3>
+            <p>¿Seguro que querés salir de tu cuenta?</p>
+            <div className="logout-modal-actions">
+              <button
+                type="button"
+                className="logout-modal-cancel"
+                onClick={() => setShowLogoutConfirm(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="logout-modal-confirm"
+                onClick={confirmarLogout}
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
