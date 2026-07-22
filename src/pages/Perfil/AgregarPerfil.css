@@ -1,0 +1,270 @@
+.agregar-perfil {
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* Header */
+.ap-header {
+  margin-bottom: 2rem;
+}
+.ap-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.4rem;
+}
+.ap-header p {
+  color: #6b7280;
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+/* Tarjeta contenedora */
+.ap-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Encabezado de paso */
+.ap-step-label {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1.25rem;
+}
+.ap-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #1565c0;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Grilla de tipos de perfil */
+.ap-tipos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.ap-tipo-card {
+  position: relative;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1.6rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+.ap-tipo-card:hover:not(.disabled) {
+  transform: translateY(-4px);
+  border-color: var(--color, #1565c0);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+.ap-tipo-card.selected {
+  border-color: var(--color, #1565c0);
+  background: rgba(21, 101, 192, 0.06);
+  box-shadow: 0 6px 18px rgba(21, 101, 192, 0.18);
+}
+.ap-tipo-card.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+.ap-tipo-icono {
+  font-size: 2.6rem;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+.ap-tipo-titulo {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.3rem;
+}
+.ap-tipo-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.ap-tipo-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color, #1565c0);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.ap-badge-ya {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 3px 10px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* Formulario específico */
+.ap-form-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eef2f7;
+}
+.ap-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.1rem;
+}
+.ap-form-group {
+  display: flex;
+  flex-direction: column;
+}
+.ap-form-group.full {
+  grid-column: 1 / -1;
+}
+.ap-form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.45rem;
+}
+.ap-form-group input,
+.ap-form-group select,
+.ap-form-group textarea {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+.ap-form-group input:focus,
+.ap-form-group select:focus,
+.ap-form-group textarea:focus {
+  outline: none;
+  border-color: #1565c0;
+  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.12);
+}
+.ap-form-group textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.ap-check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 500;
+}
+.ap-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: #1565c0;
+  cursor: pointer;
+}
+
+.ap-info {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 1rem 1.1rem;
+  background: rgba(21, 101, 192, 0.06);
+  border: 1px solid rgba(21, 101, 192, 0.15);
+  border-radius: 10px;
+  color: #334155;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Acciones */
+.ap-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+.ap-btn-cancel,
+.ap-btn-submit {
+  padding: 0.8rem 1.6rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+.ap-btn-cancel {
+  background: #fff;
+  color: #4b5563;
+  border-color: #e5e7eb;
+}
+.ap-btn-cancel:hover {
+  background: #f9fafb;
+  border-color: #cbd5e0;
+}
+.ap-btn-submit {
+  background: #1565c0;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+}
+.ap-btn-submit:hover:not(:disabled) {
+  background: #0d47a1;
+  transform: translateY(-2px);
+}
+.ap-btn-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .ap-header h1 {
+    font-size: 1.6rem;
+  }
+  .ap-card {
+    padding: 1.5rem;
+  }
+  .ap-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .ap-actions {
+    flex-direction: column-reverse;
+  }
+  .ap-btn-cancel,
+  .ap-btn-submit {
+    width: 100%;
+    text-align: center;
+  }
+}

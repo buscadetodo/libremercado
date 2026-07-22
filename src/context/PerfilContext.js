@@ -23,8 +23,8 @@ export const PerfilProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      const response = await usuarioPerfilesService.getByUserId(user.id);
-      const perfilesUsuario = response.data || [];
+      const response = await usuarioPerfilesService.getByUser(user.id);
+      const perfilesUsuario = response?.data || [];
       
       setPerfiles(perfilesUsuario);
       

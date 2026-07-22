@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import usersService from '../../services/usersService';
+import mayoristasService from '../../services/mayoristasService';
+import rubrosService from '../../services/rubrosService';
+import { FEATURE_PRODUCTOS } from '../../config/features';
 import './Home.css';
 
 function Home() {
@@ -12,6 +15,10 @@ function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(false);
+  const [mayoristasReales, setMayoristasReales] = useState([]);
+  const [loadingMayoristas, setLoadingMayoristas] = useState(false);
+  const [rubrosMap, setRubrosMap] = useState({});
+  const [categoriaFiltro, setCategoriaFiltro] = useState('');
   const [detectandoUbicacion, setDetectandoUbicacion] = useState(false);
   const [ubicacionError, setUbicacionError] = useState('');
   const [showUbicacionModal, setShowUbicacionModal] = useState(false);
@@ -217,8 +224,9 @@ function Home() {
         try {
           const userId = localStorage.getItem('user_id');
           if (userId) {
-            const data = await usersService.getById(userId);
-            setUserData(data);
+            const response = await usersService.getById(userId);
+            // La API envuelve la respuesta en { success, data }
+            setUserData(response?.data ?? response);
           }
         } catch (error) {
           console.error('Error al cargar datos del usuario:', error);
@@ -231,6 +239,57 @@ function Home() {
     loadUserData();
   }, [isAuthenticated]);
 
+  // Cargar mayoristas reales y rubros (para mapear nombres) si está autenticado
+  useEffect(() => {
+    const loadMayoristas = async () => {
+      if (!isAuthenticated) return;
+      setLoadingMayoristas(true);
+      try {
+        const [mayoristasResp, rubrosResp] = await Promise.all([
+          mayoristasService.getAll({ limit: 6 }),
+          rubrosService.getAll(50, 0),
+        ]);
+
+        const lista = mayoristasResp?.data ?? mayoristasResp ?? [];
+        setMayoristasReales(Array.isArray(lista) ? lista : []);
+
+        const rubrosLista = rubrosResp?.data ?? rubrosResp ?? [];
+        const map = {};
+        (Array.isArray(rubrosLista) ? rubrosLista : []).forEach((r) => {
+          map[r.id] = r.rubro;
+        });
+        setRubrosMap(map);
+      } catch (error) {
+        console.error('Error al cargar mayoristas:', error);
+      } finally {
+        setLoadingMayoristas(false);
+      }
+    };
+
+    loadMayoristas();
+  }, [isAuthenticated]);
+
+  // Categorías reales a partir de los rubros de la API
+  const iconosRubro = {
+    electronica: '💻', alimentos: '🍎', bebidas: '🥤', limpieza: '🧹', mascotas: '🐾'
+  };
+  const categoriasReales = Object.entries(rubrosMap).map(([id, nombre]) => ({
+    id: Number(id),
+    nombre,
+    icon: iconosRubro[nombre?.toLowerCase()] || '📂',
+  }));
+
+  // Mayoristas filtrados por categoría (rubro) y por texto de búsqueda
+  const mayoristasFiltrados = mayoristasReales.filter((m) => {
+    const coincideRubro = !categoriaFiltro || m.rubro_id === categoriaFiltro;
+    const texto = searchQuery.trim().toLowerCase();
+    const coincideTexto =
+      !texto ||
+      m.razon_social?.toLowerCase().includes(texto) ||
+      m.descripcion?.toLowerCase().includes(texto);
+    return coincideRubro && coincideTexto;
+  });
+
   // Vista para usuarios autenticados
   if (isAuthenticated) {
     return (
@@ -240,7 +299,7 @@ function Home() {
           <div className="header-content">
             <div className="logo">
               <span className="logo-icon">🏪</span>
-              <span className="logo-text">Libre Mercado</span>
+              <span className="logo-text">BuscaDeTodoOnline</span>
             </div>
             <div className="header-user-info">
               {loadingUser ? (
@@ -328,7 +387,7 @@ function Home() {
               <span className="search-icon">🔍</span>
               <input
                 type="text"
-                placeholder="Buscar productos por mayor..."
+                placeholder="Buscar mayoristas por nombre..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input"
@@ -337,20 +396,33 @@ function Home() {
           </div>
         </section>
 
-        {/* Categorías */}
-        <section className="categorias-section">
-          <div className="container">
-            <h2 className="section-heading">📂 Categorías</h2>
-            <div className="categorias-grid">
-              {categorias.map((cat, index) => (
-                <button key={index} className="categoria-card">
-                  <span className="categoria-icon">{cat.icon}</span>
-                  <span className="categoria-nombre">{cat.nombre}</span>
+        {/* Categorías (rubros reales) — filtran la lista de mayoristas */}
+        {categoriasReales.length > 0 && (
+          <section className="categorias-section">
+            <div className="container">
+              <h2 className="section-heading">📂 Categorías</h2>
+              <div className="categorias-grid">
+                <button
+                  className={`categoria-card ${categoriaFiltro === '' ? 'active' : ''}`}
+                  onClick={() => setCategoriaFiltro('')}
+                >
+                  <span className="categoria-icon">🗂️</span>
+                  <span className="categoria-nombre">Todas</span>
                 </button>
-              ))}
+                {categoriasReales.map((cat) => (
+                  <button
+                    key={cat.id}
+                    className={`categoria-card ${categoriaFiltro === cat.id ? 'active' : ''}`}
+                    onClick={() => setCategoriaFiltro(cat.id)}
+                  >
+                    <span className="categoria-icon">{cat.icon}</span>
+                    <span className="categoria-nombre">{cat.nombre}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Ofertas destacadas */}
         <section className="destacados-badges">
@@ -362,57 +434,85 @@ function Home() {
           </div>
         </section>
 
-        {/* Productos destacados */}
-        <section className="productos-section">
-          <div className="container">
-            <h2 className="section-heading">📦 Productos destacados (por zona)</h2>
-            <div className="productos-grid">
-              {productosDestacados.map((producto, index) => (
-                <div key={index} className="producto-card">
-                  <div className="producto-imagen">{producto.imagen}</div>
-                  <div className="producto-info">
-                    <h3 className="producto-nombre">{producto.nombre}</h3>
-                    <p className="producto-precio">${producto.precio.toLocaleString()}</p>
-                    <div className="producto-meta">
-                      <span className="producto-distancia">📍 {producto.distancia}</span>
-                      <span className={`producto-envio ${producto.envio ? 'disponible' : 'no-disponible'}`}>
-                        {producto.envio ? '🚚 Envío' : '❌ Sin envío'}
-                      </span>
+        {/* Productos destacados (mock; oculto hasta que el backend exponga /productos/) */}
+        {FEATURE_PRODUCTOS && (
+          <section className="productos-section">
+            <div className="container">
+              <h2 className="section-heading">📦 Productos destacados (por zona)</h2>
+              <div className="productos-grid">
+                {productosDestacados.map((producto, index) => (
+                  <div key={index} className="producto-card">
+                    <div className="producto-imagen">{producto.imagen}</div>
+                    <div className="producto-info">
+                      <h3 className="producto-nombre">{producto.nombre}</h3>
+                      <p className="producto-precio">${producto.precio.toLocaleString()}</p>
+                      <div className="producto-meta">
+                        <span className="producto-distancia">📍 {producto.distancia}</span>
+                        <span className={`producto-envio ${producto.envio ? 'disponible' : 'no-disponible'}`}>
+                          {producto.envio ? '🚚 Envío' : '❌ Sin envío'}
+                        </span>
+                      </div>
+                      <button
+                        className="btn-comprar"
+                        onClick={() => alert('Funcionalidad de compra pendiente')}
+                      >
+                        Comprar
+                      </button>
                     </div>
-                    <button 
-                      className="btn-comprar"
-                      onClick={() => alert('Funcionalidad de compra pendiente')}
-                    >
-                      Comprar
-                    </button>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        {/* Mayoristas cercanos */}
+        {/* Mayoristas (datos reales de la API) */}
         <section className="mayoristas-section">
           <div className="container">
-            <h2 className="section-heading">🏪 Mayoristas cercanos</h2>
-            <div className="mayoristas-list">
-              {mayoristas.map((mayorista, index) => (
-                <div key={index} className="mayorista-card">
-                  <div className="mayorista-info">
-                    <h3 className="mayorista-nombre">{mayorista.nombre}</h3>
-                    <p className="mayorista-direccion">{mayorista.direccion}</p>
-                    <span className="mayorista-distancia">📍 {mayorista.distancia}</span>
+            <h2 className="section-heading">🏪 Mayoristas</h2>
+            {loadingMayoristas ? (
+              <p className="mayoristas-empty">Cargando mayoristas...</p>
+            ) : mayoristasReales.length === 0 ? (
+              <p className="mayoristas-empty">
+                Todavía no hay mayoristas disponibles en la plataforma.
+              </p>
+            ) : mayoristasFiltrados.length === 0 ? (
+              <p className="mayoristas-empty">
+                No se encontraron mayoristas con esos filtros.
+              </p>
+            ) : (
+              <div className="mayoristas-list">
+                {mayoristasFiltrados.map((m) => (
+                  <div key={m.id} className="mayorista-card">
+                    <div className="mayorista-info">
+                      <h3 className="mayorista-nombre">{m.razon_social}</h3>
+                      {m.descripcion && (
+                        <p className="mayorista-direccion">{m.descripcion}</p>
+                      )}
+                      <div className="mayorista-tags">
+                        {rubrosMap[m.rubro_id] && (
+                          <span className="mayorista-tag">📂 {rubrosMap[m.rubro_id]}</span>
+                        )}
+                        {Number(m.pedido_minimo) > 0 && (
+                          <span className="mayorista-tag">
+                            🧾 Pedido mín. ${Number(m.pedido_minimo).toLocaleString()}
+                          </span>
+                        )}
+                        {m.retiro_en_local === 'y' && (
+                          <span className="mayorista-tag">🏬 Retira en local</span>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      className="btn-contactar"
+                      onClick={() => alert('Funcionalidad de contacto pendiente')}
+                    >
+                      Contactar
+                    </button>
                   </div>
-                  <button 
-                    className="btn-contactar"
-                    onClick={() => alert('Funcionalidad de contacto pendiente')}
-                  >
-                    Contactar
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -467,11 +567,11 @@ function Home() {
         <div className="header-content">
           <div className="logo">
             <span className="logo-icon">🏪</span>
-            <span className="logo-text">Libre Mercado</span>
+            <span className="logo-text">BuscaDeTodoOnline</span>
           </div>
           <div className="header-actions">
             <Link to="/login" className="btn-login">
-              🔐 Login / Register
+              🔐 Iniciar Sesión / Registrarse
             </Link>
           </div>
         </div>

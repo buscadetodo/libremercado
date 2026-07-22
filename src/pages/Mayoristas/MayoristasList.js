@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMayoristas, useRubros } from '../../hooks';
+import { useMayoristas, useRubros, useAuth } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
+import { esAdmin } from '../../config/roles';
 import Pagination from '../../components/Pagination/Pagination';
 import './Mayoristas.css';
 
 function MayoristasList() {
   const { mayoristas, loading, error, fetchMayoristas, deleteMayorista } = useMayoristas();
   const { rubros, fetchRubros } = useRubros();
+  const { user } = useAuth();
+  const isAdmin = esAdmin(user);
   const [filters, setFilters] = useState({ rubro_id: '' });
   const toast = useToast();
 
@@ -56,11 +59,15 @@ function MayoristasList() {
       <div className="page-header">
         <div>
           <h1>🏭 Mayoristas</h1>
-          <p className="page-subtitle">Gestiona los mayoristas registrados</p>
+          <p className="page-subtitle">
+            {isAdmin ? 'Gestiona los mayoristas registrados' : 'Explorá los mayoristas disponibles'}
+          </p>
         </div>
-        <Link to="/mayoristas/nuevo" className="btn btn-primary">
-          ➕ Nuevo Mayorista
-        </Link>
+        {isAdmin && (
+          <Link to="/mayoristas/nuevo" className="btn btn-primary">
+            ➕ Nuevo Mayorista
+          </Link>
+        )}
       </div>
 
       <div className="filter-section">
@@ -113,15 +120,19 @@ function MayoristasList() {
               <p className="mayorista-description">{mayorista.descripcion}</p>
 
               <div className="mayorista-actions">
-                <Link to={`/mayoristas/${mayorista.id}`} className="btn btn-secondary btn-sm">
-                  👁️ Ver Detalles
+                <Link to={`/mayoristas/${mayorista.id}`} className="btn btn-secondary btn-sm btn-block">
+                  👁️ Ver detalles
                 </Link>
-                <Link to={`/mayoristas/${mayorista.id}/editar`} className="btn btn-primary btn-sm">
-                  ✏️ Editar
-                </Link>
-                <button onClick={() => handleDelete(mayorista.id)} className="btn btn-danger btn-sm">
-                  🗑️ Eliminar
-                </button>
+                {isAdmin && (
+                  <div className="mayorista-actions-row">
+                    <Link to={`/mayoristas/${mayorista.id}/editar`} className="btn btn-primary btn-sm">
+                      ✏️ Editar
+                    </Link>
+                    <button onClick={() => handleDelete(mayorista.id)} className="btn btn-danger btn-sm">
+                      🗑️ Eliminar
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))

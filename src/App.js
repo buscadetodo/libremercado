@@ -6,7 +6,11 @@ import './App.css';
 import { ToastProvider } from './components/Toast/Toast';
 
 // Context
+import { AuthProvider } from './context/AuthContext';
 import { PerfilProvider } from './context/PerfilContext';
+
+// Config
+import { FEATURE_PRODUCTOS } from './config/features';
 
 // Layout
 import Layout from './components/Layout/Layout';
@@ -34,6 +38,7 @@ import TransportistaDashboard from './pages/Dashboards/TransportistaDashboard';
 // Mayoristas
 import MayoristasList from './pages/Mayoristas/MayoristasList';
 import MayoristaForm from './pages/Mayoristas/MayoristaForm';
+import MayoristaDetalle from './pages/Mayoristas/MayoristaDetalle';
 
 // Minoristas
 import MinoristasList from './pages/Minoristas/MinoristasList';
@@ -65,8 +70,9 @@ import NotFound from './pages/NotFound/NotFound';
 function App() {
   return (
     <ToastProvider>
-      <PerfilProvider>
-        <Router>
+      <AuthProvider>
+        <PerfilProvider>
+          <Router>
           <Routes>
             {/* Rutas públicas */}
           <Route path="/" element={<Home />} />
@@ -130,7 +136,7 @@ function App() {
         <Route
           path="/dashboard/*"
           element={
-            <PrivateRoute>
+            <PrivateRoute adminOnly>
               <Layout>
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
@@ -148,6 +154,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<MayoristasList />} />
                   <Route path="/nuevo" element={<MayoristaForm />} />
+                  <Route path="/:id" element={<MayoristaDetalle />} />
                   <Route path="/:id/editar" element={<MayoristaForm />} />
                 </Routes>
               </Layout>
@@ -158,7 +165,7 @@ function App() {
         <Route
           path="/minoristas/*"
           element={
-            <PrivateRoute>
+            <PrivateRoute adminOnly>
               <Layout>
                 <Routes>
                   <Route path="/" element={<MinoristasList />} />
@@ -173,7 +180,7 @@ function App() {
         <Route
           path="/transportistas/*"
           element={
-            <PrivateRoute>
+            <PrivateRoute adminOnly>
               <Layout>
                 <Routes>
                   <Route path="/" element={<TransportistasList />} />
@@ -188,7 +195,7 @@ function App() {
         <Route
           path="/compradores/*"
           element={
-            <PrivateRoute>
+            <PrivateRoute adminOnly>
               <Layout>
                 <Routes>
                   <Route path="/" element={<CompradoresList />} />
@@ -200,25 +207,28 @@ function App() {
           }
         />
 
-        <Route
-          path="/productos/*"
-          element={
-            <PrivateRoute>
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<ProductosList />} />
-                  <Route path="/nuevo" element={<ProductoForm />} />
-                  <Route path="/:id/editar" element={<ProductoForm />} />
-                </Routes>
-              </Layout>
-            </PrivateRoute>
-          }
-        />
+        {/* Productos: solo se registra si el backend expone /productos/ (ver config/features) */}
+        {FEATURE_PRODUCTOS && (
+          <Route
+            path="/productos/*"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<ProductosList />} />
+                    <Route path="/nuevo" element={<ProductoForm />} />
+                    <Route path="/:id/editar" element={<ProductoForm />} />
+                  </Routes>
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+        )}
 
         <Route
           path="/rubros/*"
           element={
-            <PrivateRoute>
+            <PrivateRoute adminOnly>
               <Layout>
                 <Routes>
                   <Route path="/" element={<RubrosList />} />
@@ -231,7 +241,7 @@ function App() {
         <Route
           path="/usuarios/*"
           element={
-            <PrivateRoute>
+            <PrivateRoute adminOnly>
               <Layout>
                 <Routes>
                   <Route path="/" element={<UsuariosList />} />
@@ -268,9 +278,10 @@ function App() {
 
         {/* Ruta 404 */}
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
-    </PerfilProvider>
+          </Routes>
+        </Router>
+        </PerfilProvider>
+      </AuthProvider>
     </ToastProvider>
   );
 }

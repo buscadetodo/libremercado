@@ -1,45 +1,45 @@
+/* Sidebar estilo Dashboard 2.0 (oscuro) */
 .sidebar {
-  background: white;
+  background: #1e293b;
   width: 250px;
   min-height: calc(100vh - 70px);
-  border-right: 1px solid #e5e7eb;
+  border-right: none;
   position: sticky;
   top: 70px;
   overflow-y: auto;
 }
 
 .sidebar-nav {
-  padding: 1.5rem 0;
+  padding: 1.25rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 1.5rem;
-  color: #4b5563;
+  padding: 0.85rem 1rem;
+  color: #dbe4ef;
   text-decoration: none;
   transition: all 0.2s;
-  border-left: 4px solid transparent;
+  border-radius: 8px;
 }
 
 .sidebar-item:hover {
-  background: #f3f4f6;
-  color: #667eea;
+  background: #1565c0;
+  color: #ffffff;
 }
 
 .sidebar-item.active {
-  background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
-  color: #667eea;
-  border-left-color: #667eea;
+  background: #1565c0;
+  color: #ffffff;
   font-weight: 600;
 }
 
 .sidebar-icon {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   min-width: 24px;
   text-align: center;
 }
