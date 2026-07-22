@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import compradoresService from '../../services/compradoresService';
+import { useAuth } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
+import { esAdmin } from '../../config/roles';
 import Pagination from '../../components/Pagination/Pagination';
 import '../Mayoristas/Mayoristas.css';
 
@@ -9,6 +11,8 @@ function CompradoresList() {
   const [compradores, setCompradores] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { user } = useAuth();
+  const isAdmin = esAdmin(user);
   const toast = useToast();
 
   // Paginación
@@ -48,11 +52,15 @@ function CompradoresList() {
       <div className="page-header">
         <div>
           <h1>🛒 Compradores</h1>
-          <p className="page-subtitle">Gestiona los compradores registrados</p>
+          <p className="page-subtitle">
+            {isAdmin ? 'Gestiona los compradores registrados' : 'Explorá los compradores registrados'}
+          </p>
         </div>
-        <Link to="/compradores/nuevo" className="btn btn-primary">
-          ➕ Nuevo Comprador
-        </Link>
+        {isAdmin && (
+          <Link to="/compradores/nuevo" className="btn btn-primary">
+            ➕ Nuevo Comprador
+          </Link>
+        )}
       </div>
 
       {loading && <div className="loading">⏳ Cargando compradores...</div>}
@@ -79,14 +87,16 @@ function CompradoresList() {
                 </div>
               </div>
 
-              <div className="comprador-actions">
-                <Link to={`/compradores/${comprador.id}/editar`} className="btn btn-primary btn-sm">
-                  ✏️ Editar
-                </Link>
-                <button onClick={() => handleDelete(comprador.id)} className="btn btn-danger btn-sm">
-                  🗑️ Eliminar
-                </button>
-              </div>
+              {isAdmin && (
+                <div className="comprador-actions">
+                  <Link to={`/compradores/${comprador.id}/editar`} className="btn btn-primary btn-sm">
+                    ✏️ Editar
+                  </Link>
+                  <button onClick={() => handleDelete(comprador.id)} className="btn btn-danger btn-sm">
+                    🗑️ Eliminar
+                  </button>
+                </div>
+              )}
             </div>
           ))
         ) : (

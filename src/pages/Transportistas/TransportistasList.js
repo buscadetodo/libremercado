@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import transportistasService from '../../services/transportistasService';
+import { useAuth } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
+import { esAdmin } from '../../config/roles';
 import Pagination from '../../components/Pagination/Pagination';
 import '../Mayoristas/Mayoristas.css';
 
@@ -9,6 +11,8 @@ function TransportistasList() {
   const [transportistas, setTransportistas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { user } = useAuth();
+  const isAdmin = esAdmin(user);
   const toast = useToast();
 
   // Paginación
@@ -48,11 +52,15 @@ function TransportistasList() {
       <div className="page-header">
         <div>
           <h1>🚚 Transportistas</h1>
-          <p className="page-subtitle">Gestiona los transportistas registrados</p>
+          <p className="page-subtitle">
+            {isAdmin ? 'Gestiona los transportistas registrados' : 'Explorá los transportistas disponibles'}
+          </p>
         </div>
-        <Link to="/transportistas/nuevo" className="btn btn-primary">
-          ➕ Nuevo Transportista
-        </Link>
+        {isAdmin && (
+          <Link to="/transportistas/nuevo" className="btn btn-primary">
+            ➕ Nuevo Transportista
+          </Link>
+        )}
       </div>
 
       {loading && <div className="loading">⏳ Cargando transportistas...</div>}
@@ -90,14 +98,16 @@ function TransportistasList() {
 
               <p className="transportista-description">{transportista.descripcion}</p>
 
-              <div className="transportista-actions">
-                <Link to={`/transportistas/${transportista.id}/editar`} className="btn btn-primary btn-sm">
-                  ✏️ Editar
-                </Link>
-                <button onClick={() => handleDelete(transportista.id)} className="btn btn-danger btn-sm">
-                  🗑️ Eliminar
-                </button>
-              </div>
+              {isAdmin && (
+                <div className="transportista-actions">
+                  <Link to={`/transportistas/${transportista.id}/editar`} className="btn btn-primary btn-sm">
+                    ✏️ Editar
+                  </Link>
+                  <button onClick={() => handleDelete(transportista.id)} className="btn btn-danger btn-sm">
+                    🗑️ Eliminar
+                  </button>
+                </div>
+              )}
             </div>
           ))
         ) : (
