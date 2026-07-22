@@ -91,7 +91,7 @@ function Register() {
         <div className="auth-header">
           <div className="auth-logo">🏪</div>
           <h1>Crear Cuenta</h1>
-          <p>Únete a Libre Mercado</p>
+          <p>Únete a BuscaDeTodoOnline</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">

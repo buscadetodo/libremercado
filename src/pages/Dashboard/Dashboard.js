@@ -1,8 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import usersService from '../../services/usersService';
+import usuarioPerfilesService from '../../services/usuarioPerfilesService';
 import './Dashboard.css';
 
 function Dashboard() {
+  const [profileProgress, setProfileProgress] = useState(null);
+
+  useEffect(() => {
+    const calcularProgreso = async () => {
+      try {
+        const userId = localStorage.getItem('user_id');
+        if (!userId) return;
+
+        const raw = await usersService.getById(userId);
+        // La API puede devolver el usuario directo o envuelto en { data }
+        const user = raw?.data ?? raw ?? {};
+
+        const checks = [
+          Boolean(user.nombre),
+          Boolean(user.apellido),
+          Boolean(user.dni),
+          Boolean(user.email),
+          user.email_verificado === 'y',
+        ];
+
+        // ¿Tiene al menos un perfil asignado?
+        try {
+          const perfilesRaw = await usuarioPerfilesService.getByUser(userId);
+          const perfiles = perfilesRaw?.data ?? perfilesRaw ?? [];
+          checks.push(Array.isArray(perfiles) ? perfiles.length > 0 : Boolean(perfiles));
+        } catch (e) {
+          checks.push(false);
+        }
+
+        const completed = checks.filter(Boolean).length;
+        const total = checks.length;
+        const percent = Math.round((completed / total) * 100);
+        setProfileProgress({ percent, completed, total });
+      } catch (err) {
+        console.error('Error al calcular el progreso del perfil:', err);
+      }
+    };
+
+    calcularProgreso();
+  }, []);
+
   const stats = [
     { title: 'Mayoristas', count: '0', icon: '🏭', color: '#667eea', link: '/mayoristas' },
     { title: 'Minoristas', count: '0', icon: '🏪', color: '#764ba2', link: '/minoristas' },
@@ -19,9 +62,37 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <p className="dashboard-subtitle">Bienvenido a Libre Mercado</p>
+      {/* Hero de bienvenida */}
+      <div className="dashboard-hero">
+        <div className="hero-text">
+          <span className="hero-badge">🚀 ¡Empecemos!</span>
+          <h1>Bienvenido a BuscaDeTodoOnline</h1>
+          <p>
+            La plataforma donde compradores y vendedores se encuentran.
+            Completá tu perfil para comenzar a publicar productos, realizar
+            compras y aprovechar todas las herramientas disponibles.
+          </p>
+          <Link to="/perfil" className="hero-btn">Completar perfil</Link>
+        </div>
+        <div className="hero-profile">
+          <h3>Progreso del perfil</h3>
+          <div className="hero-progress">
+            <div
+              className="hero-progress-bar"
+              style={{ width: `${profileProgress?.percent ?? 0}%` }}
+            />
+          </div>
+          <b>
+            {profileProgress
+              ? `${profileProgress.percent}% completado`
+              : 'Calculando…'}
+          </b>
+          <p>
+            {profileProgress && profileProgress.percent >= 100
+              ? '¡Tu perfil está completo! Ya podés usar todas las funciones.'
+              : 'Solo faltan algunos datos para habilitar todas las funciones.'}
+          </p>
+        </div>
       </div>
 
       <div className="stats-grid">

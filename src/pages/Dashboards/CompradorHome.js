@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FEATURE_PRODUCTOS } from '../../config/features';
 import '../Dashboard/Dashboard.css';
 
 function CompradorHome() {
@@ -47,10 +48,12 @@ function CompradorHome() {
       <div className="dashboard-section">
         <h2>¿Qué estás buscando?</h2>
         <div className="actions-grid">
-          <Link to="/productos" className="action-card" style={{ '--color': '#667eea' }}>
-            <span className="action-icon">🔍</span>
-            <span className="action-title">Buscar Productos</span>
-          </Link>
+          {FEATURE_PRODUCTOS && (
+            <Link to="/productos" className="action-card" style={{ '--color': '#667eea' }}>
+              <span className="action-icon">🔍</span>
+              <span className="action-title">Buscar Productos</span>
+            </Link>
+          )}
           <Link to="/mayoristas" className="action-card" style={{ '--color': '#764ba2' }}>
             <span className="action-icon">🏭</span>
             <span className="action-title">Ver Mayoristas</span>

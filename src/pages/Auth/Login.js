@@ -38,8 +38,8 @@ function Login() {
 
   const determinarRedireccion = async (userData) => {
     try {
-      const perfilesResponse = await usuarioPerfilesService.getByUserId(userData.id);
-      const perfiles = perfilesResponse.data || [];
+      const perfilesResponse = await usuarioPerfilesService.getByUser(userData.id);
+      const perfiles = perfilesResponse?.data || [];
 
       if (userData.id_rol === 1) {
         return '/dashboard';
@@ -57,7 +57,8 @@ function Login() {
         'transportista': '/transportista/dashboard'
       };
 
-      return dashboardMap[perfilActual.perfil?.nombre?.toLowerCase()] || '/dashboard';
+      // La API devuelve el perfil como string: { id_usuario, id_perfil, perfil: "comprador" }
+      return dashboardMap[perfilActual.perfil?.toLowerCase()] || '/dashboard';
     } catch (error) {
       console.error('Error al determinar redirección:', error);
       return '/dashboard';
@@ -88,8 +89,10 @@ function Login() {
     try {
       // Login exitoso - obtener datos del usuario
       const userId = localStorage.getItem('user_id');
-      const userData = await usersService.getById(userId);
-      
+      const userResponse = await usersService.getById(userId);
+      // La API envuelve la respuesta en { success, data } → tomar el payload real
+      const userData = userResponse?.data ?? userResponse;
+
       toast.success('¡Bienvenido de nuevo!');
       const redirectUrl = await determinarRedireccion(userData);
       setTimeout(() => {

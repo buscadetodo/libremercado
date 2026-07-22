@@ -9,11 +9,12 @@
 
 .main-content {
   flex: 1;
-  padding: 2rem;
+  padding: 2rem 2.5rem;
   min-height: calc(100vh - 70px);
-  max-width: 1400px;
-  margin: 0 auto;
   width: 100%;
+  /* Ocupa todo el ancho disponible junto al sidebar (sin margen sobrante) */
+  max-width: none;
+  min-width: 0;
 }
 
 @media (max-width: 768px) {

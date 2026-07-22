@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
+import { useAuth } from '../../hooks';
 import authService from '../../services/authService';
 import './AuthMejorado.css';
 import './RegisterMejorado.css';
@@ -8,6 +9,7 @@ import './RegisterMejorado.css';
 function RegisterUniversal() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -101,16 +103,17 @@ function RegisterUniversal() {
       };
 
       await authService.register(userData);
-      
+
       toast.success('¡Cuenta creada exitosamente!');
-      
-      // Login automático
-      await authService.login(formData.email, formData.password);
-      
+
+      // Login automático (vía contexto, para que la sesión quede sincronizada)
+      await login(formData.email, formData.password);
+
       toast.success('¡Bienvenido a LibreMercado!');
 
+      // Onboarding: elegir y asignar el tipo de perfil
       setTimeout(() => {
-        navigate('/perfil', { replace: true });
+        navigate('/agregar-perfil', { replace: true });
       }, 1000);
 
     } catch (error) {
