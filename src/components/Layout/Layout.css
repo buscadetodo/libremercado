@@ -3,22 +3,53 @@
   background: #f9fafb;
 }
 
+/* El navbar es fijo (70px), así que el contenido arranca debajo */
 .layout-content {
-  display: flex;
+  padding-top: 70px;
 }
 
 .main-content {
-  flex: 1;
+  margin-left: 250px;
   padding: 2rem 2.5rem;
   min-height: calc(100vh - 70px);
-  width: 100%;
-  /* Ocupa todo el ancho disponible junto al sidebar (sin margen sobrante) */
-  max-width: none;
-  min-width: 0;
+  transition: margin-left 0.2s ease;
+}
+
+/* Sidebar colapsado (solo desktop) → el contenido se corre */
+@media (min-width: 769px) {
+  .layout.sidebar-collapsed .main-content {
+    margin-left: 72px;
+  }
+}
+
+/* Overlay para el drawer en mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.layout.sidebar-mobile-open .sidebar-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (min-width: 769px) {
+  .sidebar-overlay {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
   .main-content {
+    margin-left: 0;
     padding: 1rem;
   }
 }

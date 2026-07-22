@@ -2,9 +2,38 @@
 .navbar {
   background: #ffffff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 1000;
+  left: 0;
+  right: 0;
+  height: 70px;
+  z-index: 1001;
+}
+
+/* Grupo izquierdo: hamburguesa + logo */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar-hamburger {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #1565c0;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-hamburger:hover {
+  background: rgba(21, 101, 192, 0.08);
 }
 
 .navbar-container {
