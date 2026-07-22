@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import minoristasService from '../../services/minoristasService';
-import { useRubros } from '../../hooks';
+import { useRubros, useAuth } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
+import { esAdmin } from '../../config/roles';
 import Pagination from '../../components/Pagination/Pagination';
 import '../Mayoristas/Mayoristas.css';
 
@@ -11,6 +12,8 @@ function MinoristasList() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { rubros, fetchRubros } = useRubros();
+  const { user } = useAuth();
+  const isAdmin = esAdmin(user);
   const [filters, setFilters] = useState({ rubro_id: '' });
   const toast = useToast();
 
@@ -59,11 +62,15 @@ function MinoristasList() {
       <div className="page-header">
         <div>
           <h1>🏪 Minoristas</h1>
-          <p className="page-subtitle">Gestiona los minoristas registrados</p>
+          <p className="page-subtitle">
+            {isAdmin ? 'Gestiona los minoristas registrados' : 'Explorá los minoristas disponibles'}
+          </p>
         </div>
-        <Link to="/minoristas/nuevo" className="btn btn-primary">
-          ➕ Nuevo Minorista
-        </Link>
+        {isAdmin && (
+          <Link to="/minoristas/nuevo" className="btn btn-primary">
+            ➕ Nuevo Minorista
+          </Link>
+        )}
       </div>
 
       <div className="filter-section">
@@ -116,14 +123,16 @@ function MinoristasList() {
 
               <p className="minorista-description">{minorista.descripcion}</p>
 
-              <div className="minorista-actions">
-                <Link to={`/minoristas/${minorista.id}/editar`} className="btn btn-primary btn-sm">
-                  ✏️ Editar
-                </Link>
-                <button onClick={() => handleDelete(minorista.id)} className="btn btn-danger btn-sm">
-                  🗑️ Eliminar
-                </button>
-              </div>
+              {isAdmin && (
+                <div className="minorista-actions">
+                  <Link to={`/minoristas/${minorista.id}/editar`} className="btn btn-primary btn-sm">
+                    ✏️ Editar
+                  </Link>
+                  <button onClick={() => handleDelete(minorista.id)} className="btn btn-danger btn-sm">
+                    🗑️ Eliminar
+                  </button>
+                </div>
+              )}
             </div>
           ))
         ) : (
