@@ -109,7 +109,7 @@ function RegisterUniversal() {
       // Login automático (vía contexto, para que la sesión quede sincronizada)
       await login(formData.email, formData.password);
 
-      toast.success('¡Bienvenido a LibreMercado!');
+      toast.success('¡Bienvenido a BuscaDeTodoOnline!');
 
       // Onboarding: elegir y asignar el tipo de perfil
       setTimeout(() => {
@@ -143,7 +143,7 @@ function RegisterUniversal() {
           <Link to="/" className="login-logo-wrapper" style={{ textDecoration: 'none', cursor: 'pointer' }}>
             <span className="login-logo-icon">🏪</span>
             <div className="login-brand">
-              <h1 className="brand-name">LibreMercado</h1>
+              <h1 className="brand-name">BuscaDeTodoOnline</h1>
               <p className="brand-tagline">Tu marketplace de confianza</p>
             </div>
           </Link>

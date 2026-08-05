@@ -58,7 +58,7 @@ function LoginComponent() {
   return (
     <div className="login-container">
       <div className="login-header">
-        <h1>🚀 LibreMercado</h1>
+        <h1>🚀 BuscaDeTodoOnline</h1>
         <p className="subtitle">Sistema de Gestión</p>
       </div>
 

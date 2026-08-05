@@ -53,7 +53,7 @@ function SeleccionTipoCuenta() {
     <div className="auth-container">
       <div className="auth-card seleccion-tipo">
         <div className="seleccion-header">
-          <h1>¡Bienvenido a LibreMercado!</h1>
+          <h1>¡Bienvenido a BuscaDeTodoOnline!</h1>
           <p className="subtitle">Elegí el tipo de cuenta que mejor se adapte a vos</p>
         </div>
 
