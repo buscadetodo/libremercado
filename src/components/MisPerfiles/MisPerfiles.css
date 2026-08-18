@@ -1,0 +1,118 @@
+.mis-perfiles {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.mis-perfiles h3 {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  color: #1f2937;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.mis-perfiles-vacio {
+  margin: 0 0 1rem;
+  color: #6b7280;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.mis-perfiles-lista {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.mis-perfiles-item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.mis-perfiles-icono {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.mis-perfiles-datos {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.mis-perfiles-nombre {
+  font-weight: 600;
+  color: #1f2937;
+  text-transform: capitalize;
+}
+
+.mis-perfiles-tag {
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.mis-perfiles-tag.activo {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.mis-perfiles-tag.incompleto {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.mis-perfiles-quitar {
+  background: none;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mis-perfiles-quitar:hover:not(:disabled) {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  color: #ffffff;
+}
+
+.mis-perfiles-quitar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mis-perfiles-agregar {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1565c0;
+  text-decoration: none;
+}
+
+.mis-perfiles-agregar:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .mis-perfiles-item {
+    flex-wrap: wrap;
+  }
+}

@@ -5,6 +5,7 @@ import minoristasService from '../services/minoristasService';
 import transportistasService from '../services/transportistasService';
 import compradoresService from '../services/compradoresService';
 import useAuth from '../hooks/useAuth';
+import mensajeDeError from '../api/mensajeDeError';
 import { esAdmin } from '../config/roles';
 
 const PerfilContext = createContext();
@@ -193,6 +194,39 @@ export const PerfilProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Quita un perfil del usuario (DELETE /usuario-perfiles/ con body).
+   *
+   * Solo desasigna el perfil: la ficha del recurso (el mayorista, el
+   * transportista) sigue existiendo en la API, que no expone una baja en
+   * cascada. Quien llame tiene que avisarlo.
+   *
+   * @param {number} idPerfil
+   * @returns {Promise<{success: boolean, error?: string}>}
+   */
+  const quitarPerfil = async (idPerfil) => {
+    if (!user?.id) return { success: false, error: 'No hay sesión activa' };
+
+    try {
+      await usuarioPerfilesService.unassign(user.id, idPerfil);
+
+      // Si el que se quitó era el activo, el guardado ya no sirve: dejarlo
+      // apuntaría a un perfil inexistente después de recargar.
+      if (String(localStorage.getItem('perfil_activo')) === String(idPerfil)) {
+        localStorage.removeItem('perfil_activo');
+        setPerfilActivo(null);
+      }
+
+      await cargarPerfiles();
+      return { success: true };
+    } catch (err) {
+      return {
+        success: false,
+        error: mensajeDeError(err, 'No se pudo quitar el perfil'),
+      };
+    }
+  };
+
   const obtenerDashboardUrl = (perfil) => {
     if (!perfil) return '/dashboard';
     
@@ -228,6 +262,7 @@ export const PerfilProvider = ({ children }) => {
     loading,
     cambiarPerfil,
     cargarPerfiles,
+    quitarPerfil,
     obtenerDashboardUrl,
     panelUrl,
     tienePerfil,
