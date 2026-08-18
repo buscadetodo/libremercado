@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import mensajeDeError from '../api/mensajeDeError';
 
 /**
  * Hook genérico para llamadas a la API con manejo de loading y errores
@@ -21,11 +22,8 @@ const useApi = (serviceFunction) => {
         
         return { success: true, data: result };
       } catch (err) {
-        const errorMessage = err.response?.data?.message || 
-                           err.response?.data?.detail || 
-                           err.message || 
-                           'Ocurrió un error inesperado';
-        
+        const errorMessage = mensajeDeError(err);
+
         setError(errorMessage);
         
         return { 

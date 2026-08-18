@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
 import transportistasService from '../../services/transportistasService';
 import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
+import mensajeDeError from '../../api/mensajeDeError';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
 
@@ -18,20 +19,6 @@ import '../Forms/Forms.css';
 // Mismos valores que usa la pantalla de alta de perfil, para no terminar con
 // dos grafías distintas del mismo vehículo en la base.
 const TIPOS_VEHICULO = ['Camioneta', 'Camión', 'Furgón', 'Semi'];
-
-const mensajeDeError = (err, fallback) => {
-  const data = err.response?.data;
-  if (!data) return fallback;
-
-  if (Array.isArray(data.detail) && data.detail.length > 0) {
-    const primero = data.detail[0];
-    const campo = Array.isArray(primero.loc) ? primero.loc[primero.loc.length - 1] : null;
-    const msg = primero.msg?.replace(/^Value error,\s*/, '') || 'dato inválido';
-    return campo ? `${campo}: ${msg}` : msg;
-  }
-
-  return data.error || data.detail || data.message || fallback;
-};
 
 function TransportistaForm() {
   const { id } = useParams();

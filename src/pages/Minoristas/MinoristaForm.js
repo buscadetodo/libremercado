@@ -6,6 +6,7 @@ import minoristasService from '../../services/minoristasService';
 import diasService from '../../services/diasService';
 import horariosService from '../../services/horariosService';
 import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
+import mensajeDeError from '../../api/mensajeDeError';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
 
@@ -102,10 +103,7 @@ function MinoristaForm() {
 
       navigate('/minoristas');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 
-                         err.response?.data?.detail || 
-                         'Error al guardar el minorista';
-      setError(errorMessage);
+      setError(mensajeDeError(err, 'Error al guardar el minorista'));
     } finally {
       setLoading(false);
     }

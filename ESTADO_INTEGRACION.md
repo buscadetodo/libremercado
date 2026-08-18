@@ -55,6 +55,10 @@ Se corrigieron distintos problemas detectados durante la integración:
 * Corrección de la lectura de respuestas provenientes de la API (`{ success, data }`).
 * Corrección de los IDs de perfiles utilizados durante el alta de usuarios.
 * Implementación de la pantalla y ruta de detalle de mayoristas, evitando pantallas en blanco.
+* **Dueño de los registros.** Los formularios de mayorista, minorista, transportista y comprador tenían `id_usuario: 1` fijo en el estado inicial y sin ningún campo en pantalla: todo lo que se creaba desde el panel quedaba a nombre del usuario 1. Ahora un componente común resuelve el dueño (el administrador puede elegirlo; el resto crea siempre a su nombre). **Nota para el backend:** los registros de prueba cargados en DEV antes de este arreglo pueden tener el dueño equivocado.
+* **Acceso al panel según el perfil.** El botón "Panel" y el "Cancelar" de Mi Perfil apuntaban siempre a `/dashboard`, que es exclusivo de administradores: a un usuario común lo devolvían al inicio y parecía que el botón no funcionaba. Ahora el destino se resuelve según el perfil activo.
+* **Mensajes de error del backend.** Se unificó la lectura de los dos formatos de error de la API (ver *Formato de las respuestas*), incluido el 422 de FastAPI, que llega como array y antes se mostraba como error genérico.
+* **Listado de usuarios.** La baja es lógica (`estado_cuenta = 'n'`) y la lista no filtraba, así que el usuario recién dado de baja seguía apareciendo. Ahora se listan solo los activos, con una opción para ver también las bajas.
 
 ---
 
@@ -134,11 +138,14 @@ Dos aclaraciones sobre el contrato, para que quede registrado:
 * **No existe `GET /mayoristas/{id}/productos/`.** No hace falta: lo resolvimos con `GET /productos/?mayorista_id=`. Lo dejamos anotado para que nadie lo espere.
 * **`unidad_medida` no existe** en el recurso. Lo teníamos en el formulario y lo quitamos. Si en algún momento se agrega, avisen y lo reincorporamos.
 
+Los códigos de error que mapea el formulario coinciden exactamente con los Examples de la colección (403 comercio ajeno, 404 comercio inexistente, 422 ambos oferentes), así que los mensajes que ve el usuario son los del backend.
+
+Sobre `precio`: la colección lo aclara y ya no es consulta. Se **envía** como número (`4500.00`) y **vuelve** como string (`"4500.00"`). Lo mismo pasa con `pedido_minimo` de mayorista/minorista. El frontend ya lo maneja así.
+
 ### Consultas abiertas sobre Producto
 
 1. **¿`sku` es obligatorio y único por comercio?** Lo estamos enviando siempre como obligatorio. Necesitamos saber si la API valida unicidad, porque de eso depende que una carga masiva idempotente sea posible más adelante (ver `PROPUESTA_IMAGENES_IMPORTACION.md`).
 2. **¿Hay un endpoint público de productos?** Hoy `GET /productos/` exige token, así que el landing para visitantes sin sesión no puede mostrar productos reales. Si el catálogo debe ser visible sin login (que es lo habitual en un marketplace), necesitaríamos que el listado y el detalle sean públicos.
-3. **`precio` viene como string** (`"4500.00"`) y lo enviamos como número. Confirmar que está bien así.
 
 ### Catálogos públicos (afecta al registro) 🔴
 
@@ -179,15 +186,15 @@ Con esto alcanza para volver a la paginación numerada:
 
 ## 3. Autorización por Roles 🔒
 
-Actualmente cualquier usuario autenticado puede acceder a endpoints administrativos.
+Aclaración primero, porque en Productos esto ya está resuelto: el CRUD de `/productos/` **sí** valida que el comercio pertenezca al usuario del token y responde `403 "No autorizado para este mayorista"`. Es exactamente el comportamiento que necesitamos, y el frontend lo aprovecha.
 
-Ejemplo:
+El pedido sigue en pie para el resto de los recursos. Hoy cualquier usuario autenticado puede acceder a endpoints administrativos:
 
 * Usuario con `id_rol = 2`
 * Acceso a `GET /users/`
 * La API responde correctamente.
 
-Necesitamos que el backend valide permisos y responda **403 Forbidden** cuando corresponda.
+Necesitamos que el backend valide permisos y responda **403 Forbidden** cuando corresponda, con el mismo criterio que ya se aplicó en Productos.
 
 ---
 
@@ -231,7 +238,32 @@ Mientras eso se define, el frontend funciona con `imagen_url` sin bloqueos.
 
 ---
 
-## 6. Documentación
+## 6. Comentarios: falta definir el recurso 🔴
+
+`/comentarios/` es el único recurso de la colección que el frontend **no** integró, y no por falta de tiempo: tal como está hoy no se puede mostrar nada.
+
+El recurso devuelve únicamente:
+
+```json
+{ "id": 1, "creado": "2026-08-09T18:00:00" }
+```
+
+No tiene texto, ni autor, ni referencia a qué se está comentando. El alta figura en la colección como *"Crea un comentario vacío (sin body)"*.
+
+Para poder usarlo necesitaríamos, como mínimo:
+
+* **texto** del comentario,
+* **id_usuario** que lo escribe,
+* **a qué apunta**: mayorista, minorista, producto o transportista (el recurso comentado y su id),
+* y si va a haber puntuación, una **valoración** numérica (1 a 5).
+
+También hay que definir quién puede comentar (¿solo compradores?, ¿solo sobre comercios donde compró?) y si el alta la valida el backend contra el usuario del token, como ya se hace en Productos.
+
+Mientras tanto dejamos `comentariosService` en el código, sin pantalla asociada.
+
+---
+
+## 7. Documentación
 
 A medida que se publiquen nuevos endpoints nos sería de mucha ayuda contar con la documentación (Swagger/OpenAPI o similar) para reducir tiempos de integración.
 
@@ -240,6 +272,16 @@ La colección de Postman con los **Examples** de respuesta (OK y errores) nos re
 ---
 
 # Información ya validada
+
+### Formato de las respuestas
+
+Conviven dos formatos y el frontend contempla los dos:
+
+* **Éxito:** `{ "success": true, "data": ... }`
+* **Error de negocio:** `{ "success": false, "error": "Mayorista no encontrado" }`
+* **Error de FastAPI:** `{ "detail": "Not authenticated" }` en 401, y `{ "detail": [ { loc, msg, type } ] }` en 422 (es un **array**, no un string).
+
+**Excepción:** `POST /auth/login` y `POST /auth/refresh` **no** usan la envoltura. Devuelven `{ access_token, refresh_token, token_type }` planos. No es un problema —está integrado así— pero conviene dejarlo escrito para que nadie lo "corrija" por error.
 
 ### Roles
 
@@ -291,7 +333,8 @@ Los pendientes que quedan son todos del lado del backend y ninguno bloquea el us
 | Pendiente | Impacto hoy |
 |---|---|
 | `total` en los listados | Paginación sin numeración (solo Anterior/Siguiente) |
-| Autorización por roles | El control es solo visual; la API no responde 403 |
+| Contrato de Comentarios | El recurso no se puede mostrar: no tiene texto, autor ni destino |
+| Autorización por roles (fuera de Productos) | El control es solo visual; la API no responde 403 |
 | Productos públicos (sin token) | El landing para visitantes no puede mostrar catálogo real |
 | Unicidad de `sku` | Condiciona una futura importación masiva idempotente |
 | `POST /uploads/firma` | Credenciales de Cloudinary expuestas en el frontend |

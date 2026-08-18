@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import authService from '../services/authService';
+import mensajeDeError from '../api/mensajeDeError';
 
 const AuthContext = createContext(null);
 
@@ -25,9 +26,7 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true, data: result };
     } catch (err) {
-      const errorMessage = err.response?.data?.message ||
-                         err.response?.data?.detail ||
-                         'Error al iniciar sesión';
+      const errorMessage = mensajeDeError(err, 'Error al iniciar sesión');
 
       setError(errorMessage);
       setIsAuthenticated(false);
@@ -56,9 +55,7 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true, data: result };
     } catch (err) {
-      const errorMessage = err.response?.data?.message ||
-                         err.response?.data?.detail ||
-                         'Error al refrescar token';
+      const errorMessage = mensajeDeError(err, 'Error al refrescar token');
 
       setError(errorMessage);
       logout();

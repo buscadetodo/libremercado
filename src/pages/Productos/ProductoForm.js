@@ -3,17 +3,18 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useRubros, useMisComercios } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
 import productosService, { buildProductoPayload } from '../../services/productosService';
+import mensajeDeError from '../../api/mensajeDeError';
 import '../Forms/Forms.css';
 import './Productos.css';
 
 /**
  * Traduce los errores propios del recurso Producto a algo entendible.
- * La API distingue tres casos que conviene no mostrar como "error genérico":
+ * La API distingue dos casos que conviene no mostrar como "error genérico":
  *  403 → el comercio elegido no es del usuario del token
  *  404 → el comercio no existe
- *  422 → validación de body (típicamente los dos oferentes o ninguno)
+ * El resto (422 de validación incluido) lo resuelve el helper compartido.
  */
-const mensajeDeError = (err) => {
+const mensajeDeErrorProducto = (err) => {
   const status = err.response?.status;
   const data = err.response?.data;
 
@@ -23,16 +24,8 @@ const mensajeDeError = (err) => {
   if (status === 404) {
     return data?.error || 'El comercio seleccionado no existe.';
   }
-  if (status === 422) {
-    // FastAPI devuelve detail como array de errores de validación.
-    const detail = data?.detail;
-    if (Array.isArray(detail) && detail.length > 0) {
-      return detail[0].msg?.replace(/^Value error,\s*/, '') || 'Datos inválidos.';
-    }
-    return detail || 'Datos inválidos.';
-  }
 
-  return data?.error || data?.message || data?.detail || 'Error al guardar el producto';
+  return mensajeDeError(err, 'Error al guardar el producto');
 };
 
 function ProductoForm() {
@@ -156,7 +149,7 @@ function ProductoForm() {
 
       navigate('/productos');
     } catch (err) {
-      const errorMessage = mensajeDeError(err);
+      const errorMessage = mensajeDeErrorProducto(err);
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {

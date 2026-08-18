@@ -1,22 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useUsers } from '../../hooks';
 import '../Mayoristas/Mayoristas.css';
 import './Admin.css';
 
 function UsuariosList() {
   const { users, loading, error, fetchUsers, deleteUser } = useUsers();
+  // La baja de usuario es lógica (estado_cuenta = 'n'): si no se filtra, el
+  // usuario recién dado de baja sigue apareciendo en la lista.
+  const [incluirBajas, setIncluirBajas] = useState(false);
+
+  const cargarUsuarios = useCallback(() => {
+    fetchUsers(incluirBajas ? {} : { estado_cuenta: 'y' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incluirBajas]);
 
   useEffect(() => {
-    fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    cargarUsuarios();
+  }, [cargarUsuarios]);
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar este usuario?')) {
+    if (window.confirm('¿Estás seguro de dar de baja este usuario?')) {
       const result = await deleteUser(id);
       if (result.success) {
-        alert('✅ Usuario eliminado');
-        fetchUsers();
+        alert('✅ Usuario dado de baja');
+        cargarUsuarios();
       } else {
         alert(`❌ Error: ${result.error}`);
       }
@@ -34,6 +41,14 @@ function UsuariosList() {
           <h1>👥 Usuarios</h1>
           <p className="page-subtitle">Gestiona los usuarios del sistema</p>
         </div>
+        <label className="filtro-bajas">
+          <input
+            type="checkbox"
+            checked={incluirBajas}
+            onChange={(e) => setIncluirBajas(e.target.checked)}
+          />
+          Mostrar dados de baja
+        </label>
       </div>
 
       {loading && <div className="loading">⏳ Cargando usuarios...</div>}
