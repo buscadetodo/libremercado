@@ -1,11 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useRubros } from '../../hooks';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useRubros, useMisComercios } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
-import productosService from '../../services/productosService';
-import mayoristasService from '../../services/mayoristasService';
+import productosService, { buildProductoPayload } from '../../services/productosService';
+import mensajeDeError from '../../api/mensajeDeError';
 import '../Forms/Forms.css';
 import './Productos.css';
+
+/**
+ * Traduce los errores propios del recurso Producto a algo entendible.
+ * La API distingue dos casos que conviene no mostrar como "error genérico":
+ *  403 → el comercio elegido no es del usuario del token
+ *  404 → el comercio no existe
+ * El resto (422 de validación incluido) lo resuelve el helper compartido.
+ */
+const mensajeDeErrorProducto = (err) => {
+  const status = err.response?.status;
+  const data = err.response?.data;
+
+  if (status === 403) {
+    return data?.error || 'No tenés permiso para publicar productos en ese comercio.';
+  }
+  if (status === 404) {
+    return data?.error || 'El comercio seleccionado no existe.';
+  }
+
+  return mensajeDeError(err, 'Error al guardar el producto');
+};
 
 function ProductoForm() {
   const { id } = useParams();
@@ -14,44 +35,69 @@ function ProductoForm() {
   const toast = useToast();
 
   const { rubros, fetchRubros } = useRubros();
-  const [mayoristas, setMayoristas] = useState([]);
+  const {
+    opciones: comercios,
+    loading: loadingComercios,
+    isAdmin,
+  } = useMisComercios();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
-    mayorista_id: '',
+    // oferente_tipo + oferente_id se traducen a mayorista_id | minorista_id al enviar
+    oferente_tipo: 'mayorista',
+    oferente_id: '',
+    sku: '',
     nombre: '',
     descripcion: '',
     precio: '',
     stock: '',
     rubro_id: '',
-    unidad_medida: 'unidad',
+    imagen_url: '',
   });
 
   useEffect(() => {
     fetchRubros();
-    loadMayoristas();
-    
+
     if (isEdit) {
       loadProducto();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const loadMayoristas = async () => {
-    try {
-      const response = await mayoristasService.getAll({ limit: 100 });
-      setMayoristas(response.data || []);
-    } catch (err) {
-      console.error('Error al cargar mayoristas:', err);
-    }
-  };
+  // Si el usuario tiene un solo comercio, preseleccionarlo (caso más común).
+  useEffect(() => {
+    if (isEdit || formData.oferente_id || comercios.length !== 1) return;
+    const unico = comercios[0];
+    setFormData((prev) => ({
+      ...prev,
+      oferente_tipo: unico.tipo,
+      oferente_id: String(unico.id),
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comercios, isEdit]);
 
   const loadProducto = async () => {
     try {
       setLoading(true);
       const response = await productosService.getById(id);
-      setFormData(response.data);
+      const p = response?.data ?? response;
+
+      // La API guarda el oferente en una de las dos columnas: se deduce cuál.
+      const esMayorista = p.mayorista_id != null;
+
+      setFormData({
+        oferente_tipo: esMayorista ? 'mayorista' : 'minorista',
+        oferente_id: String(esMayorista ? p.mayorista_id : p.minorista_id ?? ''),
+        sku: p.sku ?? '',
+        nombre: p.nombre ?? '',
+        descripcion: p.descripcion ?? '',
+        precio: p.precio ?? '',
+        stock: p.stock ?? '',
+        rubro_id: p.rubro_id ?? '',
+        imagen_url: p.imagen_url ?? '',
+      });
     } catch (err) {
       setError('Error al cargar datos del producto');
       toast.error('Error al cargar producto');
@@ -68,27 +114,42 @@ function ProductoForm() {
     });
   };
 
+  // El select de comercio codifica tipo e id juntos ("mayorista:3").
+  const handleComercioChange = (e) => {
+    const [tipo, comercioId] = e.target.value.split(':');
+    setFormData({
+      ...formData,
+      oferente_tipo: tipo || 'mayorista',
+      oferente_id: comercioId || '',
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
+    if (!formData.oferente_id) {
+      const msg = 'Seleccioná el comercio que ofrece el producto.';
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
+
     try {
       setLoading(true);
+      const payload = buildProductoPayload(formData);
 
       if (isEdit) {
-        await productosService.update(id, formData);
+        await productosService.update(id, payload);
         toast.success('Producto actualizado correctamente');
       } else {
-        await productosService.create(formData);
+        await productosService.create(payload);
         toast.success('Producto creado correctamente');
       }
 
       navigate('/productos');
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.detail ||
-        'Error al guardar el producto';
+      const errorMessage = mensajeDeErrorProducto(err);
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -99,6 +160,13 @@ function ProductoForm() {
   if (loading && isEdit) {
     return <div className="loading">⏳ Cargando...</div>;
   }
+
+  const valorComercio = formData.oferente_id
+    ? `${formData.oferente_tipo}:${formData.oferente_id}`
+    : '';
+
+  // Sin comercios no se puede crear nada: la API rechazaría el alta.
+  const sinComercios = !loadingComercios && comercios.length === 0;
 
   return (
     <div className="form-page">
@@ -112,56 +180,50 @@ function ProductoForm() {
       <div className="form-container">
         {error && <div className="error-message">❌ {error}</div>}
 
+        {sinComercios && (
+          <div className="error-message">
+            ⚠️ Tu usuario no tiene una <strong>ficha comercial</strong> de mayorista ni
+            de minorista. Ojo: tener el <em>perfil</em> de mayorista no es lo mismo que
+            tener el comercio dado de alta (razón social, CUIT, rubro y horarios) — y la
+            API pide el comercio para poder publicar productos.
+            <div style={{ marginTop: '0.75rem' }}>
+              <Link to="/agregar-perfil" className="btn btn-sm btn-secondary">
+                Dar de alta mi comercio
+              </Link>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="entity-form">
           <div className="form-section">
             <h3>Información Básica</h3>
 
-            <div className="form-group">
-              <label htmlFor="nombre">Nombre del Producto *</label>
-              <input
-                id="nombre"
-                name="nombre"
-                type="text"
-                value={formData.nombre}
-                onChange={handleChange}
-                required
-                className="form-input"
-                placeholder="Arroz Integral 1kg"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="descripcion">Descripción</label>
-              <textarea
-                id="descripcion"
-                name="descripcion"
-                value={formData.descripcion}
-                onChange={handleChange}
-                className="form-input"
-                rows="4"
-                placeholder="Descripción detallada del producto..."
-              />
-            </div>
-
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="mayorista_id">Mayorista *</label>
+                <label htmlFor="oferente">Comercio *</label>
                 <select
-                  id="mayorista_id"
-                  name="mayorista_id"
-                  value={formData.mayorista_id}
-                  onChange={handleChange}
+                  id="oferente"
+                  name="oferente"
+                  value={valorComercio}
+                  onChange={handleComercioChange}
                   required
+                  disabled={loadingComercios || sinComercios}
                   className="form-input"
                 >
-                  <option value="">Selecciona un mayorista</option>
-                  {mayoristas &&
-                    mayoristas.map((mayorista) => (
-                      <option key={mayorista.id} value={mayorista.id}>
-                        {mayorista.razon_social}
-                      </option>
-                    ))}
+                  <option value="">
+                    {loadingComercios ? 'Cargando comercios...' : 'Selecciona un comercio'}
+                  </option>
+                  {comercios.map((c) => (
+                    <option key={`${c.tipo}:${c.id}`} value={`${c.tipo}:${c.id}`}>
+                      {c.tipo === 'mayorista' ? '🏭' : '🏪'} {c.label}
+                    </option>
+                  ))}
                 </select>
+                <small className="form-hint">
+                  {isAdmin
+                    ? 'Como administrador podés publicar en cualquier comercio.'
+                    : 'Solo aparecen los comercios asociados a tu usuario.'}
+                </small>
               </div>
 
               <div className="form-group">
@@ -184,6 +246,52 @@ function ProductoForm() {
                 </select>
               </div>
             </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="nombre">Nombre del Producto *</label>
+                <input
+                  id="nombre"
+                  name="nombre"
+                  type="text"
+                  value={formData.nombre}
+                  onChange={handleChange}
+                  required
+                  className="form-input"
+                  placeholder="Aceite girasol 1.5L"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="sku">SKU / Código *</label>
+                <input
+                  id="sku"
+                  name="sku"
+                  type="text"
+                  value={formData.sku}
+                  onChange={handleChange}
+                  required
+                  className="form-input"
+                  placeholder="ACE-001"
+                />
+                <small className="form-hint">
+                  Código interno del producto en tu comercio.
+                </small>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="descripcion">Descripción</label>
+              <textarea
+                id="descripcion"
+                name="descripcion"
+                value={formData.descripcion}
+                onChange={handleChange}
+                className="form-input"
+                rows="4"
+                placeholder="Descripción detallada del producto..."
+              />
+            </div>
           </div>
 
           <div className="form-section">
@@ -202,7 +310,7 @@ function ProductoForm() {
                   onChange={handleChange}
                   required
                   className="form-input"
-                  placeholder="1500.00"
+                  placeholder="4500.00"
                 />
               </div>
 
@@ -221,26 +329,38 @@ function ProductoForm() {
                 />
               </div>
             </div>
+          </div>
+
+          <div className="form-section">
+            <h3>Imagen</h3>
 
             <div className="form-group">
-              <label htmlFor="unidad_medida">Unidad de Medida *</label>
-              <select
-                id="unidad_medida"
-                name="unidad_medida"
-                value={formData.unidad_medida}
+              <label htmlFor="imagen_url">URL de la imagen</label>
+              <input
+                id="imagen_url"
+                name="imagen_url"
+                type="url"
+                value={formData.imagen_url}
                 onChange={handleChange}
                 className="form-input"
-              >
-                <option value="unidad">Unidad</option>
-                <option value="kg">Kilogramo (kg)</option>
-                <option value="gr">Gramo (gr)</option>
-                <option value="lt">Litro (lt)</option>
-                <option value="ml">Mililitro (ml)</option>
-                <option value="caja">Caja</option>
-                <option value="paquete">Paquete</option>
-                <option value="bolsa">Bolsa</option>
-              </select>
+                placeholder="https://..."
+              />
+              <small className="form-hint">
+                Opcional. El recurso acepta una sola imagen por producto.
+              </small>
             </div>
+
+            {formData.imagen_url && (
+              <div className="producto-imagen-preview">
+                <img
+                  src={formData.imagen_url}
+                  alt="Vista previa del producto"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           <div className="form-actions">
@@ -251,7 +371,11 @@ function ProductoForm() {
             >
               Cancelar
             </button>
-            <button type="submit" disabled={loading} className="btn btn-primary">
+            <button
+              type="submit"
+              disabled={loading || sinComercios}
+              className="btn btn-primary"
+            >
               {loading ? '⏳ Guardando...' : isEdit ? '💾 Actualizar' : '✨ Crear Producto'}
             </button>
           </div>

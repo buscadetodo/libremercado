@@ -59,10 +59,11 @@ function Login() {
       };
 
       // La API devuelve el perfil como string: { id_usuario, id_perfil, perfil: "comprador" }
-      return dashboardMap[perfilActual.perfil?.toLowerCase()] || '/dashboard';
+      // Si no se puede mapear, /perfil: /dashboard es adminOnly y rebotaria a "/".
+      return dashboardMap[perfilActual.perfil?.toLowerCase()] || '/perfil';
     } catch (error) {
       console.error('Error al determinar redirección:', error);
-      return '/dashboard';
+      return userData.id_rol === 1 ? '/dashboard' : '/perfil';
     }
   };
 
@@ -99,8 +100,9 @@ function Login() {
       toast.success('¡Bienvenido de nuevo!');
       navigate(redirectUrl, { replace: true });
     } catch (error) {
+      // No se pudo saber el rol/perfil: /perfil es accesible para cualquier usuario logueado
       toast.success('¡Bienvenido de nuevo!');
-      navigate('/dashboard', { replace: true });
+      navigate('/perfil', { replace: true });
     }
     // No reseteamos submitting: navegamos y el componente se desmonta,
     // así el botón queda deshabilitado y no se puede volver a clickear.

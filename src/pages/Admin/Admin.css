@@ -3,6 +3,20 @@
   width: 100%;
 }
 
+.filtro-bajas {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filtro-bajas input {
+  cursor: pointer;
+}
+
 .form-card {
   background: white;
   padding: 1.5rem;

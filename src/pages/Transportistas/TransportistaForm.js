@@ -2,10 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
 import transportistasService from '../../services/transportistasService';
-import diasService from '../../services/diasService';
-import horariosService from '../../services/horariosService';
+import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
+import mensajeDeError from '../../api/mensajeDeError';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
+
+/**
+ * Contrato del recurso Transportista (colección del backend):
+ *   { id, id_usuario, tipo_vehiculo, patente, capacidad_carga, refrigerado,
+ *     precio_base, precio_por_km, descripcion, modificado, creado }
+ *
+ * A diferencia de mayorista/minorista, el transportista NO tiene razón social,
+ * CUIT, rubro ni horarios/días de atención.
+ */
+
+// Mismos valores que usa la pantalla de alta de perfil, para no terminar con
+// dos grafías distintas del mismo vehículo en la base.
+const TIPOS_VEHICULO = ['Camioneta', 'Camión', 'Furgón', 'Semi'];
 
 function TransportistaForm() {
   const { id } = useParams();
@@ -13,58 +26,44 @@ function TransportistaForm() {
   const isEdit = Boolean(id);
   const toast = useToast();
 
-  const [dias, setDias] = useState([]);
-  const [horarios, setHorarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
-    id_usuario: 1, // Por defecto, debería venir del usuario logueado
-    razon_social: '',
-    cuit: '',
-    hora_desde_id: '',
-    hora_hasta_id: '',
-    atencion_dia_desde_id: '',
-    atencion_dia_hasta_id: '',
-    tarifa_base: '',
-    tarifa_km: '',
-    radio_cobertura_km: '',
+    // Lo define SelectorUsuario: el usuario logueado, o el que elija el admin.
+    id_usuario: '',
+    tipo_vehiculo: '',
+    patente: '',
+    capacidad_carga: '',
+    refrigerado: 'n',
+    precio_base: '',
+    precio_por_km: '',
     descripcion: '',
   });
 
   useEffect(() => {
-    loadDias();
-    loadHorarios();
-    
     if (isEdit) {
       loadTransportista();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const loadDias = async () => {
-    try {
-      const response = await diasService.getAll();
-      setDias(response.data || []);
-    } catch (err) {
-      console.error('Error al cargar días:', err);
-    }
-  };
-
-  const loadHorarios = async () => {
-    try {
-      const response = await horariosService.getAll();
-      setHorarios(response.data || []);
-    } catch (err) {
-      console.error('Error al cargar horarios:', err);
-    }
-  };
-
   const loadTransportista = async () => {
     try {
       setLoading(true);
       const response = await transportistasService.getById(id);
-      setFormData(response.data);
+      const t = response?.data ?? response ?? {};
+
+      setFormData({
+        id_usuario: t.id_usuario ?? '',
+        tipo_vehiculo: t.tipo_vehiculo ?? '',
+        patente: t.patente ?? '',
+        capacidad_carga: t.capacidad_carga ?? '',
+        refrigerado: t.refrigerado ?? 'n',
+        precio_base: t.precio_base ?? '',
+        precio_por_km: t.precio_por_km ?? '',
+        descripcion: t.descripcion ?? '',
+      });
     } catch (err) {
       setError('Error al cargar datos del transportista');
     } finally {
@@ -86,21 +85,31 @@ function TransportistaForm() {
 
     try {
       setLoading(true);
-      
+
+      const payload = {
+        id_usuario: Number(formData.id_usuario),
+        tipo_vehiculo: formData.tipo_vehiculo,
+        patente: formData.patente.trim(),
+        capacidad_carga: formData.capacidad_carga.trim(),
+        refrigerado: formData.refrigerado,
+        precio_base: parseFloat(formData.precio_base) || 0,
+        precio_por_km: parseFloat(formData.precio_por_km) || 0,
+        descripcion: formData.descripcion.trim() || null,
+      };
+
       if (isEdit) {
-        await transportistasService.update(id, formData);
+        await transportistasService.update(id, payload);
         toast.success('Transportista actualizado correctamente');
       } else {
-        await transportistasService.create(formData);
+        await transportistasService.create(payload);
         toast.success('Transportista creado correctamente');
       }
 
       navigate('/transportistas');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 
-                         err.response?.data?.detail || 
-                         'Error al guardar el transportista';
+      const errorMessage = mensajeDeError(err, 'Error al guardar el transportista');
       setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -129,36 +138,14 @@ function TransportistaForm() {
         <form onSubmit={handleSubmit} className="entity-form">
           <div className="form-section">
             <h3>Información General</h3>
-            
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="razon_social">Razón Social *</label>
-                <input
-                  id="razon_social"
-                  name="razon_social"
-                  type="text"
-                  value={formData.razon_social}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                  placeholder="Transporte Logística SA"
-                />
-              </div>
 
-              <div className="form-group">
-                <label htmlFor="cuit">CUIT *</label>
-                <input
-                  id="cuit"
-                  name="cuit"
-                  type="text"
-                  value={formData.cuit}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                  placeholder="20123456789"
-                />
-              </div>
-            </div>
+            <SelectorUsuario
+              value={formData.id_usuario}
+              onChange={(idUsuario) =>
+                setFormData((prev) => ({ ...prev, id_usuario: idUsuario }))
+              }
+              isEdit={isEdit}
+            />
 
             <div className="form-group">
               <label htmlFor="descripcion">Descripción</label>
@@ -175,137 +162,109 @@ function TransportistaForm() {
           </div>
 
           <div className="form-section">
-            <h3>Horarios de Atención</h3>
-            
+            <h3>Vehículo</h3>
+
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="hora_desde_id">Hora Desde *</label>
+                <label htmlFor="tipo_vehiculo">Tipo de Vehículo *</label>
                 <select
-                  id="hora_desde_id"
-                  name="hora_desde_id"
-                  value={formData.hora_desde_id}
+                  id="tipo_vehiculo"
+                  name="tipo_vehiculo"
+                  value={formData.tipo_vehiculo}
                   onChange={handleChange}
                   required
                   className="form-input"
                 >
-                  <option value="">Selecciona hora</option>
-                  {horarios && horarios.map((horario) => (
-                    <option key={horario.id} value={horario.id}>
-                      {horario.hora}
+                  <option value="">Selecciona un tipo</option>
+                  {TIPOS_VEHICULO.map((tipo) => (
+                    <option key={tipo} value={tipo}>
+                      {tipo}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="hora_hasta_id">Hora Hasta *</label>
-                <select
-                  id="hora_hasta_id"
-                  name="hora_hasta_id"
-                  value={formData.hora_hasta_id}
+                <label htmlFor="patente">Patente *</label>
+                <input
+                  id="patente"
+                  name="patente"
+                  type="text"
+                  value={formData.patente}
                   onChange={handleChange}
                   required
                   className="form-input"
-                >
-                  <option value="">Selecciona hora</option>
-                  {horarios && horarios.map((horario) => (
-                    <option key={horario.id} value={horario.id}>
-                      {horario.hora}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="ABC123"
+                />
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="atencion_dia_desde_id">Día Desde *</label>
-                <select
-                  id="atencion_dia_desde_id"
-                  name="atencion_dia_desde_id"
-                  value={formData.atencion_dia_desde_id}
+                <label htmlFor="capacidad_carga">Capacidad de Carga *</label>
+                <input
+                  id="capacidad_carga"
+                  name="capacidad_carga"
+                  type="text"
+                  value={formData.capacidad_carga}
                   onChange={handleChange}
                   required
                   className="form-input"
-                >
-                  <option value="">Selecciona día</option>
-                  {dias && dias.map((dia) => (
-                    <option key={dia.id} value={dia.id}>
-                      {dia.dia}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="5000 kg"
+                />
               </div>
 
               <div className="form-group">
-                <label htmlFor="atencion_dia_hasta_id">Día Hasta *</label>
+                <label htmlFor="refrigerado">¿Refrigerado? *</label>
                 <select
-                  id="atencion_dia_hasta_id"
-                  name="atencion_dia_hasta_id"
-                  value={formData.atencion_dia_hasta_id}
+                  id="refrigerado"
+                  name="refrigerado"
+                  value={formData.refrigerado}
                   onChange={handleChange}
-                  required
                   className="form-input"
                 >
-                  <option value="">Selecciona día</option>
-                  {dias && dias.map((dia) => (
-                    <option key={dia.id} value={dia.id}>
-                      {dia.dia}
-                    </option>
-                  ))}
+                  <option value="n">❌ No</option>
+                  <option value="y">❄️ Sí</option>
                 </select>
               </div>
             </div>
           </div>
 
           <div className="form-section">
-            <h3>Tarifas y Cobertura</h3>
-            
+            <h3>Tarifas</h3>
+
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="tarifa_base">Tarifa Base *</label>
+                <label htmlFor="precio_base">Precio Base *</label>
                 <input
-                  id="tarifa_base"
-                  name="tarifa_base"
+                  id="precio_base"
+                  name="precio_base"
                   type="number"
                   step="0.01"
-                  value={formData.tarifa_base}
+                  min="0"
+                  value={formData.precio_base}
                   onChange={handleChange}
                   required
                   className="form-input"
-                  placeholder="5000.00"
+                  placeholder="200.00"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="tarifa_km">Tarifa por KM *</label>
+                <label htmlFor="precio_por_km">Precio por KM *</label>
                 <input
-                  id="tarifa_km"
-                  name="tarifa_km"
+                  id="precio_por_km"
+                  name="precio_por_km"
                   type="number"
                   step="0.01"
-                  value={formData.tarifa_km}
+                  min="0"
+                  value={formData.precio_por_km}
                   onChange={handleChange}
                   required
                   className="form-input"
-                  placeholder="150.00"
+                  placeholder="15.00"
                 />
               </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="radio_cobertura_km">Radio de Cobertura (KM) *</label>
-              <input
-                id="radio_cobertura_km"
-                name="radio_cobertura_km"
-                type="number"
-                step="0.1"
-                value={formData.radio_cobertura_km}
-                onChange={handleChange}
-                required
-                className="form-input"
-                placeholder="50.0"
-              />
             </div>
           </div>
 

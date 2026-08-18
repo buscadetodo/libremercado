@@ -129,6 +129,19 @@
   font-weight: 700;
 }
 
+/* Perfil asignado pero sin la ficha comercial cargada: el alta quedó a medio
+   camino y la card sigue habilitada para poder completarla. */
+.ap-badge-incompleto {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 3px 10px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
 /* Formulario específico */
 .ap-form-title {
   font-size: 1.05rem;

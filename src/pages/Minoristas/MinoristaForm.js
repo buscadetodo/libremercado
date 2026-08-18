@@ -5,6 +5,8 @@ import { useToast } from '../../components/Toast/Toast';
 import minoristasService from '../../services/minoristasService';
 import diasService from '../../services/diasService';
 import horariosService from '../../services/horariosService';
+import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
+import mensajeDeError from '../../api/mensajeDeError';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
 
@@ -21,7 +23,8 @@ function MinoristaForm() {
   const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
-    id_usuario: 1, // Por defecto, debería venir del usuario logueado
+    // Lo define SelectorUsuario: el usuario logueado, o el que elija el admin.
+    id_usuario: '',
     razon_social: '',
     cuit: '',
     rubro_id: '',
@@ -29,6 +32,8 @@ function MinoristaForm() {
     hora_hasta_id: '',
     atencion_dia_desde_id: '',
     atencion_dia_hasta_id: '',
+    pedido_minimo: '',
+    retiro_en_local: 'y',
     descripcion: '',
   });
 
@@ -98,10 +103,7 @@ function MinoristaForm() {
 
       navigate('/minoristas');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 
-                         err.response?.data?.detail || 
-                         'Error al guardar el minorista';
-      setError(errorMessage);
+      setError(mensajeDeError(err, 'Error al guardar el minorista'));
     } finally {
       setLoading(false);
     }
@@ -130,7 +132,15 @@ function MinoristaForm() {
         <form onSubmit={handleSubmit} className="entity-form">
           <div className="form-section">
             <h3>Información General</h3>
-            
+
+            <SelectorUsuario
+              value={formData.id_usuario}
+              onChange={(idUsuario) =>
+                setFormData((prev) => ({ ...prev, id_usuario: idUsuario }))
+              }
+              isEdit={isEdit}
+            />
+
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="razon_social">Razón Social *</label>
@@ -273,6 +283,42 @@ function MinoristaForm() {
                       {dia.dia}
                     </option>
                   ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h3>Condiciones Comerciales</h3>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="pedido_minimo">Pedido Mínimo *</label>
+                <input
+                  id="pedido_minimo"
+                  name="pedido_minimo"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.pedido_minimo}
+                  onChange={handleChange}
+                  required
+                  className="form-input"
+                  placeholder="500.00"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="retiro_en_local">Retiro en Local *</label>
+                <select
+                  id="retiro_en_local"
+                  name="retiro_en_local"
+                  value={formData.retiro_en_local}
+                  onChange={handleChange}
+                  className="form-input"
+                >
+                  <option value="y">✅ Sí</option>
+                  <option value="n">❌ No</option>
                 </select>
               </div>
             </div>

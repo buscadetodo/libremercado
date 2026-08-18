@@ -1,27 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
-import { useRubros } from '../../hooks';
+import { useRubros, useMisComercios } from '../../hooks';
 import productosService from '../../services/productosService';
-import Pagination from '../../components/Pagination/Pagination';
 import './Productos.css';
+
+const ITEMS_PER_PAGE = 12;
 
 function ProductosList() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { rubros, fetchRubros } = useRubros();
+  const { opciones: comercios, isAdmin } = useMisComercios();
   const toast = useToast();
 
-  // Paginación
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const itemsPerPage = 12;
+  // Paginación.
+  // La API no devuelve `total`, así que no se puede calcular la cantidad de
+  // páginas. Se pide un ítem extra (limit + 1): si vuelve, hay página siguiente.
+  const [page, setPage] = useState(0);
+  const [haySiguiente, setHaySiguiente] = useState(false);
 
   // Filtros
   const [filters, setFilters] = useState({
     rubro_id: '',
     search: '',
+    comercio: '', // "mayorista:3" | "minorista:1" | "" (todos)
   });
 
   useEffect(() => {
@@ -29,52 +33,70 @@ function ProductosList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    fetchProductos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, filters]);
-
-  const fetchProductos = async () => {
+  const fetchProductos = useCallback(async () => {
     try {
       setLoading(true);
-      const offset = (currentPage - 1) * itemsPerPage;
+      setError(null);
+
+      const [tipo, comercioId] = filters.comercio
+        ? filters.comercio.split(':')
+        : [null, null];
+
       const response = await productosService.getAll({
-        ...filters,
-        limit: itemsPerPage,
-        offset: offset,
+        rubro_id: filters.rubro_id || undefined,
+        search: filters.search || undefined,
+        mayorista_id: tipo === 'mayorista' ? comercioId : undefined,
+        minorista_id: tipo === 'minorista' ? comercioId : undefined,
+        limit: ITEMS_PER_PAGE + 1,
+        offset: page * ITEMS_PER_PAGE,
       });
-      
-      setProductos(response.data || []);
-      setTotalItems(response.total || response.data?.length || 0);
+
+      const data = Array.isArray(response?.data) ? response.data : [];
+
+      // El ítem extra solo sirve para detectar la página siguiente: no se muestra.
+      setHaySiguiente(data.length > ITEMS_PER_PAGE);
+      setProductos(data.slice(0, ITEMS_PER_PAGE));
     } catch (err) {
       setError('Error al cargar productos');
       toast.error('Error al cargar productos');
+      setProductos([]);
+      setHaySiguiente(false);
     } finally {
       setLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, page]);
+
+  useEffect(() => {
+    fetchProductos();
+  }, [fetchProductos]);
 
   const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de eliminar este producto?')) {
-      try {
-        await productosService.delete(id);
-        toast.success('Producto eliminado correctamente');
-        fetchProductos();
-      } catch (err) {
-        toast.error('Error al eliminar producto');
-      }
+    if (!window.confirm('¿Estás seguro de eliminar este producto?')) return;
+
+    try {
+      await productosService.delete(id);
+      toast.success('Producto eliminado correctamente');
+      fetchProductos();
+    } catch (err) {
+      const status = err.response?.status;
+      const msg =
+        status === 403
+          ? 'No podés eliminar productos de un comercio que no es tuyo.'
+          : err.response?.data?.error || 'Error al eliminar producto';
+      toast.error(msg);
     }
   };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
-    setCurrentPage(1); // Reset a la primera página
+    setPage(0); // Reset a la primera página
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setCurrentPage(1);
+    setPage(0);
     fetchProductos();
   };
 
@@ -84,7 +106,32 @@ function ProductosList() {
     return rubro ? rubro.rubro : 'N/A';
   };
 
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  // Solo se puede editar/borrar lo que la API va a aceptar: productos de un
+  // comercio propio. El admin puede sobre todos.
+  const puedeGestionar = (producto) => {
+    if (isAdmin) return true;
+    return comercios.some(
+      (c) =>
+        (c.tipo === 'mayorista' && c.id === producto.mayorista_id) ||
+        (c.tipo === 'minorista' && c.id === producto.minorista_id)
+    );
+  };
+
+  const nombreOferente = (producto) => {
+    const match = comercios.find(
+      (c) =>
+        (c.tipo === 'mayorista' && c.id === producto.mayorista_id) ||
+        (c.tipo === 'minorista' && c.id === producto.minorista_id)
+    );
+    if (match) return match.label;
+    return producto.mayorista_id != null
+      ? `Mayorista #${producto.mayorista_id}`
+      : `Minorista #${producto.minorista_id}`;
+  };
+
+  const puedeCrear = isAdmin || comercios.length > 0;
+  const desde = productos.length === 0 ? 0 : page * ITEMS_PER_PAGE + 1;
+  const hasta = page * ITEMS_PER_PAGE + productos.length;
 
   return (
     <div className="productos-page">
@@ -93,9 +140,11 @@ function ProductosList() {
           <h1>📦 Catálogo de Productos</h1>
           <p className="page-subtitle">Gestiona los productos disponibles</p>
         </div>
-        <Link to="/productos/nuevo" className="btn btn-primary">
-          ➕ Nuevo Producto
-        </Link>
+        {puedeCrear && (
+          <Link to="/productos/nuevo" className="btn btn-primary">
+            ➕ Nuevo Producto
+          </Link>
+        )}
       </div>
 
       {/* Filtros */}
@@ -129,6 +178,24 @@ function ProductosList() {
             </select>
           </div>
 
+          {comercios.length > 0 && (
+            <div className="filter-group">
+              <select
+                name="comercio"
+                value={filters.comercio}
+                onChange={handleFilterChange}
+                className="filter-select"
+              >
+                <option value="">Todos los comercios</option>
+                {comercios.map((c) => (
+                  <option key={`${c.tipo}:${c.id}`} value={`${c.tipo}:${c.id}`}>
+                    {c.tipo === 'mayorista' ? '🏭' : '🏪'} {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <button type="submit" className="btn btn-secondary">
             🔍 Buscar
           </button>
@@ -140,71 +207,118 @@ function ProductosList() {
 
       {/* Grid de productos */}
       <div className="productos-grid">
-        {productos && productos.length > 0 ? (
-          productos.map((producto) => (
-            <div key={producto.id} className="producto-card">
-              <div className="producto-image-placeholder">
-                📦
+        {productos.length > 0
+          ? productos.map((producto) => (
+              <div key={producto.id} className="producto-card">
+                {producto.imagen_url ? (
+                  <img
+                    src={producto.imagen_url}
+                    alt={producto.nombre}
+                    className="producto-image"
+                    onError={(e) => {
+                      // Si la URL está caída, se degrada al placeholder.
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="producto-image-placeholder">📦</div>
+                )}
+                <div className="producto-content">
+                  <h3 className="producto-nombre">{producto.nombre}</h3>
+                  <div className="producto-meta">
+                    {producto.sku && (
+                      <span className="producto-sku">{producto.sku}</span>
+                    )}
+                    <span className="producto-rubro">
+                      {getRubroName(producto.rubro_id)}
+                    </span>
+                  </div>
+                  <span className="producto-oferente">
+                    {producto.mayorista_id != null ? '🏭' : '🏪'}{' '}
+                    {nombreOferente(producto)}
+                  </span>
+                  <p className="producto-descripcion">
+                    {producto.descripcion || 'Sin descripción'}
+                  </p>
+                  <div className="producto-precio">
+                    <span className="precio-label">Precio:</span>
+                    <span className="precio-valor">
+                      ${Number(producto.precio || 0).toLocaleString('es-AR')}
+                    </span>
+                  </div>
+                  <div className="producto-stock">
+                    <span
+                      className={`stock-badge ${
+                        producto.stock > 0 ? 'disponible' : 'agotado'
+                      }`}
+                    >
+                      {producto.stock > 0 ? `Stock: ${producto.stock}` : 'Agotado'}
+                    </span>
+                  </div>
+                </div>
+                {puedeGestionar(producto) && (
+                  <div className="producto-actions">
+                    <Link
+                      to={`/productos/${producto.id}/editar`}
+                      className="btn btn-sm btn-secondary"
+                    >
+                      ✏️ Editar
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(producto.id)}
+                      className="btn btn-sm btn-danger"
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  </div>
+                )}
               </div>
-              <div className="producto-content">
-                <h3 className="producto-nombre">{producto.nombre}</h3>
-                <span className="producto-rubro">
-                  {getRubroName(producto.rubro_id)}
-                </span>
-                <p className="producto-descripcion">
-                  {producto.descripcion || 'Sin descripción'}
+            ))
+          : !loading && (
+              <div className="empty-state">
+                <div className="empty-icon">📦</div>
+                <h3>No hay productos</h3>
+                <p>
+                  {page > 0
+                    ? 'No hay más productos en esta página.'
+                    : puedeCrear
+                    ? 'Comienza agregando tu primer producto'
+                    : 'Todavía no hay productos publicados.'}
                 </p>
-                <div className="producto-precio">
-                  <span className="precio-label">Precio:</span>
-                  <span className="precio-valor">
-                    ${parseFloat(producto.precio).toLocaleString('es-AR')}
-                  </span>
-                </div>
-                <div className="producto-stock">
-                  <span className={`stock-badge ${producto.stock > 0 ? 'disponible' : 'agotado'}`}>
-                    {producto.stock > 0 ? `Stock: ${producto.stock}` : 'Agotado'}
-                  </span>
-                </div>
+                {puedeCrear && page === 0 && (
+                  <Link to="/productos/nuevo" className="btn btn-primary">
+                    ➕ Crear Producto
+                  </Link>
+                )}
               </div>
-              <div className="producto-actions">
-                <Link
-                  to={`/productos/${producto.id}/editar`}
-                  className="btn btn-sm btn-secondary"
-                >
-                  ✏️ Editar
-                </Link>
-                <button
-                  onClick={() => handleDelete(producto.id)}
-                  className="btn btn-sm btn-danger"
-                >
-                  🗑️ Eliminar
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          !loading && (
-            <div className="empty-state">
-              <div className="empty-icon">📦</div>
-              <h3>No hay productos</h3>
-              <p>Comienza agregando tu primer producto</p>
-              <Link to="/productos/nuevo" className="btn btn-primary">
-                ➕ Crear Producto
-              </Link>
-            </div>
-          )
-        )}
+            )}
       </div>
 
-      {/* Paginación */}
-      {productos && productos.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-        />
+      {/* Paginación simple: la API no expone `total`, así que no hay números de
+          página. Cuando el backend agregue `total` se puede volver al componente
+          Pagination con numeración. */}
+      {(page > 0 || haySiguiente) && (
+        <div className="pagination-container">
+          <div className="pagination-info">
+            Mostrando {desde} - {hasta}
+          </div>
+          <div className="pagination-controls">
+            <button
+              className="pagination-btn"
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0 || loading}
+            >
+              ← Anterior
+            </button>
+            <button
+              className="pagination-btn"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={!haySiguiente || loading}
+            >
+              Siguiente →
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -5,6 +5,8 @@ import { useToast } from '../../components/Toast/Toast';
 import mayoristasService from '../../services/mayoristasService';
 import diasService from '../../services/diasService';
 import horariosService from '../../services/horariosService';
+import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
+import mensajeDeError from '../../api/mensajeDeError';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
 
@@ -21,7 +23,8 @@ function MayoristaForm() {
   const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
-    id_usuario: 1, // Por defecto, debería venir del usuario logueado
+    // Lo define SelectorUsuario: el usuario logueado, o el que elija el admin.
+    id_usuario: '',
     razon_social: '',
     cuit: '',
     rubro_id: '',
@@ -100,10 +103,7 @@ function MayoristaForm() {
 
       navigate('/mayoristas');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 
-                         err.response?.data?.detail || 
-                         'Error al guardar el mayorista';
-      setError(errorMessage);
+      setError(mensajeDeError(err, 'Error al guardar el mayorista'));
     } finally {
       setLoading(false);
     }
@@ -132,7 +132,15 @@ function MayoristaForm() {
         <form onSubmit={handleSubmit} className="entity-form">
           <div className="form-section">
             <h3>Información General</h3>
-            
+
+            <SelectorUsuario
+              value={formData.id_usuario}
+              onChange={(idUsuario) =>
+                setFormData((prev) => ({ ...prev, id_usuario: idUsuario }))
+              }
+              isEdit={isEdit}
+            />
+
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="razon_social">Razón Social *</label>

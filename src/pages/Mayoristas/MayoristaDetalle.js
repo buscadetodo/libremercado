@@ -6,7 +6,10 @@ import mayoristasService from '../../services/mayoristasService';
 import rubrosService from '../../services/rubrosService';
 import horariosService from '../../services/horariosService';
 import diasService from '../../services/diasService';
+import productosService from '../../services/productosService';
+import { FEATURE_PRODUCTOS } from '../../config/features';
 import './Mayoristas.css';
+import '../Productos/Productos.css';
 
 function MayoristaDetalle() {
   const { id } = useParams();
@@ -19,6 +22,8 @@ function MayoristaDetalle() {
   const [rubrosMap, setRubrosMap] = useState({});
   const [horariosMap, setHorariosMap] = useState({});
   const [diasMap, setDiasMap] = useState({});
+  const [productos, setProductos] = useState([]);
+  const [loadingProductos, setLoadingProductos] = useState(false);
 
   useEffect(() => {
     const cargar = async () => {
@@ -61,6 +66,29 @@ function MayoristaDetalle() {
       }
     };
     cargar();
+  }, [id]);
+
+  // Catálogo del mayorista.
+  // No existe GET /mayoristas/{id}/productos/: se usa el filtro del listado.
+  useEffect(() => {
+    const cargarProductos = async () => {
+      if (!FEATURE_PRODUCTOS || !id) return;
+      setLoadingProductos(true);
+      try {
+        const resp = await productosService.getByMayorista(id, { limit: 12 });
+        const lista = resp?.data ?? resp ?? [];
+        setProductos(Array.isArray(lista) ? lista : []);
+      } catch (err) {
+        // El catálogo es información complementaria: si falla, la ficha
+        // del mayorista se sigue mostrando igual.
+        console.error('Error al cargar productos del mayorista:', err);
+        setProductos([]);
+      } finally {
+        setLoadingProductos(false);
+      }
+    };
+
+    cargarProductos();
   }, [id]);
 
   if (loading) {
@@ -156,6 +184,71 @@ function MayoristaDetalle() {
           </button>
         </div>
       </div>
+
+      {/* Catálogo del mayorista (GET /productos/?mayorista_id=) */}
+      {FEATURE_PRODUCTOS && (
+        <div className="detalle-productos">
+          <h2 className="section-heading">📦 Productos</h2>
+
+          {loadingProductos ? (
+            <div className="loading">⏳ Cargando productos...</div>
+          ) : productos.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">📦</div>
+              <h3>Sin productos publicados</h3>
+              <p>Este mayorista todavía no cargó su catálogo.</p>
+            </div>
+          ) : (
+            <div className="productos-grid">
+              {productos.map((producto) => (
+                <div key={producto.id} className="producto-card">
+                  {producto.imagen_url ? (
+                    <img
+                      src={producto.imagen_url}
+                      alt={producto.nombre}
+                      className="producto-image"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="producto-image-placeholder">📦</div>
+                  )}
+                  <div className="producto-content">
+                    <h3 className="producto-nombre">{producto.nombre}</h3>
+                    <div className="producto-meta">
+                      {producto.sku && (
+                        <span className="producto-sku">{producto.sku}</span>
+                      )}
+                      <span className="producto-rubro">
+                        {rubrosMap[producto.rubro_id] || 'Sin rubro'}
+                      </span>
+                    </div>
+                    <p className="producto-descripcion">
+                      {producto.descripcion || 'Sin descripción'}
+                    </p>
+                    <div className="producto-precio">
+                      <span className="precio-label">Precio:</span>
+                      <span className="precio-valor">
+                        ${Number(producto.precio || 0).toLocaleString('es-AR')}
+                      </span>
+                    </div>
+                    <div className="producto-stock">
+                      <span
+                        className={`stock-badge ${
+                          producto.stock > 0 ? 'disponible' : 'agotado'
+                        }`}
+                      >
+                        {producto.stock > 0 ? `Stock: ${producto.stock}` : 'Agotado'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
