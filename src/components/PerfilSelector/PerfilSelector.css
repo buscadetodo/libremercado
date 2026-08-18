@@ -23,6 +23,19 @@
   border-color: #0d47a1;
 }
 
+/* Alta pendiente: es una tarea, no el selector de un perfil ya existente. */
+.perfil-selector-alta {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #1f2937;
+}
+
+.perfil-selector-alta:hover {
+  background: #d97706;
+  border-color: #d97706;
+  color: #ffffff;
+}
+
 .perfil-icono {
   font-size: 18px;
 }

@@ -1,15 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FEATURE_PRODUCTOS } from '../../config/features';
+import { useFichaComercial } from '../../hooks';
+import AvisoFichaComercial from '../../components/AvisoFichaComercial/AvisoFichaComercial';
 import '../Dashboard/Dashboard.css';
 
 function MinoristaDashboard() {
+  const { tiposFaltantes } = useFichaComercial();
+  const sinFicha = tiposFaltantes.includes('minorista');
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <h1>🏪 Dashboard Minorista</h1>
         <p className="dashboard-subtitle">Panel de control para minoristas</p>
       </div>
+
+      <AvisoFichaComercial tipo="minorista" />
 
       <div className="stats-grid">
         <div className="stat-card" style={{ '--color': '#667eea' }}>
@@ -48,6 +55,12 @@ function MinoristaDashboard() {
       <div className="dashboard-section">
         <h2>Acciones Rápidas</h2>
         <div className="actions-grid">
+          {sinFicha && (
+            <Link to="/agregar-perfil" className="action-card" style={{ '--color': '#f59e0b' }}>
+              <span className="action-icon">🏬</span>
+              <span className="action-title">Dar de alta mi comercio</span>
+            </Link>
+          )}
           {FEATURE_PRODUCTOS && (
             <Link to="/productos" className="action-card" style={{ '--color': '#667eea' }}>
               <span className="action-icon">🔍</span>

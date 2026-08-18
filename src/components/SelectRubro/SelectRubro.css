@@ -1,0 +1,11 @@
+.select-rubro-aviso {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #92400e;
+}
+
+.select-rubro-aviso.error {
+  color: #b91c1c;
+}

@@ -1,15 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FEATURE_PRODUCTOS } from '../../config/features';
+import { useFichaComercial } from '../../hooks';
+import AvisoFichaComercial from '../../components/AvisoFichaComercial/AvisoFichaComercial';
 import '../Dashboard/Dashboard.css';
 
 function MayoristaDashboard() {
+  // Sin ficha comercial la API rechaza el alta de productos: ofrecer "Nuevo
+  // Producto" sería mandarlo a un error que no puede resolver desde ahí.
+  const { tiposFaltantes } = useFichaComercial();
+  const sinFicha = tiposFaltantes.includes('mayorista');
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <h1>🏭 Dashboard Mayorista</h1>
         <p className="dashboard-subtitle">Panel de control para mayoristas</p>
       </div>
+
+      <AvisoFichaComercial tipo="mayorista" />
 
       <div className="stats-grid">
         <div className="stat-card" style={{ '--color': '#667eea' }}>
@@ -48,17 +57,24 @@ function MayoristaDashboard() {
       <div className="dashboard-section">
         <h2>Acciones Rápidas</h2>
         <div className="actions-grid">
-          {FEATURE_PRODUCTOS && (
-            <>
-              <Link to="/productos/nuevo" className="action-card" style={{ '--color': '#667eea' }}>
-                <span className="action-icon">➕</span>
-                <span className="action-title">Nuevo Producto</span>
-              </Link>
-              <Link to="/productos" className="action-card" style={{ '--color': '#764ba2' }}>
-                <span className="action-icon">📦</span>
-                <span className="action-title">Ver Productos</span>
-              </Link>
-            </>
+          {sinFicha ? (
+            <Link to="/agregar-perfil" className="action-card" style={{ '--color': '#f59e0b' }}>
+              <span className="action-icon">🏬</span>
+              <span className="action-title">Dar de alta mi comercio</span>
+            </Link>
+          ) : (
+            FEATURE_PRODUCTOS && (
+              <>
+                <Link to="/productos/nuevo" className="action-card" style={{ '--color': '#667eea' }}>
+                  <span className="action-icon">➕</span>
+                  <span className="action-title">Nuevo Producto</span>
+                </Link>
+                <Link to="/productos" className="action-card" style={{ '--color': '#764ba2' }}>
+                  <span className="action-icon">📦</span>
+                  <span className="action-title">Ver Productos</span>
+                </Link>
+              </>
+            )
           )}
           <Link to="/perfil" className="action-card" style={{ '--color': '#f093fb' }}>
             <span className="action-icon">⚙️</span>
