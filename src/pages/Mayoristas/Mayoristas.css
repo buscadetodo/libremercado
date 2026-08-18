@@ -373,3 +373,15 @@
   display: flex;
   justify-content: flex-end;
 }
+
+/* Catálogo del mayorista dentro de su ficha de detalle */
+.detalle-productos {
+  margin-top: 2rem;
+}
+
+.detalle-productos .section-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1rem;
+}

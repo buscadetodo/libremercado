@@ -4,3 +4,4 @@ export { default as useAuth } from './useAuth';
 export { useRubros, useRubrosAutoload } from './useRubros';
 export { useUsers, useUsersAutoload } from './useUsers';
 export { useMayoristas, useMayoristasAutoload } from './useMayoristas';
+export { useMisComercios } from './useMisComercios';

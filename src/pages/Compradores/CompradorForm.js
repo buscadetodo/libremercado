@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
 import compradoresService from '../../services/compradoresService';
+import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
 
@@ -15,7 +16,8 @@ function CompradorForm() {
   const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
-    id_usuario: 1, // Por defecto, debería venir del usuario logueado
+    // Lo define SelectorUsuario: el usuario logueado, o el que elija el admin.
+    id_usuario: '',
     nombre: '',
     apellido: '',
   });
@@ -96,7 +98,15 @@ function CompradorForm() {
         <form onSubmit={handleSubmit} className="entity-form">
           <div className="form-section">
             <h3>Información del Comprador</h3>
-            
+
+            <SelectorUsuario
+              value={formData.id_usuario}
+              onChange={(idUsuario) =>
+                setFormData((prev) => ({ ...prev, id_usuario: idUsuario }))
+              }
+              isEdit={isEdit}
+            />
+
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="nombre">Nombre *</label>

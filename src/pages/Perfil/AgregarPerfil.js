@@ -1,24 +1,80 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
 import { usePerfilActivo } from '../../context/PerfilContext';
 import useAuth from '../../hooks/useAuth';
+import { useRubros, useMisComercios } from '../../hooks';
 import usuarioPerfilesService from '../../services/usuarioPerfilesService';
 import usersService from '../../services/usersService';
 import mayoristasService from '../../services/mayoristasService';
 import minoristasService from '../../services/minoristasService';
 import compradoresService from '../../services/compradoresService';
 import transportistasService from '../../services/transportistasService';
+import diasService from '../../services/diasService';
+import horariosService from '../../services/horariosService';
 import { PERFIL } from '../../config/roles';
 import './AgregarPerfil.css';
+
+/**
+ * Extrae un mensaje legible de un error de la API.
+ * FastAPI devuelve `detail` (string o array de errores de validación), no `message`.
+ */
+const mensajeDeError = (error, fallback) => {
+  const data = error.response?.data;
+  if (!data) return fallback;
+
+  if (Array.isArray(data.detail) && data.detail.length > 0) {
+    const primero = data.detail[0];
+    const campo = Array.isArray(primero.loc) ? primero.loc[primero.loc.length - 1] : null;
+    const msg = primero.msg?.replace(/^Value error,\s*/, '') || 'dato inválido';
+    return campo ? `${campo}: ${msg}` : msg;
+  }
+
+  return data.error || data.detail || data.message || fallback;
+};
 
 function AgregarPerfil() {
   const navigate = useNavigate();
   const toast = useToast();
   const { user } = useAuth();
   const { cargarPerfiles, tienePerfil } = usePerfilActivo();
+  const { rubros, fetchRubros } = useRubros();
+  const {
+    mayoristas,
+    minoristas,
+    reload: recargarComercios,
+  } = useMisComercios();
   const [loading, setLoading] = useState(false);
   const [tipoSeleccionado, setTipoSeleccionado] = useState('');
+
+  /**
+   * ¿El usuario ya tiene la ficha comercial creada?
+   * Tener el perfil asignado (usuario_perfiles) no implica tener el comercio:
+   * son dos registros distintos y el alta puede quedar a medio camino.
+   * Se compara contra id_usuario porque el admin recibe todos los comercios.
+   */
+  const tieneComercio = (tipo) => {
+    const lista = tipo === 'mayorista' ? mayoristas : minoristas;
+    return lista.some((c) => String(c.id_usuario) === String(user?.id));
+  };
+
+  /** El alta está realmente completa: perfil asignado + ficha comercial. */
+  const altaCompleta = (tipo) => {
+    if (tipo === 'mayorista' || tipo === 'minorista') {
+      return tienePerfil(tipo) && tieneComercio(tipo);
+    }
+    return tienePerfil(tipo);
+  };
+
+  /** Perfil asignado pero sin ficha comercial: hay que poder reintentar. */
+  const altaIncompleta = (tipo) =>
+    (tipo === 'mayorista' || tipo === 'minorista') &&
+    tienePerfil(tipo) &&
+    !tieneComercio(tipo);
+
+  // Catálogos de la API (días 1–7, horarios 1–24)
+  const [dias, setDias] = useState([]);
+  const [horarios, setHorarios] = useState([]);
 
   // Datos específicos según tipo
   const [datosEspecificos, setDatosEspecificos] = useState({
@@ -26,6 +82,11 @@ function AgregarPerfil() {
     razon_social: '',
     cuit: '',
     rubro_id: '',
+    // La API exige estos 4 FKs para dar de alta el comercio.
+    hora_desde_id: '',
+    hora_hasta_id: '',
+    atencion_dia_desde_id: '',
+    atencion_dia_hasta_id: '',
     pedido_minimo: '',
     retiro_en_local: 'n',
     descripcion: '',
@@ -39,6 +100,47 @@ function AgregarPerfil() {
     precio_por_km: ''
   });
 
+  // Catálogos + valores por defecto razonables (Lunes a Viernes, 08:00 a 18:00).
+  useEffect(() => {
+    const cargarCatalogos = async () => {
+      fetchRubros();
+      try {
+        const [diasResp, horariosResp] = await Promise.all([
+          diasService.getAll(),
+          horariosService.getAll(50, 0),
+        ]);
+
+        const listaDias = diasResp?.data ?? diasResp ?? [];
+        const listaHorarios = horariosResp?.data ?? horariosResp ?? [];
+        setDias(Array.isArray(listaDias) ? listaDias : []);
+        setHorarios(Array.isArray(listaHorarios) ? listaHorarios : []);
+
+        // Se buscan por valor, no por id, para no depender del orden del seed.
+        const buscarHora = (hhmm) =>
+          (Array.isArray(listaHorarios) ? listaHorarios : []).find((h) =>
+            String(h.hora).startsWith(hhmm)
+          )?.id ?? '';
+        const buscarDia = (nombre) =>
+          (Array.isArray(listaDias) ? listaDias : []).find(
+            (d) => String(d.dia).toLowerCase() === nombre
+          )?.id ?? '';
+
+        setDatosEspecificos((prev) => ({
+          ...prev,
+          hora_desde_id: prev.hora_desde_id || buscarHora('08'),
+          hora_hasta_id: prev.hora_hasta_id || buscarHora('18'),
+          atencion_dia_desde_id: prev.atencion_dia_desde_id || buscarDia('lunes'),
+          atencion_dia_hasta_id: prev.atencion_dia_hasta_id || buscarDia('viernes'),
+        }));
+      } catch (err) {
+        console.error('Error al cargar días/horarios:', err);
+      }
+    };
+
+    cargarCatalogos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const tiposDisponibles = [
     {
       tipo: 'mayorista',
@@ -47,7 +149,8 @@ function AgregarPerfil() {
       color: '#1565c0',
       descripcion: 'Vendo productos al por mayor',
       perfil_id: PERFIL.MAYORISTA,
-      disabled: tienePerfil('mayorista')
+      disabled: altaCompleta('mayorista'),
+      incompleto: altaIncompleta('mayorista')
     },
     {
       tipo: 'minorista',
@@ -56,7 +159,8 @@ function AgregarPerfil() {
       color: '#7b1fa2',
       descripcion: 'Tengo un comercio y compro por mayor',
       perfil_id: PERFIL.MINORISTA,
-      disabled: tienePerfil('minorista')
+      disabled: altaCompleta('minorista'),
+      incompleto: altaIncompleta('minorista')
     },
     {
       tipo: 'comprador',
@@ -91,17 +195,40 @@ function AgregarPerfil() {
     try {
       const tipoConfig = tiposDisponibles.find(t => t.tipo === tipoSeleccionado);
 
-      // PASO 1: Asignar perfil
-      await usuarioPerfilesService.assign(user.id, tipoConfig.perfil_id);
-      toast.success('Perfil asignado exitosamente');
+      // PASO 1: asignar el perfil (tabla usuario_perfiles).
+      // Sin toast de éxito acá: el alta recién está completa cuando también
+      // existe el registro del paso 2. Avisar antes daba un falso positivo
+      // (el perfil quedaba asignado pero sin comercio, y el usuario creía
+      // que había terminado).
+      //
+      // Si el perfil ya estaba asignado se saltea: es el caso de un alta que
+      // quedó a medio camino y se está reintentando, y reasignarlo rompería
+      // por clave duplicada.
+      if (!tienePerfil(tipoSeleccionado)) {
+        await usuarioPerfilesService.assign(user.id, tipoConfig.perfil_id);
+      }
 
-      // PASO 2: Crear registro específico
-      await crearRegistroEspecifico(user.id);
+      // PASO 2: crear el registro específico (mayorista / minorista / etc.)
+      try {
+        await crearRegistroEspecifico(user.id);
+      } catch (errorRegistro) {
+        console.error('Error al crear el registro específico:', errorRegistro);
+        // El perfil sí quedó asignado: hay que decirlo, porque el estado
+        // intermedio es justamente el que confunde.
+        const detalle = mensajeDeError(errorRegistro, 'la API rechazó los datos');
+        toast.error(
+          `El perfil de ${tipoSeleccionado} se asignó, pero no se pudo crear el registro: ${detalle}. Revisá los datos y volvé a intentar.`
+        );
+        await cargarPerfiles();
+        await recargarComercios();
+        return;
+      }
 
       toast.success(`¡Perfil de ${tipoSeleccionado} agregado exitosamente!`);
 
-      // Recargar perfiles
+      // Recargar perfiles y comercios
       await cargarPerfiles();
+      await recargarComercios();
 
       // Redirigir al nuevo dashboard
       setTimeout(() => {
@@ -116,32 +243,40 @@ function AgregarPerfil() {
 
     } catch (error) {
       console.error('Error al agregar perfil:', error);
-      const mensaje = error.response?.data?.message || 'Error al agregar el perfil';
-      toast.error(mensaje);
+      toast.error(mensajeDeError(error, 'Error al agregar el perfil'));
     } finally {
       setLoading(false);
     }
   };
 
   const crearRegistroEspecifico = async (idUsuario) => {
-    const payload = {
-      id_usuario: idUsuario,
-      ...datosEspecificos
-    };
-
     switch (tipoSeleccionado) {
+      // Mayorista y minorista comparten exactamente la misma estructura.
+      // Se arma campo por campo: hacer spread de `datosEspecificos` filtraba
+      // campos de transportista (patente, tipo_vehiculo…) que la API rechaza.
       case 'mayorista':
-        await mayoristasService.create({
-          ...payload,
-          pedido_minimo: parseFloat(datosEspecificos.pedido_minimo) || 0
-        });
+      case 'minorista': {
+        const comercio = {
+          id_usuario: Number(idUsuario),
+          razon_social: datosEspecificos.razon_social.trim(),
+          cuit: datosEspecificos.cuit.trim(),
+          rubro_id: Number(datosEspecificos.rubro_id),
+          hora_desde_id: Number(datosEspecificos.hora_desde_id),
+          hora_hasta_id: Number(datosEspecificos.hora_hasta_id),
+          atencion_dia_desde_id: Number(datosEspecificos.atencion_dia_desde_id),
+          atencion_dia_hasta_id: Number(datosEspecificos.atencion_dia_hasta_id),
+          pedido_minimo: parseFloat(datosEspecificos.pedido_minimo) || 0,
+          retiro_en_local: datosEspecificos.retiro_en_local,
+          descripcion: datosEspecificos.descripcion.trim() || null,
+        };
+
+        if (tipoSeleccionado === 'mayorista') {
+          await mayoristasService.create(comercio);
+        } else {
+          await minoristasService.create(comercio);
+        }
         break;
-      case 'minorista':
-        await minoristasService.create({
-          ...payload,
-          pedido_minimo: parseFloat(datosEspecificos.pedido_minimo) || 0
-        });
-        break;
+      }
       case 'comprador': {
         // El JWT no trae nombre/apellido: los obtenemos del usuario real
         const userResp = await usersService.getById(idUsuario);
@@ -155,9 +290,14 @@ function AgregarPerfil() {
       }
       case 'transportista':
         await transportistasService.create({
-          ...payload,
+          id_usuario: Number(idUsuario),
+          tipo_vehiculo: datosEspecificos.tipo_vehiculo,
+          patente: datosEspecificos.patente.trim(),
+          capacidad_carga: datosEspecificos.capacidad_carga.trim(),
+          refrigerado: datosEspecificos.refrigerado,
           precio_base: parseFloat(datosEspecificos.precio_base) || 0,
-          precio_por_km: parseFloat(datosEspecificos.precio_por_km) || 0
+          precio_por_km: parseFloat(datosEspecificos.precio_por_km) || 0,
+          descripcion: datosEspecificos.descripcion.trim() || null,
         });
         break;
       default:
@@ -215,16 +355,18 @@ function AgregarPerfil() {
             </div>
 
             <div className="ap-form-group">
-              <label>Rubro</label>
+              <label>Rubro *</label>
               <select
                 value={datosEspecificos.rubro_id}
                 onChange={(e) => setCampo('rubro_id', e.target.value)}
+                required
               >
                 <option value="">Seleccionar rubro...</option>
-                <option value="1">Alimentos</option>
-                <option value="2">Bebidas</option>
-                <option value="3">Limpieza</option>
-                <option value="4">Mascotas</option>
+                {(rubros || []).map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.rubro}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -236,6 +378,70 @@ function AgregarPerfil() {
                 onChange={(e) => setCampo('pedido_minimo', e.target.value)}
                 placeholder="0.00"
               />
+            </div>
+
+            <div className="ap-form-group">
+              <label>Atiende desde (hora) *</label>
+              <select
+                value={datosEspecificos.hora_desde_id}
+                onChange={(e) => setCampo('hora_desde_id', e.target.value)}
+                required
+              >
+                <option value="">Seleccionar...</option>
+                {horarios.map((h) => (
+                  <option key={h.id} value={h.id}>
+                    {h.hora}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="ap-form-group">
+              <label>Atiende hasta (hora) *</label>
+              <select
+                value={datosEspecificos.hora_hasta_id}
+                onChange={(e) => setCampo('hora_hasta_id', e.target.value)}
+                required
+              >
+                <option value="">Seleccionar...</option>
+                {horarios.map((h) => (
+                  <option key={h.id} value={h.id}>
+                    {h.hora}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="ap-form-group">
+              <label>Atiende desde (día) *</label>
+              <select
+                value={datosEspecificos.atencion_dia_desde_id}
+                onChange={(e) => setCampo('atencion_dia_desde_id', e.target.value)}
+                required
+              >
+                <option value="">Seleccionar...</option>
+                {dias.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.dia}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="ap-form-group">
+              <label>Atiende hasta (día) *</label>
+              <select
+                value={datosEspecificos.atencion_dia_hasta_id}
+                onChange={(e) => setCampo('atencion_dia_hasta_id', e.target.value)}
+                required
+              >
+                <option value="">Seleccionar...</option>
+                {dias.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.dia}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="ap-form-group">
@@ -276,10 +482,13 @@ function AgregarPerfil() {
                 onChange={(e) => setCampo('tipo_vehiculo', e.target.value)}
                 required
               >
+                {/* Mismos valores que TransportistaForm: si acá se guarda
+                    "Camion" y allá "Camión", el mismo vehículo queda con dos
+                    grafías distintas en la base. */}
                 <option value="">Seleccionar...</option>
                 <option value="Camioneta">Camioneta</option>
-                <option value="Camion">Camión</option>
-                <option value="Furgon">Furgón</option>
+                <option value="Camión">Camión</option>
+                <option value="Furgón">Furgón</option>
                 <option value="Semi">Semi</option>
               </select>
             </div>
@@ -380,6 +589,11 @@ function AgregarPerfil() {
                 <h4 className="ap-tipo-titulo">{tipo.titulo}</h4>
                 <p className="ap-tipo-desc">{tipo.descripcion}</p>
                 {tipo.disabled && <span className="ap-badge-ya">✓ Ya lo tenés</span>}
+                {tipo.incompleto && (
+                  <span className="ap-badge-incompleto">
+                    ⚠️ Falta cargar el comercio
+                  </span>
+                )}
               </div>
             ))}
           </div>

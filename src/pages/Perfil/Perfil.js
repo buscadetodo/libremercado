@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import usersService from '../../services/usersService';
+import { usePerfilActivo } from '../../context/PerfilContext';
 import './Perfil.css';
 
 function Perfil() {
   const navigate = useNavigate();
+  // /dashboard es adminOnly: para un usuario comun hay que volver a su propio panel
+  const { panelUrl } = usePerfilActivo();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -302,7 +305,12 @@ function Perfil() {
           </div>
 
           <div className="form-actions">
-            <button type="button" onClick={() => navigate('/dashboard')} className="btn btn-secondary">
+            <button
+              type="button"
+              // Si panelUrl es /perfil ya estamos aca: Cancelar no puede quedar mudo
+              onClick={() => navigate(panelUrl === '/perfil' ? '/' : panelUrl)}
+              className="btn btn-secondary"
+            >
               Cancelar
             </button>
             <button type="submit" disabled={saving} className="btn btn-primary">

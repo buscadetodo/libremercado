@@ -7,7 +7,28 @@ import mayoristasService from '../../services/mayoristasService';
 import minoristasService from '../../services/minoristasService';
 import compradoresService from '../../services/compradoresService';
 import transportistasService from '../../services/transportistasService';
+import diasService from '../../services/diasService';
+import horariosService from '../../services/horariosService';
+import { PERFIL } from '../../config/roles';
 import './RegisterMejorado.css';
+
+/**
+ * Extrae un mensaje legible de un error de la API.
+ * FastAPI devuelve `detail` (string o array de validación), no `message`.
+ */
+const mensajeDeError = (error, fallback) => {
+  const data = error.response?.data;
+  if (!data) return error.message || fallback;
+
+  if (Array.isArray(data.detail) && data.detail.length > 0) {
+    const primero = data.detail[0];
+    const campo = Array.isArray(primero.loc) ? primero.loc[primero.loc.length - 1] : null;
+    const msg = primero.msg?.replace(/^Value error,\s*/, '') || 'dato inválido';
+    return campo ? `${campo}: ${msg}` : msg;
+  }
+
+  return data.error || data.detail || data.message || fallback;
+};
 
 function RegisterMejorado() {
   const { tipo } = useParams();
@@ -32,6 +53,10 @@ function RegisterMejorado() {
     razon_social: '',
     cuit: '',
     rubro_id: '',
+    // Nota: hora_desde_id / hora_hasta_id / atencion_dia_* también son
+    // obligatorios para el comercio, pero no se piden acá porque sus catálogos
+    // requieren token. Se resuelven después del login en
+    // resolverHorarioPorDefecto().
     pedido_minimo: '',
     retiro_en_local: 'n',
     descripcion: '',
@@ -43,14 +68,19 @@ function RegisterMejorado() {
     precio_por_km: ''
   });
 
+
   const getConfig = () => {
+    // Los perfil_id salen de config/roles (1=mayorista, 2=minorista,
+    // 3=transportista, 4=comprador). Estaban hardcodeados y comprador y
+    // transportista venían cruzados (3 y 4 al revés), así que quien se
+    // registraba como comprador quedaba con el perfil de transportista.
     const configs = {
       mayorista: {
         titulo: 'Registro de Mayorista',
         icono: '🏭',
         color: '#667eea',
         colorDark: '#5568d3',
-        perfil_id: 1,
+        perfil_id: PERFIL.MAYORISTA,
         totalSteps: 2
       },
       minorista: {
@@ -58,7 +88,7 @@ function RegisterMejorado() {
         icono: '🏪',
         color: '#764ba2',
         colorDark: '#6a4391',
-        perfil_id: 2,
+        perfil_id: PERFIL.MINORISTA,
         totalSteps: 2
       },
       comprador: {
@@ -66,7 +96,7 @@ function RegisterMejorado() {
         icono: '🛍️',
         color: '#4facfe',
         colorDark: '#3d9ce3',
-        perfil_id: 3,
+        perfil_id: PERFIL.COMPRADOR,
         totalSteps: 1
       },
       transportista: {
@@ -74,7 +104,7 @@ function RegisterMejorado() {
         icono: '🚚',
         color: '#f093fb',
         colorDark: '#d77fe0',
-        perfil_id: 4,
+        perfil_id: PERFIL.TRANSPORTISTA,
         totalSteps: 2
       }
     };
@@ -197,8 +227,22 @@ function RegisterMejorado() {
       await usuarioPerfilesService.assign(nuevoUsuarioId, config.perfil_id);
       toast.success('✓ Perfil asignado');
 
-      // Crear registro específico
-      await crearRegistroEspecifico(nuevoUsuarioId);
+      // Crear el registro específico (ficha comercial / transportista / comprador).
+      // Si esto falla, la cuenta queda creada y usable pero SIN la ficha, y hay
+      // que decirlo: quedarse en el genérico dejaba al usuario creyendo que su
+      // comercio existía cuando no se había creado nada.
+      try {
+        await crearRegistroEspecifico(nuevoUsuarioId);
+      } catch (errorRegistro) {
+        console.error('Error al crear el registro específico:', errorRegistro);
+        const detalle = mensajeDeError(errorRegistro, 'la API rechazó los datos');
+        toast.error(
+          `Tu cuenta se creó, pero no se pudo registrar tu ${tipo}: ${detalle}. Completalo desde "Agregar perfil".`
+        );
+        setTimeout(() => navigate('/agregar-perfil', { replace: true }), 2500);
+        return;
+      }
+
       toast.success(`¡Cuenta de ${tipo} creada exitosamente!`);
 
       // Redirigir
@@ -214,41 +258,106 @@ function RegisterMejorado() {
 
     } catch (error) {
       console.error('Error en registro:', error);
-      const mensaje = error.response?.data?.message || error.message || 'Error al crear la cuenta';
-      toast.error(mensaje);
+      toast.error(mensajeDeError(error, 'Error al crear la cuenta'));
     } finally {
       setLoading(false);
     }
   };
 
-  const crearRegistroEspecifico = async (idUsuario) => {
-    const payload = { id_usuario: idUsuario, ...datosEspecificos };
+  /**
+   * Resuelve los IDs de horario y día que la API exige para el comercio.
+   *
+   * No se piden en el formulario: durante el registro el usuario todavía no
+   * tiene token, y `/horarios/` y `/dias/` requieren autenticación. Como esta
+   * función corre después del login automático, acá sí se pueden consultar.
+   *
+   * Se usa Lunes a Viernes de 08:00 a 18:00 como horario inicial; el usuario
+   * lo ajusta después desde su panel.
+   */
+  const resolverHorarioPorDefecto = async () => {
+    // Fallback: seed documentado (horarios 1–24 = 00:00–23:00, días 1=Lunes).
+    const porDefecto = {
+      hora_desde_id: 9,
+      hora_hasta_id: 19,
+      atencion_dia_desde_id: 1,
+      atencion_dia_hasta_id: 5,
+    };
 
+    try {
+      const [diasResp, horariosResp] = await Promise.all([
+        diasService.getAll(),
+        horariosService.getAll(50, 0),
+      ]);
+
+      const listaDias = diasResp?.data ?? diasResp ?? [];
+      const listaHorarios = horariosResp?.data ?? horariosResp ?? [];
+
+      // Se busca por valor para no depender del orden del seed.
+      const buscarHora = (hhmm, fallback) =>
+        (Array.isArray(listaHorarios) ? listaHorarios : []).find((h) =>
+          String(h.hora).startsWith(hhmm)
+        )?.id ?? fallback;
+      const buscarDia = (nombre, fallback) =>
+        (Array.isArray(listaDias) ? listaDias : []).find(
+          (d) => String(d.dia).toLowerCase() === nombre
+        )?.id ?? fallback;
+
+      return {
+        hora_desde_id: buscarHora('08', porDefecto.hora_desde_id),
+        hora_hasta_id: buscarHora('18', porDefecto.hora_hasta_id),
+        atencion_dia_desde_id: buscarDia('lunes', porDefecto.atencion_dia_desde_id),
+        atencion_dia_hasta_id: buscarDia('viernes', porDefecto.atencion_dia_hasta_id),
+      };
+    } catch (err) {
+      console.error('No se pudieron leer días/horarios, se usa el default:', err);
+      return porDefecto;
+    }
+  };
+
+  const crearRegistroEspecifico = async (idUsuario) => {
+    // Se arma el body campo por campo. Antes se hacía spread de
+    // `datosEspecificos`, así que a /mayoristas/ le llegaban también los
+    // campos de transportista (patente, tipo_vehiculo…) y viceversa.
     switch (tipo) {
       case 'mayorista':
-        await mayoristasService.create({
-          ...payload,
-          pedido_minimo: parseFloat(datosEspecificos.pedido_minimo) || 0
-        });
+      case 'minorista': {
+        const horario = await resolverHorarioPorDefecto();
+
+        const comercio = {
+          id_usuario: Number(idUsuario),
+          razon_social: datosEspecificos.razon_social.trim(),
+          cuit: datosEspecificos.cuit.trim(),
+          rubro_id: Number(datosEspecificos.rubro_id) || null,
+          ...horario,
+          pedido_minimo: parseFloat(datosEspecificos.pedido_minimo) || 0,
+          retiro_en_local: datosEspecificos.retiro_en_local,
+          descripcion: datosEspecificos.descripcion.trim() || null,
+        };
+
+        if (tipo === 'mayorista') {
+          await mayoristasService.create(comercio);
+        } else {
+          await minoristasService.create(comercio);
+        }
         break;
-      case 'minorista':
-        await minoristasService.create({
-          ...payload,
-          pedido_minimo: parseFloat(datosEspecificos.pedido_minimo) || 0
-        });
-        break;
+      }
       case 'comprador':
         await compradoresService.create({
-          id_usuario: idUsuario,
+          id_usuario: Number(idUsuario),
           nombre: datosComunes.nombre,
           apellido: datosComunes.apellido
         });
         break;
       case 'transportista':
         await transportistasService.create({
-          ...payload,
+          id_usuario: Number(idUsuario),
+          tipo_vehiculo: datosEspecificos.tipo_vehiculo,
+          patente: datosEspecificos.patente.trim(),
+          capacidad_carga: datosEspecificos.capacidad_carga.trim(),
+          refrigerado: datosEspecificos.refrigerado,
           precio_base: parseFloat(datosEspecificos.precio_base) || 0,
-          precio_por_km: parseFloat(datosEspecificos.precio_por_km) || 0
+          precio_por_km: parseFloat(datosEspecificos.precio_por_km) || 0,
+          descripcion: datosEspecificos.descripcion.trim() || null,
         });
         break;
       default:
@@ -578,10 +687,11 @@ function RegisterMejorado() {
                           setErrors({...errors, tipo_vehiculo: ''});
                         }}
                       >
+                        {/* Mismos valores que TransportistaForm y AgregarPerfil */}
                         <option value="">Seleccionar...</option>
                         <option value="Camioneta">🚙 Camioneta</option>
-                        <option value="Camion">🚛 Camión</option>
-                        <option value="Furgon">🚐 Furgón</option>
+                        <option value="Camión">🚛 Camión</option>
+                        <option value="Furgón">🚐 Furgón</option>
                         <option value="Semi">🚚 Semi</option>
                       </select>
                       {errors.tipo_vehiculo && <span className="error-message">⚠️ {errors.tipo_vehiculo}</span>}

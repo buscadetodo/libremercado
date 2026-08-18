@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import usuarioPerfilesService from '../services/usuarioPerfilesService';
 import useAuth from '../hooks/useAuth';
+import { esAdmin } from '../config/roles';
 
 const PerfilContext = createContext();
 
@@ -82,6 +83,17 @@ export const PerfilProvider = ({ children }) => {
     return perfiles.some(p => p.perfil?.toLowerCase() === nombrePerfil.toLowerCase());
   };
 
+  // Destino del boton "Panel"/"Volver": /dashboard es adminOnly, asi que a un
+  // usuario comun hay que mandarlo al dashboard de su perfil. Si no se puede
+  // mapear, /perfil, que si es accesible para cualquier usuario logueado.
+  const panelUrl = (() => {
+    if (esAdmin(user)) return '/dashboard';
+    const perfil = perfilActivo || perfiles[0];
+    if (!perfil) return '/perfil';
+    const url = obtenerDashboardUrl(perfil);
+    return url === '/dashboard' ? '/perfil' : url;
+  })();
+
   const value = {
     perfiles,
     perfilActivo,
@@ -89,6 +101,7 @@ export const PerfilProvider = ({ children }) => {
     cambiarPerfil,
     cargarPerfiles,
     obtenerDashboardUrl,
+    panelUrl,
     tienePerfil
   };
 

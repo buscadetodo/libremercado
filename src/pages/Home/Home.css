@@ -382,6 +382,16 @@
   font-size: 5rem;
 }
 
+/* Imagen real del producto (imagen_url). Misma altura que el placeholder
+   para que la grilla no salte entre productos con y sin foto. */
+.producto-imagen-real {
+  height: 180px;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+  background: #f3f4f6;
+}
+
 .producto-info {
   padding: 1.25rem;
 }
@@ -429,6 +439,7 @@
 }
 
 .btn-comprar {
+  display: block;
   width: 100%;
   padding: 0.75rem;
   background: #667eea;
@@ -439,6 +450,9 @@
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
 .btn-comprar:hover {
