@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useRubros } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
 import mayoristasService from '../../services/mayoristasService';
 import diasService from '../../services/diasService';
 import horariosService from '../../services/horariosService';
 import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
+import SelectRubro from '../../components/SelectRubro/SelectRubro';
 import mensajeDeError from '../../api/mensajeDeError';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
@@ -16,7 +16,6 @@ function MayoristaForm() {
   const isEdit = Boolean(id);
   const toast = useToast();
 
-  const { rubros, fetchRubros } = useRubros();
   const [dias, setDias] = useState([]);
   const [horarios, setHorarios] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -38,7 +37,7 @@ function MayoristaForm() {
   });
 
   useEffect(() => {
-    fetchRubros();
+    // Los rubros los carga SelectRubro por su cuenta.
     loadDias();
     loadHorarios();
     
@@ -173,21 +172,12 @@ function MayoristaForm() {
 
             <div className="form-group">
               <label htmlFor="rubro_id">Rubro *</label>
-              <select
-                id="rubro_id"
-                name="rubro_id"
+              <SelectRubro
                 value={formData.rubro_id}
                 onChange={handleChange}
                 required
                 className="form-input"
-              >
-                <option value="">Selecciona un rubro</option>
-                {rubros && rubros.map((rubro) => (
-                  <option key={rubro.id} value={rubro.id}>
-                    {rubro.rubro}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className="form-group">

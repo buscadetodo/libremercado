@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks';
+import { useAuth, useFichaComercial } from '../../hooks';
 import { usePerfilActivo } from '../../context/PerfilContext';
 import { esAdmin } from '../../config/roles';
 import { FEATURE_PRODUCTOS } from '../../config/features';
@@ -11,7 +11,8 @@ function Sidebar({ onNavigate }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { perfilActivo, obtenerDashboardUrl } = usePerfilActivo();
+  const { perfilActivo, obtenerDashboardUrl, sinNingunPerfil } = usePerfilActivo();
+  const { tiposFaltantes } = useFichaComercial();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const confirmarLogout = () => {
@@ -42,8 +43,25 @@ function Sidebar({ onNavigate }) {
     return url === '/dashboard' ? '/' : url;
   })();
 
+  // El acceso al alta se muestra cuando el usuario quedó a mitad de camino:
+  // sin ningún perfil (el registro no lo completó) o con el perfil asignado
+  // pero sin su ficha. En ambos casos no puede operar y necesita volver ahí.
+  const esComercio = tiposFaltantes.some((t) => t === 'mayorista' || t === 'minorista');
+  const altaPendiente = sinNingunPerfil
+    ? { path: '/agregar-perfil', icon: '👤', label: 'Elegir mi perfil', destacado: true }
+    : tiposFaltantes.length > 0
+    ? {
+        path: '/agregar-perfil',
+        icon: esComercio ? '🏬' : '📝',
+        // Transportista y comprador no tienen "comercio": el texto sería confuso.
+        label: esComercio ? 'Dar de alta mi comercio' : 'Completar mi alta',
+        destacado: true,
+      }
+    : null;
+
   const userMenu = [
     { path: inicioUrl, icon: '🏠', label: 'Inicio' },
+    ...(altaPendiente ? [altaPendiente] : []),
     { path: '/mayoristas', icon: '🏭', label: 'Explorar mayoristas' },
     { path: '/perfil', icon: '⚙️', label: 'Mi Perfil' },
   ];
@@ -62,7 +80,9 @@ function Sidebar({ onNavigate }) {
             to={item.path}
             title={item.label}
             onClick={onNavigate}
-            className={`sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
+            className={`sidebar-item ${location.pathname === item.path ? 'active' : ''} ${
+              item.destacado ? 'sidebar-item-destacado' : ''
+            }`}
           >
             <span className="sidebar-icon">{item.icon}</span>
             <span className="sidebar-label">{item.label}</span>

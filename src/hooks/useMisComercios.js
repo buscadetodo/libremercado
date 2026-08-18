@@ -1,8 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { esAdmin } from '../config/roles';
-import mayoristasService from '../services/mayoristasService';
-import minoristasService from '../services/minoristasService';
+import { usePerfilActivo } from '../context/PerfilContext';
 
 /**
  * Comercios (mayoristas / minoristas) sobre los que el usuario logueado puede operar.
@@ -14,63 +10,24 @@ import minoristasService from '../services/minoristasService';
  *
  * El administrador es la excepción: ve el catálogo completo de comercios.
  *
+ * Los datos se cargan una sola vez en PerfilContext (los consultan el Sidebar,
+ * los dashboards y los formularios); este hook solo los adapta al formato que
+ * usan los componentes.
+ *
  * @returns {{
  *   mayoristas: Array, minoristas: Array, opciones: Array,
  *   loading: boolean, error: string|null, isAdmin: boolean, reload: Function
  * }}
  */
 export const useMisComercios = () => {
-  const { user } = useAuth();
-  const isAdmin = esAdmin(user);
-
-  const [mayoristas, setMayoristas] = useState([]);
-  const [minoristas, setMinoristas] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const reload = useCallback(async () => {
-    // Sin usuario no hay nada que resolver.
-    if (!user?.id) {
-      setMayoristas([]);
-      setMinoristas([]);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    // El admin ve todos; el resto solo los propios (filtro id_usuario).
-    const filtros = isAdmin ? { limit: 100 } : { id_usuario: user.id, limit: 100 };
-
-    try {
-      // allSettled: si un perfil no aplica al usuario, el otro igual se carga.
-      const [mayResp, minResp] = await Promise.allSettled([
-        mayoristasService.getAll(filtros),
-        minoristasService.getAll(filtros),
-      ]);
-
-      const listar = (resp) => {
-        if (resp.status !== 'fulfilled') return [];
-        const data = resp.value?.data ?? resp.value;
-        return Array.isArray(data) ? data : [];
-      };
-
-      setMayoristas(listar(mayResp));
-      setMinoristas(listar(minResp));
-
-      if (mayResp.status === 'rejected' && minResp.status === 'rejected') {
-        setError('No se pudieron cargar tus comercios');
-      }
-    } catch (err) {
-      setError('No se pudieron cargar tus comercios');
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, isAdmin]);
-
-  useEffect(() => {
-    reload();
-  }, [reload]);
+  const {
+    mayoristas,
+    minoristas,
+    loadingComercios,
+    errorComercios,
+    cargarComercios,
+    isAdmin,
+  } = usePerfilActivo();
 
   // Lista plana lista para un <select>, con el tipo de oferente incluido.
   const opciones = [
@@ -86,7 +43,15 @@ export const useMisComercios = () => {
     })),
   ];
 
-  return { mayoristas, minoristas, opciones, loading, error, isAdmin, reload };
+  return {
+    mayoristas,
+    minoristas,
+    opciones,
+    loading: loadingComercios,
+    error: errorComercios,
+    isAdmin,
+    reload: cargarComercios,
+  };
 };
 
 export default useMisComercios;

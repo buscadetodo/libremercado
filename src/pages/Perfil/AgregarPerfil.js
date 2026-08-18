@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
 import { usePerfilActivo } from '../../context/PerfilContext';
 import useAuth from '../../hooks/useAuth';
-import { useRubros, useMisComercios } from '../../hooks';
+import { useMisComercios } from '../../hooks';
+import SelectRubro from '../../components/SelectRubro/SelectRubro';
 import usuarioPerfilesService from '../../services/usuarioPerfilesService';
 import usersService from '../../services/usersService';
 import mayoristasService from '../../services/mayoristasService';
@@ -37,40 +38,21 @@ function AgregarPerfil() {
   const navigate = useNavigate();
   const toast = useToast();
   const { user } = useAuth();
-  const { cargarPerfiles, tienePerfil } = usePerfilActivo();
-  const { rubros, fetchRubros } = useRubros();
-  const {
-    mayoristas,
-    minoristas,
-    reload: recargarComercios,
-  } = useMisComercios();
+  const { cargarPerfiles, tienePerfil, tiposSinFicha } = usePerfilActivo();
+  const { reload: recargarComercios } = useMisComercios();
   const [loading, setLoading] = useState(false);
   const [tipoSeleccionado, setTipoSeleccionado] = useState('');
 
   /**
-   * ¿El usuario ya tiene la ficha comercial creada?
-   * Tener el perfil asignado (usuario_perfiles) no implica tener el comercio:
-   * son dos registros distintos y el alta puede quedar a medio camino.
-   * Se compara contra id_usuario porque el admin recibe todos los comercios.
+   * Perfil asignado pero sin su ficha: hay que poder reintentar.
+   * Vale para los cuatro tipos, no solo para mayorista y minorista: si falla el
+   * POST de transportista o comprador, el perfil igual queda asignado y la card
+   * no puede darse por completa, o el usuario se queda sin forma de cargarla.
    */
-  const tieneComercio = (tipo) => {
-    const lista = tipo === 'mayorista' ? mayoristas : minoristas;
-    return lista.some((c) => String(c.id_usuario) === String(user?.id));
-  };
+  const altaIncompleta = (tipo) => tiposSinFicha.includes(tipo);
 
-  /** El alta está realmente completa: perfil asignado + ficha comercial. */
-  const altaCompleta = (tipo) => {
-    if (tipo === 'mayorista' || tipo === 'minorista') {
-      return tienePerfil(tipo) && tieneComercio(tipo);
-    }
-    return tienePerfil(tipo);
-  };
-
-  /** Perfil asignado pero sin ficha comercial: hay que poder reintentar. */
-  const altaIncompleta = (tipo) =>
-    (tipo === 'mayorista' || tipo === 'minorista') &&
-    tienePerfil(tipo) &&
-    !tieneComercio(tipo);
+  /** El alta está realmente completa: perfil asignado + ficha creada. */
+  const altaCompleta = (tipo) => tienePerfil(tipo) && !altaIncompleta(tipo);
 
   // Catálogos de la API (días 1–7, horarios 1–24)
   const [dias, setDias] = useState([]);
@@ -103,7 +85,7 @@ function AgregarPerfil() {
   // Catálogos + valores por defecto razonables (Lunes a Viernes, 08:00 a 18:00).
   useEffect(() => {
     const cargarCatalogos = async () => {
-      fetchRubros();
+      // Los rubros los carga SelectRubro por su cuenta.
       try {
         const [diasResp, horariosResp] = await Promise.all([
           diasService.getAll(),
@@ -169,7 +151,8 @@ function AgregarPerfil() {
       color: '#0288d1',
       descripcion: 'Compro productos para consumo',
       perfil_id: PERFIL.COMPRADOR,
-      disabled: tienePerfil('comprador')
+      disabled: altaCompleta('comprador'),
+      incompleto: altaIncompleta('comprador')
     },
     {
       tipo: 'transportista',
@@ -178,7 +161,8 @@ function AgregarPerfil() {
       color: '#e91e63',
       descripcion: 'Ofrezco servicios de flete',
       perfil_id: PERFIL.TRANSPORTISTA,
-      disabled: tienePerfil('transportista')
+      disabled: altaCompleta('transportista'),
+      incompleto: altaIncompleta('transportista')
     }
   ];
 
@@ -356,18 +340,11 @@ function AgregarPerfil() {
 
             <div className="ap-form-group">
               <label>Rubro *</label>
-              <select
+              <SelectRubro
                 value={datosEspecificos.rubro_id}
                 onChange={(e) => setCampo('rubro_id', e.target.value)}
                 required
-              >
-                <option value="">Seleccionar rubro...</option>
-                {(rubros || []).map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.rubro}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className="ap-form-group">

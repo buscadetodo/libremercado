@@ -1,0 +1,56 @@
+.aviso-ficha {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-left: 4px solid #f59e0b;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.aviso-ficha-icono {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.aviso-ficha-texto h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+  color: #92400e;
+}
+
+.aviso-ficha-texto p {
+  margin: 0 0 0.9rem;
+  color: #78350f;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.aviso-ficha-texto strong {
+  text-transform: capitalize;
+}
+
+.aviso-ficha-btn {
+  display: inline-block;
+  padding: 0.55rem 1.1rem;
+  background: #f59e0b;
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.aviso-ficha-btn:hover {
+  background: #d97706;
+  color: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .aviso-ficha {
+    padding: 1rem;
+  }
+}

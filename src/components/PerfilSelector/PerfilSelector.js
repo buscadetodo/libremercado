@@ -8,8 +8,22 @@ function PerfilSelector() {
   const { perfiles, perfilActivo, cambiarPerfil, obtenerDashboardUrl } = usePerfilActivo();
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Sin perfiles no hay nada que seleccionar, pero devolver null dejaba al
+  // usuario recién registrado sin ningún acceso a la pantalla de alta: el
+  // registro le crea la cuenta y, si abandona el onboarding, no hay forma de
+  // volver salvo escribir la URL. Se muestra el acceso en lugar del selector.
   if (!perfilActivo || perfiles.length === 0) {
-    return null;
+    return (
+      <button
+        type="button"
+        className="perfil-selector-btn perfil-selector-alta"
+        onClick={() => navigate('/agregar-perfil')}
+        title="Todavía no elegiste tu perfil"
+      >
+        <span className="perfil-icono">👤</span>
+        <span className="perfil-nombre">Elegir mi perfil</span>
+      </button>
+    );
   }
 
   const handleCambioPerfil = (perfil) => {

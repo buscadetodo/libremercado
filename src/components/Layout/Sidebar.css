@@ -74,6 +74,19 @@
   font-weight: 600;
 }
 
+/* Alta de comercio pendiente: es una tarea a completar, no una sección más
+   del menú, así que se distingue del resto de los ítems. */
+.sidebar-item-destacado {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  color: #fcd34d;
+}
+
+.sidebar-item-destacado:hover {
+  background: #f59e0b;
+  color: #1f2937;
+}
+
 .sidebar-icon {
   font-size: 1.35rem;
   min-width: 24px;

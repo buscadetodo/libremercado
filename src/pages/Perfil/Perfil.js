@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import usersService from '../../services/usersService';
 import { usePerfilActivo } from '../../context/PerfilContext';
+import MisPerfiles from '../../components/MisPerfiles/MisPerfiles';
 import './Perfil.css';
 
 function Perfil() {
@@ -318,6 +319,9 @@ function Perfil() {
             </button>
           </div>
         </form>
+
+        {/* Fuera del form: son acciones propias, no parte del alta de datos */}
+        <MisPerfiles />
       </div>
     </div>
   );

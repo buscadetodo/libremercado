@@ -1,14 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useFichaComercial } from '../../hooks';
+import { usePerfilActivo } from '../../context/PerfilContext';
+import AvisoFichaComercial from '../../components/AvisoFichaComercial/AvisoFichaComercial';
 import '../Dashboard/Dashboard.css';
 
 function TransportistaDashboard() {
+  const { tiposFaltantes } = useFichaComercial();
+  const { isAdmin } = usePerfilActivo();
+  const sinFicha = tiposFaltantes.includes('transportista');
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <h1>🚚 Dashboard Transportista</h1>
         <p className="dashboard-subtitle">Panel de control para servicios de transporte</p>
       </div>
+
+      <AvisoFichaComercial tipo="transportista" />
 
       <div className="stats-grid">
         <div className="stat-card" style={{ '--color': '#667eea' }}>
@@ -47,10 +56,20 @@ function TransportistaDashboard() {
       <div className="dashboard-section">
         <h2>Acciones Rápidas</h2>
         <div className="actions-grid">
-          <Link to="/transportistas" className="action-card" style={{ '--color': '#667eea' }}>
-            <span className="action-icon">🚚</span>
-            <span className="action-title">Ver Solicitudes</span>
-          </Link>
+          {sinFicha && (
+            <Link to="/agregar-perfil" className="action-card" style={{ '--color': '#f59e0b' }}>
+              <span className="action-icon">📝</span>
+              <span className="action-title">Completar mis datos</span>
+            </Link>
+          )}
+          {/* /transportistas es adminOnly: para un transportista comun el link
+              rebotaba al inicio, asi que solo se muestra a quien puede entrar. */}
+          {isAdmin && (
+            <Link to="/transportistas" className="action-card" style={{ '--color': '#667eea' }}>
+              <span className="action-icon">🚚</span>
+              <span className="action-title">Ver Solicitudes</span>
+            </Link>
+          )}
           <Link to="/perfil" className="action-card" style={{ '--color': '#764ba2' }}>
             <span className="action-icon">⚙️</span>
             <span className="action-title">Configurar Tarifas</span>
