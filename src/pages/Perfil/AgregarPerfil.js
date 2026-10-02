@@ -43,6 +43,8 @@ function AgregarPerfil() {
   const { cargarPerfiles, tienePerfil, tiposSinFicha } = usePerfilActivo();
   const { reload: recargarComercios } = useMisComercios();
   const [loading, setLoading] = useState(false);
+  // Error del alta que queda visible en el formulario (un toast se va solo)
+  const [errorAlta, setErrorAlta] = useState(null);
   const [tipoSeleccionado, setTipoSeleccionado] = useState('');
 
   /**
@@ -182,6 +184,7 @@ function AgregarPerfil() {
     }
 
     setLoading(true);
+    setErrorAlta(null);
 
     try {
       const tipoConfig = tiposDisponibles.find(t => t.tipo === tipoSeleccionado);
@@ -206,10 +209,18 @@ function AgregarPerfil() {
         console.error('Error al crear el registro específico:', errorRegistro);
         // El perfil sí quedó asignado: hay que decirlo, porque el estado
         // intermedio es justamente el que confunde.
-        const detalle = mensajeDeError(errorRegistro, 'la API rechazó los datos');
-        toast.error(
-          `El perfil de ${tipoSeleccionado} se asignó, pero no se pudo crear el registro: ${detalle}. Revisá los datos y volvé a intentar.`
-        );
+        const detalle = mensajeDeError(errorRegistro, 'La API rechazó los datos.');
+        const registro = ['mayorista', 'minorista'].includes(tipoSeleccionado)
+          ? 'los datos del comercio'
+          : 'tu ficha';
+        setErrorAlta({
+          titulo: `No se pudieron guardar ${registro}`,
+          detalle,
+          // El perfil sí quedó asignado: hay que decirlo, porque ese estado
+          // intermedio es justamente el que confunde ("Falta cargar el comercio")
+          nota: `El perfil de ${tipoSeleccionado} quedó asignado a tu cuenta. Tus datos siguen cargados en el formulario: podés corregirlos y volver a intentar.`,
+        });
+        toast.error(`No se pudieron guardar ${registro}`);
         await cargarPerfiles();
         await recargarComercios();
         return;
@@ -234,7 +245,9 @@ function AgregarPerfil() {
 
     } catch (error) {
       console.error('Error al agregar perfil:', error);
-      toast.error(mensajeDeError(error, 'Error al agregar el perfil'));
+      const detalle = mensajeDeError(error, 'Error al agregar el perfil');
+      setErrorAlta({ titulo: 'No se pudo agregar el perfil', detalle });
+      toast.error(detalle);
     } finally {
       setLoading(false);
     }
@@ -562,13 +575,18 @@ function AgregarPerfil() {
                 key={tipo.tipo}
                 className={`ap-tipo-card ${tipoSeleccionado === tipo.tipo ? 'selected' : ''} ${tipo.disabled ? 'disabled' : ''}`}
                 style={{ '--color': tipo.color }}
-                onClick={() => !tipo.disabled && setTipoSeleccionado(tipo.tipo)}
+                onClick={() => {
+                  if (tipo.disabled) return;
+                  setTipoSeleccionado(tipo.tipo);
+                  setErrorAlta(null);
+                }}
                 role="button"
                 tabIndex={tipo.disabled ? -1 : 0}
                 onKeyDown={(e) => {
                   if (!tipo.disabled && (e.key === 'Enter' || e.key === ' ')) {
                     e.preventDefault();
                     setTipoSeleccionado(tipo.tipo);
+                    setErrorAlta(null);
                   }
                 }}
               >
@@ -590,6 +608,17 @@ function AgregarPerfil() {
         {/* Paso 2: datos específicos */}
         {renderFormularioEspecifico()}
 
+        {errorAlta && (
+          <div className="ap-error" role="alert">
+            <Icon name="error" className="ap-error-icono" />
+            <div>
+              <p className="ap-error-titulo">{errorAlta.titulo}</p>
+              <p className="ap-error-detalle">{errorAlta.detalle}</p>
+              {errorAlta.nota && <p className="ap-error-nota">{errorAlta.nota}</p>}
+            </div>
+          </div>
+        )}
+
         {/* Acciones */}
         <div className="ap-actions">
           <button
@@ -604,7 +633,7 @@ function AgregarPerfil() {
             className="ap-btn-submit"
             disabled={loading || !tipoSeleccionado}
           >
-            {loading ? 'Agregando perfil...' : 'Agregar perfil'}
+            {loading ? 'Agregando perfil...' : errorAlta ? 'Volver a intentar' : 'Agregar perfil'}
           </button>
         </div>
       </form>
