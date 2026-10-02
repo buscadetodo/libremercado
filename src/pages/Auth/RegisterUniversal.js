@@ -60,7 +60,9 @@ function RegisterUniversal() {
       newErrors.password = 'Mínimo 6 caracteres';
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Confirmá la contraseña';
+    } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
 

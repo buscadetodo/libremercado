@@ -200,22 +200,6 @@ function Login() {
               {errors.password && <span className="error-message">⚠️ {errors.password}</span>}
             </div>
 
-            {/* Extras: Recordarme y Olvidé contraseña */}
-            <div className="login-extras">
-              <label className="remember-me-checkbox">
-                <input type="checkbox" />
-                <span className="checkmark"></span>
-                <span className="remember-text">Recordarme</span>
-              </label>
-              <button
-                type="button"
-                className="forgot-password-btn"
-                onClick={() => toast.info('Función disponible próximamente')}
-              >
-                ¿Olvidaste tu contraseña?
-              </button>
-            </div>
-
             {/* Botón submit */}
             <button
               type="submit"

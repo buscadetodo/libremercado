@@ -376,100 +376,10 @@
   letter-spacing: 0.3px;
 }
 
-/* Extras del login (recordarme y olvidé contraseña) */
-.login-extras {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  margin-top: 16px;
-}
-
-.remember-me-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  position: relative;
-  padding-left: 0;
-  user-select: none;
-}
-
-.remember-me-checkbox input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
-}
-
-.checkmark {
-  position: relative;
-  height: 20px;
-  width: 20px;
-  background-color: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.remember-me-checkbox:hover .checkmark {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
-}
-
-.remember-me-checkbox input:checked ~ .checkmark {
-  background-color: #667eea;
-  border-color: #667eea;
-}
-
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
-}
-
-.remember-me-checkbox input:checked ~ .checkmark:after {
-  display: block;
-}
-
-.remember-me-checkbox .checkmark:after {
-  left: 6px;
-  top: 2px;
-  width: 5px;
-  height: 10px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-.remember-text {
-  font-size: 14px;
-  color: #4a5568;
-  font-weight: 500;
-}
-
-.forgot-password-btn {
-  font-size: 14px;
-  color: #667eea;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.forgot-password-btn:hover {
-  color: #5568d3;
-  background: rgba(102, 126, 234, 0.1);
-  text-decoration: underline;
-}
-
 /* Botón de submit del login */
 .btn-submit-login {
   width: 100%;
+  margin-top: 24px;
   padding: 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
