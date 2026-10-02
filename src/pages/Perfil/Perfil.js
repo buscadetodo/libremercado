@@ -4,6 +4,7 @@ import usersService from '../../services/usersService';
 import { usePerfilActivo } from '../../context/PerfilContext';
 import MisPerfiles from '../../components/MisPerfiles/MisPerfiles';
 import Icon from '../../components/Icon/Icon';
+import { esEmailValido } from '../../utils/validaciones';
 import './Perfil.css';
 
 function Perfil() {
@@ -118,6 +119,11 @@ function Perfil() {
     e.preventDefault();
     setError(null);
     setSuccess(false);
+
+    if (!esEmailValido(formData.email)) {
+      setError('Ingresá un email válido (ej.: nombre@empresa.com)');
+      return;
+    }
 
     try {
       setSaving(true);

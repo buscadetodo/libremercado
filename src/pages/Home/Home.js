@@ -20,6 +20,7 @@ function Home() {
   const [codigoPostal, setCodigoPostal] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [accionLogin, setAccionLogin] = useState('');
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(false);
   const [mayoristasReales, setMayoristasReales] = useState([]);
@@ -220,7 +221,15 @@ function Home() {
     }
   };
 
+  // Sin sesión, estas acciones llevan a crear cuenta: el modal dice para qué
+  const MOTIVOS_LOGIN = {
+    comprar: 'Para comprar, ingresá a tu cuenta',
+    buscar: 'Para buscar en el catálogo, ingresá a tu cuenta',
+    categoria: 'Para explorar por rubro, ingresá a tu cuenta',
+  };
+
   const handleActionRequiresLogin = (action) => {
+    setAccionLogin(action);
     setShowLoginModal(true);
   };
 
@@ -492,16 +501,6 @@ function Home() {
           </section>
         )}
 
-        {/* Ofertas destacadas */}
-        <section className="destacados-badges">
-          <div className="container">
-            <div className="badges-row">
-              <div className="badge-item"><Icon name="hot" /> Ofertas destacadas</div>
-              <div className="badge-item"><Icon name="cart" /> Supermercados cercanos</div>
-            </div>
-          </div>
-        </section>
-
         {/* Productos destacados (datos reales de la API).
             Sin sesión no se muestra: GET /productos/ requiere token. */}
         {FEATURE_PRODUCTOS && isAuthenticated && (
@@ -692,7 +691,14 @@ function Home() {
           <label htmlFor="search-input" className="field-label">
             Buscar productos
           </label>
-          <div className="search-box">
+          <form
+            className="search-box"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleActionRequiresLogin('buscar');
+            }}
+          >
             <span className="search-icon"><Icon name="search" /></span>
             <input
               id="search-input"
@@ -702,7 +708,10 @@ function Home() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-          </div>
+            <button type="submit" className="btn-buscar">
+              <Icon name="lock" /> Ingresá para buscar
+            </button>
+          </form>
         </div>
       </section>
 
@@ -710,9 +719,17 @@ function Home() {
       <section className="categorias-section">
         <div className="container">
           <h2 className="section-heading"><Icon name="folder" /> Categorías</h2>
+          <p className="section-hint">
+            <Icon name="lock" /> Ingresá para explorar el catálogo por rubro.
+          </p>
           <div className="categorias-grid">
             {categorias.map((cat, index) => (
-              <button key={index} className="categoria-card">
+              <button
+                key={index}
+                className="categoria-card"
+                onClick={() => handleActionRequiresLogin('categoria')}
+                aria-label={`${cat.nombre}: ingresá para ver el rubro`}
+              >
                 <span className="categoria-icon"><Icon name={cat.icon} /></span>
                 <span className="categoria-nombre">{cat.nombre}</span>
               </button>
@@ -721,20 +738,15 @@ function Home() {
         </div>
       </section>
 
-      {/* Ofertas destacadas */}
-      <section className="destacados-badges">
-        <div className="container">
-          <div className="badges-row">
-            <div className="badge-item"><Icon name="hot" /> Ofertas destacadas</div>
-            <div className="badge-item"><Icon name="cart" /> Supermercados cercanos</div>
-          </div>
-        </div>
-      </section>
-
       {/* Productos destacados */}
       <section className="productos-section">
         <div className="container">
-          <h2 className="section-heading"><Icon name="package" /> Productos destacados (por zona)</h2>
+          <h2 className="section-heading">
+            <Icon name="package" /> Productos destacados <span className="demo-badge">Ejemplo</span>
+          </h2>
+          <p className="section-hint">
+            Así se ven las publicaciones. Ingresá para ver el catálogo real de tu zona.
+          </p>
           <div className="productos-grid">
             {productosDestacados.map((producto, index) => (
               <div key={index} className="producto-card">
@@ -751,9 +763,9 @@ function Home() {
                   <button 
                     className="btn-comprar"
                     onClick={() => handleActionRequiresLogin('comprar')}
-                    aria-label={`Comprar ${producto.nombre}`}
+                    aria-label={`Ingresá para comprar ${producto.nombre}`}
                   >
-                    Comprar
+                    <Icon name="lock" /> Ingresá para comprar
                   </button>
                 </div>
               </div>
@@ -765,7 +777,9 @@ function Home() {
       {/* Mayoristas cercanos */}
       <section className="mayoristas-section">
         <div className="container">
-          <h2 className="section-heading"><Icon name="mayorista" /> Mayoristas cercanos</h2>
+          <h2 className="section-heading">
+            <Icon name="mayorista" /> Mayoristas cercanos <span className="demo-badge">Ejemplo</span>
+          </h2>
           <div className="mayoristas-list">
             {mayoristas.map((mayorista, index) => (
               <div key={index} className="mayorista-card">
@@ -774,30 +788,17 @@ function Home() {
                   <p className="mayorista-direccion">{mayorista.direccion}</p>
                   <span className="mayorista-distancia"><Icon name="location" /> {mayorista.distancia}</span>
                 </div>
-                <button 
+                {/* El contacto todavía no tiene flujo, tampoco con sesión */}
+                <button
                   className="btn-contactar"
-                  onClick={() => handleActionRequiresLogin('contactar')}
-                  aria-label={`Contactar a ${mayorista.nombre}`}
+                  disabled
+                  title="Disponible próximamente"
+                  aria-label={`Contacto con ${mayorista.nombre}: disponible próximamente`}
                 >
-                  Contactar
+                  Contacto próximamente
                 </button>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Fleteros */}
-      <section className="fleteros-section">
-        <div className="container">
-          <div className="fleteros-cta">
-            <h2 className="fleteros-title"><Icon name="transportista" /> ¿Necesitás un flete?</h2>
-            <button 
-              className="btn-buscar-fleteros"
-              onClick={() => handleActionRequiresLogin('flete')}
-            >
-              Buscar fleteros en tu zona
-            </button>
           </div>
         </div>
       </section>
@@ -811,8 +812,10 @@ function Home() {
           className="modal-content"
         >
           <div className="modal-icon"><Icon name="lock" /></div>
-          <h3 id="login-modal-titulo">Para continuar, necesitás crear una cuenta</h3>
-          <p>Registrate gratis para acceder a todas las funcionalidades</p>
+          <h3 id="login-modal-titulo">
+            {MOTIVOS_LOGIN[accionLogin] || 'Para continuar, ingresá a tu cuenta'}
+          </h3>
+          <p>Si todavía no tenés cuenta, registrarte es gratis.</p>
           <div className="modal-actions">
             <Link to="/registro" className="btn-modal-primary">
               Registrarse

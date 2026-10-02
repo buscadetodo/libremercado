@@ -281,3 +281,11 @@
     text-align: center;
   }
 }
+
+/* Texto de ayuda bajo un campo (formato esperado) */
+.ap-ayuda {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}

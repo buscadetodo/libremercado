@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
 import Icon from '../../components/Icon/Icon';
+import {
+  esEmailValido,
+  esPatenteValida,
+  normalizarPatente,
+  PATENTE_AYUDA,
+} from '../../utils/validaciones';
 import authService from '../../services/authService';
 import usuarioPerfilesService from '../../services/usuarioPerfilesService';
 import mayoristasService from '../../services/mayoristasService';
@@ -125,8 +131,8 @@ function RegisterMejorado() {
     
     if (!datosComunes.email.trim()) {
       newErrors.email = 'El email es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(datosComunes.email)) {
-      newErrors.email = 'Email inválido';
+    } else if (!esEmailValido(datosComunes.email)) {
+      newErrors.email = 'Ingresá un email válido (ej.: nombre@empresa.com)';
     }
 
     if (!datosComunes.password) {
@@ -161,6 +167,8 @@ function RegisterMejorado() {
       }
       if (!datosEspecificos.patente.trim()) {
         newErrors.patente = 'La patente es requerida';
+      } else if (!esPatenteValida(datosEspecificos.patente)) {
+        newErrors.patente = `Patente inválida (${PATENTE_AYUDA})`;
       }
     }
 
@@ -699,12 +707,13 @@ function RegisterMejorado() {
                     </div>
 
                     <div className={`form-group-mejorado ${errors.patente ? 'error' : ''}`}>
-                      <label>Patente *</label>
+                      <label htmlFor="reg-patente">Patente *</label>
                       <input
+                        id="reg-patente"
                         type="text"
                         value={datosEspecificos.patente}
                         onChange={(e) => {
-                          setDatosEspecificos({...datosEspecificos, patente: e.target.value.toUpperCase()});
+                          setDatosEspecificos({...datosEspecificos, patente: normalizarPatente(e.target.value)});
                           setErrors({...errors, patente: ''});
                         }}
                         placeholder="ABC123"

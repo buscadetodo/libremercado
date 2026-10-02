@@ -5,6 +5,7 @@ import transportistasService from '../../services/transportistasService';
 import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
 import mensajeDeError from '../../api/mensajeDeError';
 import Icon from '../../components/Icon/Icon';
+import { esPatenteValida, normalizarPatente, PATENTE_AYUDA, PATENTE_MAX } from '../../utils/validaciones';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
 
@@ -76,13 +77,18 @@ function TransportistaForm() {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: name === 'patente' ? normalizarPatente(value) : value
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    if (!esPatenteValida(formData.patente)) {
+      setError(`Patente inválida (${PATENTE_AYUDA})`);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -196,7 +202,10 @@ function TransportistaForm() {
                   required
                   className="form-input"
                   placeholder="ABC123"
+                  maxLength={PATENTE_MAX}
+                  aria-describedby="patente-ayuda"
                 />
+                <small id="patente-ayuda" className="form-help">{PATENTE_AYUDA}</small>
               </div>
             </div>
 
