@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FEATURE_PRODUCTOS } from '../../config/features';
 import { useFichaComercial } from '../../hooks';
 import AvisoFichaComercial from '../../components/AvisoFichaComercial/AvisoFichaComercial';
+import Icon from '../../components/Icon/Icon';
 import '../Dashboard/Dashboard.css';
 
 function MinoristaDashboard() {
@@ -12,7 +13,7 @@ function MinoristaDashboard() {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>🏪 Dashboard Minorista</h1>
+        <h1><Icon name="minorista" /> Dashboard Minorista</h1>
         <p className="dashboard-subtitle">Panel de control para minoristas</p>
       </div>
 
@@ -20,7 +21,7 @@ function MinoristaDashboard() {
 
       <div className="stats-grid">
         <div className="stat-card" style={{ '--color': '#667eea' }}>
-          <div className="stat-icon">🛒</div>
+          <div className="stat-icon"><Icon name="cart" /></div>
           <div className="stat-content">
             <h3 className="stat-title">Pedidos Realizados</h3>
             <p className="stat-count">0</p>
@@ -28,7 +29,7 @@ function MinoristaDashboard() {
         </div>
 
         <div className="stat-card" style={{ '--color': '#764ba2' }}>
-          <div className="stat-icon">📦</div>
+          <div className="stat-icon"><Icon name="package" /></div>
           <div className="stat-content">
             <h3 className="stat-title">Productos Favoritos</h3>
             <p className="stat-count">0</p>
@@ -36,7 +37,7 @@ function MinoristaDashboard() {
         </div>
 
         <div className="stat-card" style={{ '--color': '#f093fb' }}>
-          <div className="stat-icon">🏭</div>
+          <div className="stat-icon"><Icon name="mayorista" /></div>
           <div className="stat-content">
             <h3 className="stat-title">Mayoristas</h3>
             <p className="stat-count">0</p>
@@ -44,7 +45,7 @@ function MinoristaDashboard() {
         </div>
 
         <div className="stat-card" style={{ '--color': '#4facfe' }}>
-          <div className="stat-icon">💰</div>
+          <div className="stat-icon"><Icon name="money" /></div>
           <div className="stat-content">
             <h3 className="stat-title">Compras del Mes</h3>
             <p className="stat-count">$0</p>
@@ -57,22 +58,22 @@ function MinoristaDashboard() {
         <div className="actions-grid">
           {sinFicha && (
             <Link to="/agregar-perfil" className="action-card" style={{ '--color': '#f59e0b' }}>
-              <span className="action-icon">🏬</span>
+              <span className="action-icon"><Icon name="local" /></span>
               <span className="action-title">Dar de alta mi comercio</span>
             </Link>
           )}
           {FEATURE_PRODUCTOS && (
             <Link to="/productos" className="action-card" style={{ '--color': '#667eea' }}>
-              <span className="action-icon">🔍</span>
+              <span className="action-icon"><Icon name="search" /></span>
               <span className="action-title">Buscar Productos</span>
             </Link>
           )}
           <Link to="/mayoristas" className="action-card" style={{ '--color': '#764ba2' }}>
-            <span className="action-icon">🏭</span>
+            <span className="action-icon"><Icon name="mayorista" /></span>
             <span className="action-title">Ver Mayoristas</span>
           </Link>
           <Link to="/perfil" className="action-card" style={{ '--color': '#f093fb' }}>
-            <span className="action-icon">⚙️</span>
+            <span className="action-icon"><Icon name="settings" /></span>
             <span className="action-title">Mi Perfil</span>
           </Link>
         </div>

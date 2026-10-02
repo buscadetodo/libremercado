@@ -4,6 +4,7 @@ import { useToast } from '../../components/Toast/Toast';
 import transportistasService from '../../services/transportistasService';
 import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
 import mensajeDeError from '../../api/mensajeDeError';
+import Icon from '../../components/Icon/Icon';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
 
@@ -116,13 +117,13 @@ function TransportistaForm() {
   };
 
   if (loading && isEdit) {
-    return <div className="loading">⏳ Cargando...</div>;
+    return <div className="loading"><Icon name="loading" /> Cargando...</div>;
   }
 
   return (
     <div className="form-page">
       <div className="form-header">
-        <h1>{isEdit ? '✏️ Editar Transportista' : '➕ Nuevo Transportista'}</h1>
+        <h1>{isEdit ? <><Icon name="edit" /> Editar Transportista</> : <><Icon name="add" /> Nuevo Transportista</>}</h1>
         <button onClick={() => navigate('/transportistas')} className="btn btn-secondary">
           ← Volver
         </button>
@@ -131,7 +132,7 @@ function TransportistaForm() {
       <div className="form-container">
         {error && (
           <div className="error-message">
-            ❌ {error}
+            <Icon name="error" /> {error}
           </div>
         )}
 
@@ -223,8 +224,8 @@ function TransportistaForm() {
                   onChange={handleChange}
                   className="form-input"
                 >
-                  <option value="n">❌ No</option>
-                  <option value="y">❄️ Sí</option>
+                  <option value="n">No</option>
+                  <option value="y">Sí</option>
                 </select>
               </div>
             </div>
@@ -273,7 +274,7 @@ function TransportistaForm() {
               Cancelar
             </button>
             <button type="submit" disabled={loading} className="btn btn-primary">
-              {loading ? '⏳ Guardando...' : isEdit ? '💾 Actualizar' : '✨ Crear Transportista'}
+              {loading ? <><Icon name="loading" /> Guardando...</> : isEdit ? <><Icon name="save" /> Actualizar</> : <><Icon name="sparkles" /> Crear Transportista</>}
             </button>
           </div>
         </form>

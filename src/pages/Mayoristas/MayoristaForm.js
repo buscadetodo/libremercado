@@ -7,6 +7,7 @@ import horariosService from '../../services/horariosService';
 import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
 import SelectRubro from '../../components/SelectRubro/SelectRubro';
 import mensajeDeError from '../../api/mensajeDeError';
+import Icon from '../../components/Icon/Icon';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
 
@@ -109,13 +110,13 @@ function MayoristaForm() {
   };
 
   if (loading && isEdit) {
-    return <div className="loading">⏳ Cargando...</div>;
+    return <div className="loading"><Icon name="loading" /> Cargando...</div>;
   }
 
   return (
     <div className="form-page">
       <div className="form-header">
-        <h1>{isEdit ? '✏️ Editar Mayorista' : '➕ Nuevo Mayorista'}</h1>
+        <h1>{isEdit ? <><Icon name="edit" /> Editar Mayorista</> : <><Icon name="add" /> Nuevo Mayorista</>}</h1>
         <button onClick={() => navigate('/mayoristas')} className="btn btn-secondary">
           ← Volver
         </button>
@@ -124,7 +125,7 @@ function MayoristaForm() {
       <div className="form-container">
         {error && (
           <div className="error-message">
-            ❌ {error}
+            <Icon name="error" /> {error}
           </div>
         )}
 
@@ -306,8 +307,8 @@ function MayoristaForm() {
                   onChange={handleChange}
                   className="form-input"
                 >
-                  <option value="y">✅ Sí</option>
-                  <option value="n">❌ No</option>
+                  <option value="y">Sí</option>
+                  <option value="n">No</option>
                 </select>
               </div>
             </div>
@@ -318,7 +319,7 @@ function MayoristaForm() {
               Cancelar
             </button>
             <button type="submit" disabled={loading} className="btn btn-primary">
-              {loading ? '⏳ Guardando...' : isEdit ? '💾 Actualizar' : '✨ Crear Mayorista'}
+              {loading ? <><Icon name="loading" /> Guardando...</> : isEdit ? <><Icon name="save" /> Actualizar</> : <><Icon name="sparkles" /> Crear Mayorista</>}
             </button>
           </div>
         </form>

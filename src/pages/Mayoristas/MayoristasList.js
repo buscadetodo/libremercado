@@ -4,6 +4,7 @@ import { useMayoristas, useRubros, useAuth } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
 import { esAdmin } from '../../config/roles';
 import Pagination from '../../components/Pagination/Pagination';
+import Icon from '../../components/Icon/Icon';
 import './Mayoristas.css';
 
 function MayoristasList() {
@@ -58,14 +59,14 @@ function MayoristasList() {
     <div className="mayoristas-page">
       <div className="page-header">
         <div>
-          <h1>🏭 Mayoristas</h1>
+          <h1><Icon name="mayorista" /> Mayoristas</h1>
           <p className="page-subtitle">
             {isAdmin ? 'Gestiona los mayoristas registrados' : 'Explorá los mayoristas disponibles'}
           </p>
         </div>
         {isAdmin && (
           <Link to="/mayoristas/nuevo" className="btn btn-primary">
-            ➕ Nuevo Mayorista
+            <Icon name="add" /> Nuevo Mayorista
           </Link>
         )}
       </div>
@@ -86,13 +87,13 @@ function MayoristasList() {
             ))}
           </select>
           <button onClick={handleFilter} className="btn btn-secondary">
-            🔍 Buscar
+            <Icon name="search" /> Buscar
           </button>
         </div>
       </div>
 
-      {loading && <div className="loading">⏳ Cargando mayoristas...</div>}
-      {error && <div className="error-message">❌ {error}</div>}
+      {loading && <div className="loading"><Icon name="loading" /> Cargando mayoristas...</div>}
+      {error && <div className="error-message"><Icon name="error" /> {error}</div>}
 
       <div className="mayoristas-grid">
         {paginatedMayoristas && paginatedMayoristas.length > 0 ? (
@@ -113,7 +114,7 @@ function MayoristasList() {
                 </div>
                 <div className="info-item">
                   <span className="info-label">Retiro en local:</span>
-                  <span className="info-value">{mayorista.retiro_en_local === 'y' ? '✅ Sí' : '❌ No'}</span>
+                  <span className="info-value">{mayorista.retiro_en_local === 'y' ? <><Icon name="success" /> Sí</> : <><Icon name="error" /> No</>}</span>
                 </div>
               </div>
 
@@ -121,15 +122,15 @@ function MayoristasList() {
 
               <div className="mayorista-actions">
                 <Link to={`/mayoristas/${mayorista.id}`} className="btn btn-secondary btn-sm btn-block">
-                  👁️ Ver detalles
+                  <Icon name="view" /> Ver detalles
                 </Link>
                 {isAdmin && (
                   <div className="mayorista-actions-row">
                     <Link to={`/mayoristas/${mayorista.id}/editar`} className="btn btn-primary btn-sm">
-                      ✏️ Editar
+                      <Icon name="edit" /> Editar
                     </Link>
                     <button onClick={() => handleDelete(mayorista.id)} className="btn btn-danger btn-sm">
-                      🗑️ Eliminar
+                      <Icon name="delete" /> Eliminar
                     </button>
                   </div>
                 )}

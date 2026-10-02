@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
 import { esAdmin } from '../../config/roles';
 import Pagination from '../../components/Pagination/Pagination';
+import Icon from '../../components/Icon/Icon';
 import '../Mayoristas/Mayoristas.css';
 
 function TransportistasList() {
@@ -51,20 +52,20 @@ function TransportistasList() {
     <div className="transportistas-page">
       <div className="page-header">
         <div>
-          <h1>🚚 Transportistas</h1>
+          <h1><Icon name="transportista" /> Transportistas</h1>
           <p className="page-subtitle">
             {isAdmin ? 'Gestiona los transportistas registrados' : 'Explorá los transportistas disponibles'}
           </p>
         </div>
         {isAdmin && (
           <Link to="/transportistas/nuevo" className="btn btn-primary">
-            ➕ Nuevo Transportista
+            <Icon name="add" /> Nuevo Transportista
           </Link>
         )}
       </div>
 
-      {loading && <div className="loading">⏳ Cargando transportistas...</div>}
-      {error && <div className="error-message">❌ {error}</div>}
+      {loading && <div className="loading"><Icon name="loading" /> Cargando transportistas...</div>}
+      {error && <div className="error-message"><Icon name="error" /> {error}</div>}
 
       <div className="transportistas-grid">
         {transportistas && transportistas.length > 0 ? (
@@ -84,7 +85,7 @@ function TransportistasList() {
                 </div>
                 <div className="info-item">
                   <span className="info-label">Refrigerado:</span>
-                  <span className="info-value">{transportista.refrigerado === 'y' ? '❄️ Sí' : '❌ No'}</span>
+                  <span className="info-value">{transportista.refrigerado === 'y' ? <><Icon name="cold" /> Sí</> : <><Icon name="error" /> No</>}</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Precio Base:</span>
@@ -101,10 +102,10 @@ function TransportistasList() {
               {isAdmin && (
                 <div className="transportista-actions">
                   <Link to={`/transportistas/${transportista.id}/editar`} className="btn btn-primary btn-sm">
-                    ✏️ Editar
+                    <Icon name="edit" /> Editar
                   </Link>
                   <button onClick={() => handleDelete(transportista.id)} className="btn btn-danger btn-sm">
-                    🗑️ Eliminar
+                    <Icon name="delete" /> Eliminar
                   </button>
                 </div>
               )}

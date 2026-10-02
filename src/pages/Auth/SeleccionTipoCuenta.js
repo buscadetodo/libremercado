@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Icon from '../../components/Icon/Icon';
 import './RegisterMejorado.css';
 import './AuthMejorado.css';
 
@@ -10,7 +11,7 @@ function SeleccionTipoCuenta() {
     {
       tipo: 'mayorista',
       titulo: 'Soy Mayorista',
-      icono: '🏭',
+      icono: 'mayorista',
       descripcion: 'Vendo productos al por mayor',
       color: '#667eea',
       requisitos: ['CUIT', 'Razón Social', 'Productos al por mayor'],
@@ -19,7 +20,7 @@ function SeleccionTipoCuenta() {
     {
       tipo: 'minorista',
       titulo: 'Soy Minorista',
-      icono: '🏪',
+      icono: 'minorista',
       descripcion: 'Tengo un comercio y compro por mayor',
       color: '#764ba2',
       requisitos: ['CUIT/CUIL', 'Nombre del negocio', 'Dirección'],
@@ -28,7 +29,7 @@ function SeleccionTipoCuenta() {
     {
       tipo: 'comprador',
       titulo: 'Soy Comprador',
-      icono: '🛍️',
+      icono: 'comprador',
       descripcion: 'Compro productos para consumo',
       color: '#4facfe',
       requisitos: ['DNI', 'Email', 'Dirección de entrega'],
@@ -37,7 +38,7 @@ function SeleccionTipoCuenta() {
     {
       tipo: 'transportista',
       titulo: 'Soy Transportista',
-      icono: '🚚',
+      icono: 'transportista',
       descripcion: 'Ofrezco servicios de flete',
       color: '#f093fb',
       requisitos: ['CUIT', 'Datos del vehículo', 'Patente'],
@@ -66,7 +67,7 @@ function SeleccionTipoCuenta() {
               onClick={() => handleSeleccion(cuenta.tipo)}
             >
               <div className="tipo-card-header">
-                <div className="tipo-icono-grande">{cuenta.icono}</div>
+                <div className="tipo-icono-grande"><Icon name={cuenta.icono} /></div>
                 <h3>{cuenta.titulo}</h3>
                 <p className="tipo-descripcion">{cuenta.descripcion}</p>
               </div>

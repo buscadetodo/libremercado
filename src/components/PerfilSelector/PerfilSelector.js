@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePerfilActivo } from '../../context/PerfilContext';
+import Icon from '../Icon/Icon';
 import './PerfilSelector.css';
 
 function PerfilSelector() {
@@ -20,7 +21,7 @@ function PerfilSelector() {
         onClick={() => navigate('/agregar-perfil')}
         title="Todavía no elegiste tu perfil"
       >
-        <span className="perfil-icono">👤</span>
+        <span className="perfil-icono"><Icon name="user" /></span>
         <span className="perfil-nombre">Elegir mi perfil</span>
       </button>
     );
@@ -42,12 +43,12 @@ function PerfilSelector() {
 
   const getIconoPerfil = (nombrePerfil) => {
     const iconos = {
-      'mayorista': '🏭',
-      'minorista': '🏪',
-      'comprador': '🛍️',
-      'transportista': '🚚'
+      'mayorista': 'mayorista',
+      'minorista': 'minorista',
+      'comprador': 'comprador',
+      'transportista': 'transportista'
     };
-    return iconos[nombrePerfil?.toLowerCase()] || '👤';
+    return iconos[nombrePerfil?.toLowerCase()] || 'user';
   };
 
   return (
@@ -56,7 +57,7 @@ function PerfilSelector() {
         className="perfil-selector-btn"
         onClick={() => setShowDropdown(!showDropdown)}
       >
-        <span className="perfil-icono">{getIconoPerfil(perfilActivo.perfil)}</span>
+        <span className="perfil-icono"><Icon name={getIconoPerfil(perfilActivo.perfil)} /></span>
         <span className="perfil-nombre">{perfilActivo.perfil}</span>
         <span className="perfil-arrow">{showDropdown ? '▲' : '▼'}</span>
       </button>
@@ -81,7 +82,7 @@ function PerfilSelector() {
                 onClick={() => handleCambioPerfil(perfil)}
               >
                 <span className="perfil-item-icono">
-                  {getIconoPerfil(perfil.perfil)}
+                  <Icon name={getIconoPerfil(perfil.perfil)} />
                 </span>
                 <span className="perfil-item-nombre">{perfil.perfil}</span>
                 {perfil.id_perfil === perfilActivo.id_perfil && (
@@ -96,7 +97,7 @@ function PerfilSelector() {
               className="perfil-dropdown-item agregar"
               onClick={handleAgregarPerfil}
             >
-              <span className="perfil-item-icono">➕</span>
+              <span className="perfil-item-icono"><Icon name="add" /></span>
               <span className="perfil-item-nombre">Agregar otro perfil</span>
             </button>
           </div>

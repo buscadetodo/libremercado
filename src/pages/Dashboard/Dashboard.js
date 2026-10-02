@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import usersService from '../../services/usersService';
 import usuarioPerfilesService from '../../services/usuarioPerfilesService';
+import Icon from '../../components/Icon/Icon';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -47,17 +48,17 @@ function Dashboard() {
   }, []);
 
   const stats = [
-    { title: 'Mayoristas', count: '0', icon: '🏭', color: '#667eea', link: '/mayoristas' },
-    { title: 'Minoristas', count: '0', icon: '🏪', color: '#764ba2', link: '/minoristas' },
-    { title: 'Transportistas', count: '0', icon: '🚚', color: '#f093fb', link: '/transportistas' },
-    { title: 'Compradores', count: '0', icon: '🛒', color: '#4facfe', link: '/compradores' },
+    { title: 'Mayoristas', count: '0', icon: 'mayorista', color: '#667eea', link: '/mayoristas' },
+    { title: 'Minoristas', count: '0', icon: 'minorista', color: '#764ba2', link: '/minoristas' },
+    { title: 'Transportistas', count: '0', icon: 'transportista', color: '#f093fb', link: '/transportistas' },
+    { title: 'Compradores', count: '0', icon: 'comprador', color: '#4facfe', link: '/compradores' },
   ];
 
   const quickActions = [
-    { title: 'Nuevo Mayorista', icon: '➕', link: '/mayoristas/nuevo', color: '#667eea' },
-    { title: 'Nuevo Minorista', icon: '➕', link: '/minoristas/nuevo', color: '#764ba2' },
-    { title: 'Ver Rubros', icon: '📂', link: '/rubros', color: '#f093fb' },
-    { title: 'Gestionar Usuarios', icon: '👥', link: '/usuarios', color: '#4facfe' },
+    { title: 'Nuevo Mayorista', icon: 'add', link: '/mayoristas/nuevo', color: '#667eea' },
+    { title: 'Nuevo Minorista', icon: 'add', link: '/minoristas/nuevo', color: '#764ba2' },
+    { title: 'Ver Rubros', icon: 'folder', link: '/rubros', color: '#f093fb' },
+    { title: 'Gestionar Usuarios', icon: 'users', link: '/usuarios', color: '#4facfe' },
   ];
 
   return (
@@ -65,7 +66,7 @@ function Dashboard() {
       {/* Hero de bienvenida */}
       <div className="dashboard-hero">
         <div className="hero-text">
-          <span className="hero-badge">🚀 ¡Empecemos!</span>
+          <span className="hero-badge"><Icon name="rocket" /> ¡Empecemos!</span>
           <h1>Bienvenido a BuscaDeTodoOnline</h1>
           <p>
             La plataforma donde compradores y vendedores se encuentran.
@@ -98,7 +99,7 @@ function Dashboard() {
       <div className="stats-grid">
         {stats.map((stat, index) => (
           <Link to={stat.link} key={index} className="stat-card" style={{ '--color': stat.color }}>
-            <div className="stat-icon">{stat.icon}</div>
+            <div className="stat-icon"><Icon name={stat.icon} /></div>
             <div className="stat-content">
               <h3 className="stat-title">{stat.title}</h3>
               <p className="stat-count">{stat.count}</p>
@@ -112,7 +113,7 @@ function Dashboard() {
         <div className="actions-grid">
           {quickActions.map((action, index) => (
             <Link to={action.link} key={index} className="action-card" style={{ '--color': action.color }}>
-              <span className="action-icon">{action.icon}</span>
+              <span className="action-icon"><Icon name={action.icon} /></span>
               <span className="action-title">{action.title}</span>
             </Link>
           ))}

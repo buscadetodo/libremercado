@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePerfilActivo } from '../../context/PerfilContext';
 import { useToast } from '../Toast/Toast';
+import Icon from '../Icon/Icon';
 import './MisPerfiles.css';
 
 const ICONOS = {
-  mayorista: '🏭',
-  minorista: '🏪',
-  comprador: '🛍️',
-  transportista: '🚚',
+  mayorista: 'mayorista',
+  minorista: 'minorista',
+  comprador: 'comprador',
+  transportista: 'transportista',
 };
 
 /**
@@ -32,7 +33,7 @@ function MisPerfiles() {
     return (
       <div className="mis-perfiles">
         <h3>Mis perfiles</h3>
-        <p className="mis-perfiles-vacio">⏳ Cargando perfiles...</p>
+        <p className="mis-perfiles-vacio"><Icon name="loading" /> Cargando perfiles...</p>
       </div>
     );
   }
@@ -76,7 +77,7 @@ function MisPerfiles() {
 
             return (
               <li key={p.id_perfil} className="mis-perfiles-item">
-                <span className="mis-perfiles-icono">{ICONOS[nombre] || '👤'}</span>
+                <span className="mis-perfiles-icono"><Icon name={ICONOS[nombre] || 'user'} /></span>
                 <div className="mis-perfiles-datos">
                   <span className="mis-perfiles-nombre">{p.perfil}</span>
                   {esActivo && <span className="mis-perfiles-tag activo">activo</span>}
@@ -99,7 +100,7 @@ function MisPerfiles() {
       )}
 
       <Link to="/agregar-perfil" className="mis-perfiles-agregar">
-        ➕ Agregar otro perfil
+        <Icon name="add" /> Agregar otro perfil
       </Link>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useUsers } from '../../hooks';
+import Icon from '../../components/Icon/Icon';
 import '../Mayoristas/Mayoristas.css';
 import './Admin.css';
 
@@ -22,10 +23,10 @@ function UsuariosList() {
     if (window.confirm('¿Estás seguro de dar de baja este usuario?')) {
       const result = await deleteUser(id);
       if (result.success) {
-        alert('✅ Usuario dado de baja');
+        alert('Usuario dado de baja');
         cargarUsuarios();
       } else {
-        alert(`❌ Error: ${result.error}`);
+        alert(`Error: ${result.error}`);
       }
     }
   };
@@ -38,7 +39,7 @@ function UsuariosList() {
     <div className="usuarios-page">
       <div className="page-header">
         <div>
-          <h1>👥 Usuarios</h1>
+          <h1><Icon name="users" /> Usuarios</h1>
           <p className="page-subtitle">Gestiona los usuarios del sistema</p>
         </div>
         <label className="filtro-bajas">
@@ -51,8 +52,8 @@ function UsuariosList() {
         </label>
       </div>
 
-      {loading && <div className="loading">⏳ Cargando usuarios...</div>}
-      {error && <div className="error-message">❌ {error}</div>}
+      {loading && <div className="loading"><Icon name="loading" /> Cargando usuarios...</div>}
+      {error && <div className="error-message"><Icon name="error" /> {error}</div>}
 
       <div className="users-grid">
         {users && users.length > 0 ? (
@@ -76,18 +77,23 @@ function UsuariosList() {
                 <div className="info-item">
                   <span className="info-label">Estado:</span>
                   <span className={`status-badge ${user.estado_cuenta === 'y' ? 'status-active' : 'status-inactive'}`}>
-                    {user.estado_cuenta === 'y' ? '✅ Activo' : '❌ Inactivo'}
+                    {user.estado_cuenta === 'y' ? <><Icon name="success" /> Activo</> : <><Icon name="error" /> Inactivo</>}
                   </span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Email Verificado:</span>
-                  <span className="info-value">{user.email_verificado === 'y' ? '✅' : '❌'}</span>
+                  <span className="info-value">
+                    <Icon
+                      name={user.email_verificado === 'y' ? 'success' : 'error'}
+                      label={user.email_verificado === 'y' ? 'Sí' : 'No'}
+                    />
+                  </span>
                 </div>
               </div>
 
               <div className="user-actions">
                 <button onClick={() => handleDelete(user.id)} className="btn btn-danger btn-sm">
-                  🗑️ Eliminar
+                  <Icon name="delete" /> Eliminar
                 </button>
               </div>
             </div>

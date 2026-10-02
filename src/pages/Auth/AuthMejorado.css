@@ -83,7 +83,7 @@
 
 /* Indicador sutil de clickeabilidad */
 .login-logo-wrapper::after {
-  content: '🏠 Ir al inicio';
+  content: 'Ir al inicio';
   position: absolute;
   top: -35px;
   left: 50%;

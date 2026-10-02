@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useFichaComercial } from '../../hooks';
+import Icon from '../Icon/Icon';
 import './AvisoFichaComercial.css';
 
 /**
@@ -62,7 +63,7 @@ function AvisoFichaComercial({ tipo }) {
 
   return (
     <div className="aviso-ficha">
-      <span className="aviso-ficha-icono">⚠️</span>
+      <span className="aviso-ficha-icono"><Icon name="warning" /></span>
       <div className="aviso-ficha-texto">
         <h3>{texto.titulo}</h3>
         <p>

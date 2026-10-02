@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useFichaComercial } from '../../hooks';
 import { usePerfilActivo } from '../../context/PerfilContext';
 import AvisoFichaComercial from '../../components/AvisoFichaComercial/AvisoFichaComercial';
+import Icon from '../../components/Icon/Icon';
 import '../Dashboard/Dashboard.css';
 
 function TransportistaDashboard() {
@@ -13,7 +14,7 @@ function TransportistaDashboard() {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>🚚 Dashboard Transportista</h1>
+        <h1><Icon name="transportista" /> Dashboard Transportista</h1>
         <p className="dashboard-subtitle">Panel de control para servicios de transporte</p>
       </div>
 
@@ -21,7 +22,7 @@ function TransportistaDashboard() {
 
       <div className="stats-grid">
         <div className="stat-card" style={{ '--color': '#667eea' }}>
-          <div className="stat-icon">📋</div>
+          <div className="stat-icon"><Icon name="list" /></div>
           <div className="stat-content">
             <h3 className="stat-title">Solicitudes Pendientes</h3>
             <p className="stat-count">0</p>
@@ -29,7 +30,7 @@ function TransportistaDashboard() {
         </div>
 
         <div className="stat-card" style={{ '--color': '#764ba2' }}>
-          <div className="stat-icon">🚚</div>
+          <div className="stat-icon"><Icon name="transportista" /></div>
           <div className="stat-content">
             <h3 className="stat-title">Viajes Activos</h3>
             <p className="stat-count">0</p>
@@ -37,7 +38,7 @@ function TransportistaDashboard() {
         </div>
 
         <div className="stat-card" style={{ '--color': '#f093fb' }}>
-          <div className="stat-icon">✅</div>
+          <div className="stat-icon"><Icon name="success" /></div>
           <div className="stat-content">
             <h3 className="stat-title">Viajes Completados</h3>
             <p className="stat-count">0</p>
@@ -45,7 +46,7 @@ function TransportistaDashboard() {
         </div>
 
         <div className="stat-card" style={{ '--color': '#4facfe' }}>
-          <div className="stat-icon">💰</div>
+          <div className="stat-icon"><Icon name="money" /></div>
           <div className="stat-content">
             <h3 className="stat-title">Ingresos del Mes</h3>
             <p className="stat-count">$0</p>
@@ -58,7 +59,7 @@ function TransportistaDashboard() {
         <div className="actions-grid">
           {sinFicha && (
             <Link to="/agregar-perfil" className="action-card" style={{ '--color': '#f59e0b' }}>
-              <span className="action-icon">📝</span>
+              <span className="action-icon"><Icon name="note" /></span>
               <span className="action-title">Completar mis datos</span>
             </Link>
           )}
@@ -66,16 +67,16 @@ function TransportistaDashboard() {
               rebotaba al inicio, asi que solo se muestra a quien puede entrar. */}
           {isAdmin && (
             <Link to="/transportistas" className="action-card" style={{ '--color': '#667eea' }}>
-              <span className="action-icon">🚚</span>
+              <span className="action-icon"><Icon name="transportista" /></span>
               <span className="action-title">Ver Solicitudes</span>
             </Link>
           )}
           <Link to="/perfil" className="action-card" style={{ '--color': '#764ba2' }}>
-            <span className="action-icon">⚙️</span>
+            <span className="action-icon"><Icon name="settings" /></span>
             <span className="action-title">Configurar Tarifas</span>
           </Link>
           <Link to="/perfil" className="action-card" style={{ '--color': '#f093fb' }}>
-            <span className="action-icon">📊</span>
+            <span className="action-icon"><Icon name="chart" /></span>
             <span className="action-title">Ver Estadísticas</span>
           </Link>
         </div>

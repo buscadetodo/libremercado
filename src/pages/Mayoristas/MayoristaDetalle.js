@@ -8,6 +8,7 @@ import horariosService from '../../services/horariosService';
 import diasService from '../../services/diasService';
 import productosService from '../../services/productosService';
 import { FEATURE_PRODUCTOS } from '../../config/features';
+import Icon from '../../components/Icon/Icon';
 import './Mayoristas.css';
 import '../Productos/Productos.css';
 
@@ -94,7 +95,7 @@ function MayoristaDetalle() {
   if (loading) {
     return (
       <div className="mayoristas-page">
-        <div className="loading">⏳ Cargando mayorista...</div>
+        <div className="loading"><Icon name="loading" /> Cargando mayorista...</div>
       </div>
     );
   }
@@ -124,14 +125,14 @@ function MayoristaDetalle() {
           <Link to="/mayoristas" className="btn btn-secondary btn-sm detalle-volver">
             ← Volver
           </Link>
-          <h1>🏭 {mayorista.razon_social}</h1>
+          <h1><Icon name="mayorista" /> {mayorista.razon_social}</h1>
           <p className="page-subtitle">
             <span className="rubro-badge">{rubrosMap[mayorista.rubro_id] || 'Sin rubro'}</span>
           </p>
         </div>
         {isAdmin && (
           <Link to={`/mayoristas/${mayorista.id}/editar`} className="btn btn-primary">
-            ✏️ Editar
+            <Icon name="edit" /> Editar
           </Link>
         )}
       </div>
@@ -155,7 +156,7 @@ function MayoristaDetalle() {
           <div className="info-item">
             <span className="info-label">Retiro en local</span>
             <span className="info-value">
-              {mayorista.retiro_en_local === 'y' ? '✅ Sí' : '❌ No'}
+              {mayorista.retiro_en_local === 'y' ? <><Icon name="success" /> Sí</> : <><Icon name="error" /> No</>}
             </span>
           </div>
           <div className="info-item">
@@ -180,7 +181,7 @@ function MayoristaDetalle() {
             className="btn btn-primary"
             onClick={() => alert('Funcionalidad de contacto pendiente')}
           >
-            📞 Contactar
+            <Icon name="phone" /> Contactar
           </button>
         </div>
       </div>
@@ -188,13 +189,13 @@ function MayoristaDetalle() {
       {/* Catálogo del mayorista (GET /productos/?mayorista_id=) */}
       {FEATURE_PRODUCTOS && (
         <div className="detalle-productos">
-          <h2 className="section-heading">📦 Productos</h2>
+          <h2 className="section-heading"><Icon name="package" /> Productos</h2>
 
           {loadingProductos ? (
-            <div className="loading">⏳ Cargando productos...</div>
+            <div className="loading"><Icon name="loading" /> Cargando productos...</div>
           ) : productos.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">📦</div>
+              <div className="empty-icon"><Icon name="package" /></div>
               <h3>Sin productos publicados</h3>
               <p>Este mayorista todavía no cargó su catálogo.</p>
             </div>
@@ -212,7 +213,7 @@ function MayoristaDetalle() {
                       }}
                     />
                   ) : (
-                    <div className="producto-image-placeholder">📦</div>
+                    <div className="producto-image-placeholder"><Icon name="package" /></div>
                   )}
                   <div className="producto-content">
                     <h3 className="producto-nombre">{producto.nombre}</h3>
