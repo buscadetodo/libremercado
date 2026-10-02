@@ -7,6 +7,9 @@ const BASE_URL = process.env.REACT_APP_API_URL || 'https://libremercadodev.daels
 // Crear instancia de axios
 const httpClient = axios.create({
   baseURL: BASE_URL,
+  // Sin timeout, si el servidor no contesta la pantalla queda cargando para
+  // siempre y nunca muestra el error. 30 s cubre el arranque en frío de Render.
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },

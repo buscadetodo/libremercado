@@ -223,6 +223,42 @@
 }
 
 /* Acciones */
+/* Error del alta: queda visible hasta que se reintenta o se cambia de perfil */
+.ap-error {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.ap-error-icono {
+  font-size: 22px;
+  margin-top: 2px;
+}
+
+.ap-error p {
+  margin: 0;
+}
+
+.ap-error-titulo {
+  font-weight: 700;
+}
+
+.ap-error-detalle {
+  margin-top: 4px !important;
+}
+
+.ap-error-nota {
+  margin-top: 8px !important;
+  color: #7f1d1d;
+  font-size: 14px;
+}
+
 .ap-actions {
   display: flex;
   justify-content: flex-end;
