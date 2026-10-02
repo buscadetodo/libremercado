@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useRubros } from '../../hooks';
+import Icon from '../Icon/Icon';
 import './SelectRubro.css';
 
 /**
@@ -62,13 +63,13 @@ function SelectRubro({ value, onChange, id = 'rubro_id', name = 'rubro_id', clas
 
       {error && (
         <span className="select-rubro-aviso error">
-          ⚠️ {error}. Probá recargar la página; si sigue igual, puede haber vencido tu sesión.
+          <Icon name="warning" /> {error}. Probá recargar la página; si sigue igual, puede haber vencido tu sesión.
         </span>
       )}
 
       {vacio && (
         <span className="select-rubro-aviso">
-          ⚠️ Todavía no hay rubros cargados en el sistema. Pedile a un administrador que los dé
+          <Icon name="warning" /> Todavía no hay rubros cargados en el sistema. Pedile a un administrador que los dé
           de alta desde <strong>Rubros</strong> para poder completar este formulario.
         </span>
       )}

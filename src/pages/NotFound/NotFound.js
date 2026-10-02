@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Icon from '../../components/Icon/Icon';
 import './NotFound.css';
 
 function NotFound() {
@@ -10,7 +11,7 @@ function NotFound() {
       <div className="notfound-content">
         <div className="notfound-animation">
           <div className="error-code">404</div>
-          <div className="error-icon">🔍</div>
+          <div className="error-icon"><Icon name="search" /></div>
         </div>
         
         <h1 className="notfound-title">Página no encontrada</h1>
@@ -23,7 +24,7 @@ function NotFound() {
             ← Volver Atrás
           </button>
           <Link to="/" className="btn btn-primary">
-            🏠 Ir al Inicio
+            <Icon name="home" /> Ir al Inicio
           </Link>
         </div>
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks';
 import { esAdmin } from '../../config/roles';
 import PerfilSelector from '../PerfilSelector/PerfilSelector';
+import Icon from '../Icon/Icon';
 import './Navbar.css';
 
 function Navbar({ onToggleSidebar }) {
@@ -19,10 +20,12 @@ function Navbar({ onToggleSidebar }) {
             onClick={onToggleSidebar}
             aria-label="Mostrar u ocultar menú lateral"
           >
-            ☰
+            <Icon name="menu" />
           </button>
           <Link to="/" className="navbar-logo">
-            <span className="logo-icon">🏪</span>
+            <span className="logo-icon">
+              <Icon name="minorista" />
+            </span>
             <span className="logo-text">BuscaDeTodoOnline</span>
           </Link>
         </div>

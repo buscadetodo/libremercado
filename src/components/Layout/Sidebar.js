@@ -6,6 +6,7 @@ import { esAdmin } from '../../config/roles';
 import { FEATURE_PRODUCTOS } from '../../config/features';
 import { APP_VERSION } from '../../config/version';
 import Modal from '../Modal/Modal';
+import Icon from '../Icon/Icon';
 import './Sidebar.css';
 
 function Sidebar({ onNavigate }) {
@@ -25,15 +26,15 @@ function Sidebar({ onNavigate }) {
 
   // Menú completo de administración
   const adminMenu = [
-    { path: '/dashboard', icon: '📊', label: 'Dashboard' },
-    { path: '/mayoristas', icon: '🏭', label: 'Mayoristas' },
-    { path: '/minoristas', icon: '🏪', label: 'Minoristas' },
-    { path: '/transportistas', icon: '🚚', label: 'Transportistas' },
-    { path: '/compradores', icon: '🛒', label: 'Compradores' },
-    { path: '/productos', icon: '📦', label: 'Productos', feature: FEATURE_PRODUCTOS },
-    { path: '/rubros', icon: '📂', label: 'Rubros' },
-    { path: '/usuarios', icon: '👥', label: 'Usuarios' },
-    { path: '/perfil', icon: '⚙️', label: 'Mi Perfil' },
+    { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
+    { path: '/mayoristas', icon: 'mayorista', label: 'Mayoristas' },
+    { path: '/minoristas', icon: 'minorista', label: 'Minoristas' },
+    { path: '/transportistas', icon: 'transportista', label: 'Transportistas' },
+    { path: '/compradores', icon: 'comprador', label: 'Compradores' },
+    { path: '/productos', icon: 'package', label: 'Productos', feature: FEATURE_PRODUCTOS },
+    { path: '/rubros', icon: 'folder', label: 'Rubros' },
+    { path: '/usuarios', icon: 'users', label: 'Usuarios' },
+    { path: '/perfil', icon: 'settings', label: 'Mi Perfil' },
   ];
 
   // Menú para usuarios comunes: solo lo suyo
@@ -49,11 +50,11 @@ function Sidebar({ onNavigate }) {
   // pero sin su ficha. En ambos casos no puede operar y necesita volver ahí.
   const esComercio = tiposFaltantes.some((t) => t === 'mayorista' || t === 'minorista');
   const altaPendiente = sinNingunPerfil
-    ? { path: '/agregar-perfil', icon: '👤', label: 'Elegir mi perfil', destacado: true }
+    ? { path: '/agregar-perfil', icon: 'user', label: 'Elegir mi perfil', destacado: true }
     : tiposFaltantes.length > 0
     ? {
         path: '/agregar-perfil',
-        icon: esComercio ? '🏬' : '📝',
+        icon: esComercio ? 'local' : 'note',
         // Transportista y comprador no tienen "comercio": el texto sería confuso.
         label: esComercio ? 'Dar de alta mi comercio' : 'Completar mi alta',
         destacado: true,
@@ -61,10 +62,10 @@ function Sidebar({ onNavigate }) {
     : null;
 
   const userMenu = [
-    { path: inicioUrl, icon: '🏠', label: 'Inicio' },
+    { path: inicioUrl, icon: 'home', label: 'Inicio' },
     ...(altaPendiente ? [altaPendiente] : []),
-    { path: '/mayoristas', icon: '🏭', label: 'Explorar mayoristas' },
-    { path: '/perfil', icon: '⚙️', label: 'Mi Perfil' },
+    { path: '/mayoristas', icon: 'mayorista', label: 'Explorar mayoristas' },
+    { path: '/perfil', icon: 'settings', label: 'Mi Perfil' },
   ];
 
   const menuItems = (esAdmin(user) ? adminMenu : userMenu).filter(
@@ -85,7 +86,9 @@ function Sidebar({ onNavigate }) {
               item.destacado ? 'sidebar-item-destacado' : ''
             }`}
           >
-            <span className="sidebar-icon">{item.icon}</span>
+            <span className="sidebar-icon">
+              <Icon name={item.icon} />
+            </span>
             <span className="sidebar-label">{item.label}</span>
           </Link>
         ))}
@@ -98,7 +101,9 @@ function Sidebar({ onNavigate }) {
           onClick={() => setShowLogoutConfirm(true)}
           title="Cerrar sesión"
         >
-          <span className="sidebar-icon">🚪</span>
+          <span className="sidebar-icon">
+            <Icon name="logout" />
+          </span>
           <span className="sidebar-label">Cerrar sesión</span>
         </button>
         <div className="sidebar-version">v{APP_VERSION}</div>
@@ -112,7 +117,9 @@ function Sidebar({ onNavigate }) {
           overlayClassName="logout-modal-overlay"
           className="logout-modal"
         >
-          <div className="logout-modal-icon" aria-hidden="true">🚪</div>
+          <div className="logout-modal-icon">
+            <Icon name="logout" />
+          </div>
           <h3 id="logout-modal-titulo">¿Cerrar sesión?</h3>
           <p>¿Seguro que querés salir de tu cuenta?</p>
           <div className="logout-modal-actions">

@@ -4,6 +4,7 @@ import { useRubros, useMisComercios } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
 import productosService, { buildProductoPayload } from '../../services/productosService';
 import mensajeDeError from '../../api/mensajeDeError';
+import Icon from '../../components/Icon/Icon';
 import '../Forms/Forms.css';
 import './Productos.css';
 
@@ -158,7 +159,7 @@ function ProductoForm() {
   };
 
   if (loading && isEdit) {
-    return <div className="loading">⏳ Cargando...</div>;
+    return <div className="loading"><Icon name="loading" /> Cargando...</div>;
   }
 
   const valorComercio = formData.oferente_id
@@ -171,18 +172,18 @@ function ProductoForm() {
   return (
     <div className="form-page">
       <div className="form-header">
-        <h1>{isEdit ? '✏️ Editar Producto' : '➕ Nuevo Producto'}</h1>
+        <h1>{isEdit ? <><Icon name="edit" /> Editar Producto</> : <><Icon name="add" /> Nuevo Producto</>}</h1>
         <button onClick={() => navigate('/productos')} className="btn btn-secondary">
           ← Volver
         </button>
       </div>
 
       <div className="form-container">
-        {error && <div className="error-message">❌ {error}</div>}
+        {error && <div className="error-message"><Icon name="error" /> {error}</div>}
 
         {sinComercios && (
           <div className="error-message">
-            ⚠️ Tu usuario no tiene una <strong>ficha comercial</strong> de mayorista ni
+            <Icon name="warning" /> Tu usuario no tiene una <strong>ficha comercial</strong> de mayorista ni
             de minorista. Ojo: tener el <em>perfil</em> de mayorista no es lo mismo que
             tener el comercio dado de alta (razón social, CUIT, rubro y horarios) — y la
             API pide el comercio para poder publicar productos.
@@ -215,7 +216,7 @@ function ProductoForm() {
                   </option>
                   {comercios.map((c) => (
                     <option key={`${c.tipo}:${c.id}`} value={`${c.tipo}:${c.id}`}>
-                      {c.tipo === 'mayorista' ? '🏭' : '🏪'} {c.label}
+                      {c.label} ({c.tipo === 'mayorista' ? 'Mayorista' : 'Minorista'})
                     </option>
                   ))}
                 </select>
@@ -376,7 +377,7 @@ function ProductoForm() {
               disabled={loading || sinComercios}
               className="btn btn-primary"
             >
-              {loading ? '⏳ Guardando...' : isEdit ? '💾 Actualizar' : '✨ Crear Producto'}
+              {loading ? <><Icon name="loading" /> Guardando...</> : isEdit ? <><Icon name="save" /> Actualizar</> : <><Icon name="sparkles" /> Crear Producto</>}
             </button>
           </div>
         </form>

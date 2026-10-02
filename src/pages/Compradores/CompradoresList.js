@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
 import { esAdmin } from '../../config/roles';
 import Pagination from '../../components/Pagination/Pagination';
+import Icon from '../../components/Icon/Icon';
 import '../Mayoristas/Mayoristas.css';
 
 function CompradoresList() {
@@ -51,20 +52,20 @@ function CompradoresList() {
     <div className="compradores-page">
       <div className="page-header">
         <div>
-          <h1>🛒 Compradores</h1>
+          <h1><Icon name="comprador" /> Compradores</h1>
           <p className="page-subtitle">
             {isAdmin ? 'Gestiona los compradores registrados' : 'Explorá los compradores registrados'}
           </p>
         </div>
         {isAdmin && (
           <Link to="/compradores/nuevo" className="btn btn-primary">
-            ➕ Nuevo Comprador
+            <Icon name="add" /> Nuevo Comprador
           </Link>
         )}
       </div>
 
-      {loading && <div className="loading">⏳ Cargando compradores...</div>}
-      {error && <div className="error-message">❌ {error}</div>}
+      {loading && <div className="loading"><Icon name="loading" /> Cargando compradores...</div>}
+      {error && <div className="error-message"><Icon name="error" /> {error}</div>}
 
       <div className="compradores-grid">
         {compradores && compradores.length > 0 ? (
@@ -90,10 +91,10 @@ function CompradoresList() {
               {isAdmin && (
                 <div className="comprador-actions">
                   <Link to={`/compradores/${comprador.id}/editar`} className="btn btn-primary btn-sm">
-                    ✏️ Editar
+                    <Icon name="edit" /> Editar
                   </Link>
                   <button onClick={() => handleDelete(comprador.id)} className="btn btn-danger btn-sm">
-                    🗑️ Eliminar
+                    <Icon name="delete" /> Eliminar
                   </button>
                 </div>
               )}

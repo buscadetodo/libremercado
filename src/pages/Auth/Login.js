@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
+import Icon from '../../components/Icon/Icon';
 import usuarioPerfilesService from '../../services/usuarioPerfilesService';
 import usersService from '../../services/usersService';
 import './AuthMejorado.css';
@@ -120,7 +121,7 @@ function Login() {
         {/* Header con logo mejorado */}
         <div className="login-header">
           <Link to="/" className="login-logo-wrapper" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-            <span className="login-logo-icon">🏪</span>
+            <span className="login-logo-icon"><Icon name="minorista" /></span>
             <div className="login-brand">
               <h1 className="brand-name">BuscaDeTodoOnline</h1>
               <p className="brand-tagline">Tu marketplace de confianza</p>
@@ -135,7 +136,7 @@ function Login() {
             {/* Banner de error de login */}
             {loginError && (
               <div className="login-error-banner" style={{ display: 'flex' }}>
-                <span className="error-icon">⚠️</span>
+                <span className="error-icon"><Icon name="warning" /></span>
                 <div className="error-content">
                   <strong>Error al iniciar sesión</strong>
                   <p>{loginError}</p>
@@ -146,7 +147,7 @@ function Login() {
                   onClick={() => setLoginError('')}
                   aria-label="Cerrar mensaje de error"
                 >
-                  ✕
+                  <Icon name="close" />
                 </button>
               </div>
             )}
@@ -167,9 +168,9 @@ function Login() {
                   placeholder="tu@email.com"
                   autoComplete="email"
                 />
-                <span className="input-icon" aria-hidden="true">📧</span>
+                <span className="input-icon" aria-hidden="true"><Icon name="mail" /></span>
               </div>
-              {errors.email && <span className="error-message" role="alert">⚠️ {errors.email}</span>}
+              {errors.email && <span className="error-message" role="alert"><Icon name="warning" /> {errors.email}</span>}
             </div>
 
             {/* Contraseña */}
@@ -189,17 +190,17 @@ function Login() {
                   placeholder="••••••"
                   autoComplete="current-password"
                 />
-                <span className="input-icon" aria-hidden="true">🔒</span>
+                <span className="input-icon" aria-hidden="true"><Icon name="lock" /></span>
                 <button
                   type="button"
                   className={`password-toggle ${showPassword ? 'visible' : ''}`}
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                 >
-                  <span className="eye-icon">👁</span>
+                  <span className="eye-icon"><Icon name="view" /></span>
                 </button>
               </div>
-              {errors.password && <span className="error-message" role="alert">⚠️ {errors.password}</span>}
+              {errors.password && <span className="error-message" role="alert"><Icon name="warning" /> {errors.password}</span>}
             </div>
 
             {/* Botón submit */}

@@ -14,6 +14,7 @@ import transportistasService from '../../services/transportistasService';
 import diasService from '../../services/diasService';
 import horariosService from '../../services/horariosService';
 import { PERFIL } from '../../config/roles';
+import Icon from '../../components/Icon/Icon';
 import './AgregarPerfil.css';
 
 /**
@@ -127,7 +128,7 @@ function AgregarPerfil() {
     {
       tipo: 'mayorista',
       titulo: 'Mayorista',
-      icono: '🏭',
+      icono: 'mayorista',
       color: '#1565c0',
       descripcion: 'Vendo productos al por mayor',
       perfil_id: PERFIL.MAYORISTA,
@@ -137,7 +138,7 @@ function AgregarPerfil() {
     {
       tipo: 'minorista',
       titulo: 'Minorista',
-      icono: '🏪',
+      icono: 'minorista',
       color: '#7b1fa2',
       descripcion: 'Tengo un comercio y compro por mayor',
       perfil_id: PERFIL.MINORISTA,
@@ -147,7 +148,7 @@ function AgregarPerfil() {
     {
       tipo: 'comprador',
       titulo: 'Comprador',
-      icono: '🛍️',
+      icono: 'comprador',
       color: '#0288d1',
       descripcion: 'Compro productos para consumo',
       perfil_id: PERFIL.COMPRADOR,
@@ -157,7 +158,7 @@ function AgregarPerfil() {
     {
       tipo: 'transportista',
       titulo: 'Transportista',
-      icono: '🚚',
+      icono: 'transportista',
       color: '#e91e63',
       descripcion: 'Ofrezco servicios de flete',
       perfil_id: PERFIL.TRANSPORTISTA,
@@ -562,13 +563,13 @@ function AgregarPerfil() {
                 }}
               >
                 {tipoSeleccionado === tipo.tipo && <span className="ap-tipo-check">✓</span>}
-                <span className="ap-tipo-icono">{tipo.icono}</span>
+                <span className="ap-tipo-icono"><Icon name={tipo.icono} /></span>
                 <h4 className="ap-tipo-titulo">{tipo.titulo}</h4>
                 <p className="ap-tipo-desc">{tipo.descripcion}</p>
                 {tipo.disabled && <span className="ap-badge-ya">✓ Ya lo tenés</span>}
                 {tipo.incompleto && (
                   <span className="ap-badge-incompleto">
-                    ⚠️ Falta cargar el comercio
+                    <Icon name="warning" /> Falta cargar el comercio
                   </span>
                 )}
               </div>

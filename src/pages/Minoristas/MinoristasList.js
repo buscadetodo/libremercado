@@ -5,6 +5,7 @@ import { useRubros, useAuth } from '../../hooks';
 import { useToast } from '../../components/Toast/Toast';
 import { esAdmin } from '../../config/roles';
 import Pagination from '../../components/Pagination/Pagination';
+import Icon from '../../components/Icon/Icon';
 import '../Mayoristas/Mayoristas.css';
 
 function MinoristasList() {
@@ -61,14 +62,14 @@ function MinoristasList() {
     <div className="minoristas-page">
       <div className="page-header">
         <div>
-          <h1>🏪 Minoristas</h1>
+          <h1><Icon name="minorista" /> Minoristas</h1>
           <p className="page-subtitle">
             {isAdmin ? 'Gestiona los minoristas registrados' : 'Explorá los minoristas disponibles'}
           </p>
         </div>
         {isAdmin && (
           <Link to="/minoristas/nuevo" className="btn btn-primary">
-            ➕ Nuevo Minorista
+            <Icon name="add" /> Nuevo Minorista
           </Link>
         )}
       </div>
@@ -89,13 +90,13 @@ function MinoristasList() {
             ))}
           </select>
           <button onClick={fetchMinoristas} className="btn btn-secondary">
-            🔍 Buscar
+            <Icon name="search" /> Buscar
           </button>
         </div>
       </div>
 
-      {loading && <div className="loading">⏳ Cargando minoristas...</div>}
-      {error && <div className="error-message">❌ {error}</div>}
+      {loading && <div className="loading"><Icon name="loading" /> Cargando minoristas...</div>}
+      {error && <div className="error-message"><Icon name="error" /> {error}</div>}
 
       <div className="minoristas-grid">
         {minoristas && minoristas.length > 0 ? (
@@ -117,7 +118,7 @@ function MinoristasList() {
                 </div>
                 <div className="info-item">
                   <span className="info-label">Retiro en local:</span>
-                  <span className="info-value">{minorista.retiro_en_local === 'y' ? '✅ Sí' : '❌ No'}</span>
+                  <span className="info-value">{minorista.retiro_en_local === 'y' ? <><Icon name="success" /> Sí</> : <><Icon name="error" /> No</>}</span>
                 </div>
               </div>
 
@@ -126,10 +127,10 @@ function MinoristasList() {
               {isAdmin && (
                 <div className="minorista-actions">
                   <Link to={`/minoristas/${minorista.id}/editar`} className="btn btn-primary btn-sm">
-                    ✏️ Editar
+                    <Icon name="edit" /> Editar
                   </Link>
                   <button onClick={() => handleDelete(minorista.id)} className="btn btn-danger btn-sm">
-                    🗑️ Eliminar
+                    <Icon name="delete" /> Eliminar
                   </button>
                 </div>
               )}

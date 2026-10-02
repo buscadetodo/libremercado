@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
 import { useRubros, useMisComercios } from '../../hooks';
 import productosService from '../../services/productosService';
+import Icon from '../../components/Icon/Icon';
 import './Productos.css';
 
 const ITEMS_PER_PAGE = 12;
@@ -137,12 +138,12 @@ function ProductosList() {
     <div className="productos-page">
       <div className="page-header">
         <div>
-          <h1>📦 Catálogo de Productos</h1>
+          <h1><Icon name="package" /> Catálogo de Productos</h1>
           <p className="page-subtitle">Gestiona los productos disponibles</p>
         </div>
         {puedeCrear && (
           <Link to="/productos/nuevo" className="btn btn-primary">
-            ➕ Nuevo Producto
+            <Icon name="add" /> Nuevo Producto
           </Link>
         )}
       </div>
@@ -189,7 +190,7 @@ function ProductosList() {
                 <option value="">Todos los comercios</option>
                 {comercios.map((c) => (
                   <option key={`${c.tipo}:${c.id}`} value={`${c.tipo}:${c.id}`}>
-                    {c.tipo === 'mayorista' ? '🏭' : '🏪'} {c.label}
+                    {c.label} ({c.tipo === 'mayorista' ? 'Mayorista' : 'Minorista'})
                   </option>
                 ))}
               </select>
@@ -197,13 +198,13 @@ function ProductosList() {
           )}
 
           <button type="submit" className="btn btn-secondary">
-            🔍 Buscar
+            <Icon name="search" /> Buscar
           </button>
         </form>
       </div>
 
-      {loading && <div className="loading">⏳ Cargando productos...</div>}
-      {error && <div className="error-message">❌ {error}</div>}
+      {loading && <div className="loading"><Icon name="loading" /> Cargando productos...</div>}
+      {error && <div className="error-message"><Icon name="error" /> {error}</div>}
 
       {/* Grid de productos */}
       <div className="productos-grid">
@@ -221,7 +222,7 @@ function ProductosList() {
                     }}
                   />
                 ) : (
-                  <div className="producto-image-placeholder">📦</div>
+                  <div className="producto-image-placeholder"><Icon name="package" /></div>
                 )}
                 <div className="producto-content">
                   <h3 className="producto-nombre">{producto.nombre}</h3>
@@ -234,7 +235,7 @@ function ProductosList() {
                     </span>
                   </div>
                   <span className="producto-oferente">
-                    {producto.mayorista_id != null ? '🏭' : '🏪'}{' '}
+                    <Icon name={producto.mayorista_id != null ? 'mayorista' : 'minorista'} />{' '}
                     {nombreOferente(producto)}
                   </span>
                   <p className="producto-descripcion">
@@ -262,13 +263,13 @@ function ProductosList() {
                       to={`/productos/${producto.id}/editar`}
                       className="btn btn-sm btn-secondary"
                     >
-                      ✏️ Editar
+                      <Icon name="edit" /> Editar
                     </Link>
                     <button
                       onClick={() => handleDelete(producto.id)}
                       className="btn btn-sm btn-danger"
                     >
-                      🗑️ Eliminar
+                      <Icon name="delete" /> Eliminar
                     </button>
                   </div>
                 )}
@@ -276,7 +277,7 @@ function ProductosList() {
             ))
           : !loading && (
               <div className="empty-state">
-                <div className="empty-icon">📦</div>
+                <div className="empty-icon"><Icon name="package" /></div>
                 <h3>No hay productos</h3>
                 <p>
                   {page > 0
@@ -287,7 +288,7 @@ function ProductosList() {
                 </p>
                 {puedeCrear && page === 0 && (
                   <Link to="/productos/nuevo" className="btn btn-primary">
-                    ➕ Crear Producto
+                    <Icon name="add" /> Crear Producto
                   </Link>
                 )}
               </div>

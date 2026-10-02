@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import usersService from '../../services/usersService';
+import Icon from '../../components/Icon/Icon';
 import './Auth.css';
 
 function Register() {
@@ -76,7 +77,7 @@ function Register() {
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-logo success">✅</div>
+            <div className="auth-logo success"><Icon name="success" /></div>
             <h1>¡Registro Exitoso!</h1>
             <p>Redirigiendo al login...</p>
           </div>
@@ -89,7 +90,7 @@ function Register() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-logo">🏪</div>
+          <div className="auth-logo"><Icon name="minorista" /></div>
           <h1>Crear Cuenta</h1>
           <p>Únete a BuscaDeTodoOnline</p>
         </div>
@@ -97,7 +98,7 @@ function Register() {
         <form onSubmit={handleSubmit} className="auth-form">
           {error && (
             <div className="alert alert-error">
-              <span>⚠️</span>
+              <span><Icon name="warning" /></span>
               <span>{error}</span>
             </div>
           )}
@@ -196,7 +197,7 @@ function Register() {
             disabled={loading}
             className="auth-button"
           >
-            {loading ? '⏳ Registrando...' : '✨ Crear Cuenta'}
+            {loading ? <><Icon name="loading" /> Registrando...</> : <><Icon name="sparkles" /> Crear Cuenta</>}
           </button>
 
           <div className="auth-footer">

@@ -8,6 +8,7 @@ import rubrosService from '../../services/rubrosService';
 import productosService from '../../services/productosService';
 import { FEATURE_PRODUCTOS } from '../../config/features';
 import Modal from '../../components/Modal/Modal';
+import Icon from '../../components/Icon/Icon';
 import './Home.css';
 
 function Home() {
@@ -32,10 +33,10 @@ function Home() {
   const [ubicacionModalData, setUbicacionModalData] = useState({ tipo: '', mensaje: '', detalles: '' });
 
   const categorias = [
-    { nombre: 'Alimentos', icon: '🍎' },
-    { nombre: 'Bebidas', icon: '🥤' },
-    { nombre: 'Limpieza', icon: '🧹' },
-    { nombre: 'Mascotas', icon: '🐾' }
+    { nombre: 'Alimentos', icon: 'alimentos' },
+    { nombre: 'Bebidas', icon: 'bebidas' },
+    { nombre: 'Limpieza', icon: 'limpieza' },
+    { nombre: 'Mascotas', icon: 'mascotas' }
   ];
 
   // Datos de muestra del landing público (visitante sin sesión).
@@ -46,28 +47,28 @@ function Home() {
     {
       nombre: 'Arroz Premium 50kg',
       precio: 25000,
-      imagen: '🌾',
+      imagen: 'granos',
       distancia: '2.5 km',
       envio: true
     },
     {
       nombre: 'Aceite Girasol x12',
       precio: 18000,
-      imagen: '🛢️',
+      imagen: 'aceites',
       distancia: '3.8 km',
       envio: true
     },
     {
       nombre: 'Azúcar Refinada 25kg',
       precio: 15000,
-      imagen: '🍬',
+      imagen: 'golosinas',
       distancia: '1.2 km',
       envio: false
     },
     {
       nombre: 'Harina 0000 50kg',
       precio: 22000,
-      imagen: '🍞',
+      imagen: 'panificados',
       distancia: '4.1 km',
       envio: true
     }
@@ -303,12 +304,12 @@ function Home() {
 
   // Categorías reales a partir de los rubros de la API
   const iconosRubro = {
-    electronica: '💻', alimentos: '🍎', bebidas: '🥤', limpieza: '🧹', mascotas: '🐾'
+    electronica: 'electronica', alimentos: 'alimentos', bebidas: 'bebidas', limpieza: 'limpieza', mascotas: 'mascotas'
   };
   const categoriasReales = Object.entries(rubrosMap).map(([id, nombre]) => ({
     id: Number(id),
     nombre,
-    icon: iconosRubro[nombre?.toLowerCase()] || '📂',
+    icon: iconosRubro[nombre?.toLowerCase()] || 'folder',
   }));
 
   // Mayoristas filtrados por categoría (rubro) y por texto de búsqueda
@@ -335,7 +336,7 @@ function Home() {
         className={`modal-icon ${ubicacionModalData.tipo === 'success' ? 'success' : 'error'}`}
         aria-hidden="true"
       >
-        {ubicacionModalData.tipo === 'success' ? '✅' : '⚠️'}
+        <Icon name={ubicacionModalData.tipo === 'success' ? 'success' : 'warning'} />
       </div>
       <h3 id="ubicacion-modal-titulo">{ubicacionModalData.mensaje}</h3>
       <p style={{ whiteSpace: 'pre-line' }}>{ubicacionModalData.detalles}</p>
@@ -343,7 +344,7 @@ function Home() {
         Entendido
       </button>
       <button className="modal-close" onClick={cerrarUbicacionModal} aria-label="Cerrar">
-        ✕
+        <Icon name="close" />
       </button>
     </Modal>
   );
@@ -356,7 +357,7 @@ function Home() {
         <header className="home-header authenticated">
           <div className="header-content">
             <div className="logo">
-              <span className="logo-icon">🏪</span>
+              <span className="logo-icon"><Icon name="minorista" /></span>
               <span className="logo-text">BuscaDeTodoOnline</span>
             </div>
             <div className="header-user-info">
@@ -364,7 +365,7 @@ function Home() {
                 <span>Cargando...</span>
               ) : userData ? (
                 <>
-                  <span className="user-name">👤 {userData.nombre || userData.email}</span>
+                  <span className="user-name"><Icon name="user" /> {userData.nombre || userData.email}</span>
                   <Link to={panelUrl} className="btn-dashboard">
                     Panel
                   </Link>
@@ -390,7 +391,7 @@ function Home() {
         <section className="welcome-section">
           <div className="container">
             <h1 className="welcome-title">
-              ¡Bienvenido{userData?.nombre ? `, ${userData.nombre}` : ''}! 👋
+              ¡Bienvenido{userData?.nombre ? `, ${userData.nombre}` : ''}!
             </h1>
             <p className="welcome-subtitle">
               Explorá productos mayoristas en tu zona
@@ -405,7 +406,7 @@ function Home() {
               Tu zona
             </label>
             <div className="zona-input-group">
-              <span className="zona-icon" aria-hidden="true">📍</span>
+              <span className="zona-icon"><Icon name="location" /></span>
               <input
                 id="zona-input"
                 type="text"
@@ -422,12 +423,12 @@ function Home() {
               >
                 {detectandoUbicacion ? (
                   <>
-                    <span className="spinner-icon">⏳</span>
+                    <span className="spinner-icon"><Icon name="loading" /></span>
                     <span>Detectando...</span>
                   </>
                 ) : (
                   <>
-                    <span>📍</span>
+                    <Icon name="location" />
                     <span>Detectar ubicación</span>
                   </>
                 )}
@@ -435,7 +436,7 @@ function Home() {
             </div>
             {ubicacionError && (
               <div className="ubicacion-error-hint">
-                <span>⚠️</span>
+                <Icon name="warning" />
                 <span>{ubicacionError}. Ingresá tu código postal manualmente.</span>
               </div>
             )}
@@ -449,7 +450,7 @@ function Home() {
               Buscar mayoristas
             </label>
             <div className="search-box">
-              <span className="search-icon" aria-hidden="true">🔍</span>
+              <span className="search-icon"><Icon name="search" /></span>
               <input
                 id="search-input"
                 type="search"
@@ -466,13 +467,13 @@ function Home() {
         {categoriasReales.length > 0 && (
           <section className="categorias-section">
             <div className="container">
-              <h2 className="section-heading">📂 Categorías</h2>
+              <h2 className="section-heading"><Icon name="folder" /> Categorías</h2>
               <div className="categorias-grid">
                 <button
                   className={`categoria-card ${categoriaFiltro === '' ? 'active' : ''}`}
                   onClick={() => setCategoriaFiltro('')}
                 >
-                  <span className="categoria-icon">🗂️</span>
+                  <span className="categoria-icon"><Icon name="folders" /></span>
                   <span className="categoria-nombre">Todas</span>
                 </button>
                 {categoriasReales.map((cat) => (
@@ -481,7 +482,7 @@ function Home() {
                     className={`categoria-card ${categoriaFiltro === cat.id ? 'active' : ''}`}
                     onClick={() => setCategoriaFiltro(cat.id)}
                   >
-                    <span className="categoria-icon">{cat.icon}</span>
+                    <span className="categoria-icon"><Icon name={cat.icon} /></span>
                     <span className="categoria-nombre">{cat.nombre}</span>
                   </button>
                 ))}
@@ -494,8 +495,8 @@ function Home() {
         <section className="destacados-badges">
           <div className="container">
             <div className="badges-row">
-              <div className="badge-item">🔥 Ofertas destacadas</div>
-              <div className="badge-item">🛒 Supermercados cercanos</div>
+              <div className="badge-item"><Icon name="hot" /> Ofertas destacadas</div>
+              <div className="badge-item"><Icon name="cart" /> Supermercados cercanos</div>
             </div>
           </div>
         </section>
@@ -505,7 +506,7 @@ function Home() {
         {FEATURE_PRODUCTOS && isAuthenticated && (
           <section className="productos-section">
             <div className="container">
-              <h2 className="section-heading">📦 Productos destacados</h2>
+              <h2 className="section-heading"><Icon name="package" /> Productos destacados</h2>
               {loadingProductos ? (
                 <p className="mayoristas-empty">Cargando productos...</p>
               ) : productosReales.length === 0 ? (
@@ -526,7 +527,7 @@ function Home() {
                           }}
                         />
                       ) : (
-                        <div className="producto-imagen">📦</div>
+                        <div className="producto-imagen"><Icon name="package" /></div>
                       )}
                       <div className="producto-info">
                         <h3 className="producto-nombre">{producto.nombre}</h3>
@@ -560,7 +561,7 @@ function Home() {
         {/* Mayoristas (datos reales de la API) */}
         <section className="mayoristas-section">
           <div className="container">
-            <h2 className="section-heading">🏪 Mayoristas</h2>
+            <h2 className="section-heading"><Icon name="mayorista" /> Mayoristas</h2>
             {loadingMayoristas ? (
               <p className="mayoristas-empty">Cargando mayoristas...</p>
             ) : mayoristasReales.length === 0 ? (
@@ -582,15 +583,15 @@ function Home() {
                       )}
                       <div className="mayorista-tags">
                         {rubrosMap[m.rubro_id] && (
-                          <span className="mayorista-tag">📂 {rubrosMap[m.rubro_id]}</span>
+                          <span className="mayorista-tag"><Icon name="folder" /> {rubrosMap[m.rubro_id]}</span>
                         )}
                         {Number(m.pedido_minimo) > 0 && (
                           <span className="mayorista-tag">
-                            🧾 Pedido mín. ${Number(m.pedido_minimo).toLocaleString()}
+                            <Icon name="receipt" /> Pedido mín. ${Number(m.pedido_minimo).toLocaleString()}
                           </span>
                         )}
                         {m.retiro_en_local === 'y' && (
-                          <span className="mayorista-tag">🏬 Retira en local</span>
+                          <span className="mayorista-tag"><Icon name="local" /> Retira en local</span>
                         )}
                       </div>
                     </div>
@@ -622,7 +623,7 @@ function Home() {
       <header className="home-header">
         <div className="header-content">
           <div className="logo">
-            <span className="logo-icon">🏪</span>
+            <span className="logo-icon"><Icon name="minorista" /></span>
             <span className="logo-text">BuscaDeTodoOnline</span>
           </div>
           <div className="header-actions">
@@ -645,7 +646,7 @@ function Home() {
             Tu zona
           </label>
           <div className="zona-input-group">
-            <span className="zona-icon" aria-hidden="true">📍</span>
+            <span className="zona-icon"><Icon name="location" /></span>
             <input
               id="zona-input"
               type="text"
@@ -662,12 +663,12 @@ function Home() {
             >
               {detectandoUbicacion ? (
                 <>
-                  <span className="spinner-icon">⏳</span>
+                  <span className="spinner-icon"><Icon name="loading" /></span>
                   <span>Detectando...</span>
                 </>
               ) : (
                 <>
-                  <span>📍</span>
+                  <Icon name="location" />
                   <span>Detectar ubicación</span>
                 </>
               )}
@@ -675,7 +676,7 @@ function Home() {
           </div>
           {ubicacionError && (
             <div className="ubicacion-error-hint">
-              <span>⚠️</span>
+              <Icon name="warning" />
               <span>{ubicacionError}. Ingresá tu código postal manualmente.</span>
             </div>
           )}
@@ -689,7 +690,7 @@ function Home() {
             Buscar productos
           </label>
           <div className="search-box">
-            <span className="search-icon" aria-hidden="true">🔍</span>
+            <span className="search-icon"><Icon name="search" /></span>
             <input
               id="search-input"
               type="search"
@@ -705,11 +706,11 @@ function Home() {
       {/* Categorías */}
       <section className="categorias-section">
         <div className="container">
-          <h2 className="section-heading">📂 Categorías</h2>
+          <h2 className="section-heading"><Icon name="folder" /> Categorías</h2>
           <div className="categorias-grid">
             {categorias.map((cat, index) => (
               <button key={index} className="categoria-card">
-                <span className="categoria-icon">{cat.icon}</span>
+                <span className="categoria-icon"><Icon name={cat.icon} /></span>
                 <span className="categoria-nombre">{cat.nombre}</span>
               </button>
             ))}
@@ -721,8 +722,8 @@ function Home() {
       <section className="destacados-badges">
         <div className="container">
           <div className="badges-row">
-            <div className="badge-item">🔥 Ofertas destacadas</div>
-            <div className="badge-item">🛒 Supermercados cercanos</div>
+            <div className="badge-item"><Icon name="hot" /> Ofertas destacadas</div>
+            <div className="badge-item"><Icon name="cart" /> Supermercados cercanos</div>
           </div>
         </div>
       </section>
@@ -730,18 +731,18 @@ function Home() {
       {/* Productos destacados */}
       <section className="productos-section">
         <div className="container">
-          <h2 className="section-heading">📦 Productos destacados (por zona)</h2>
+          <h2 className="section-heading"><Icon name="package" /> Productos destacados (por zona)</h2>
           <div className="productos-grid">
             {productosDestacados.map((producto, index) => (
               <div key={index} className="producto-card">
-                <div className="producto-imagen">{producto.imagen}</div>
+                <div className="producto-imagen"><Icon name={producto.imagen} /></div>
                 <div className="producto-info">
                   <h3 className="producto-nombre">{producto.nombre}</h3>
                   <p className="producto-precio">${producto.precio.toLocaleString()}</p>
                   <div className="producto-meta">
-                    <span className="producto-distancia">📍 {producto.distancia}</span>
+                    <span className="producto-distancia"><Icon name="location" /> {producto.distancia}</span>
                     <span className={`producto-envio ${producto.envio ? 'disponible' : 'no-disponible'}`}>
-                      {producto.envio ? '🚚 Envío' : '❌ Sin envío'}
+                      {producto.envio ? <><Icon name="transportista" /> Envío</> : <><Icon name="error" /> Sin envío</>}
                     </span>
                   </div>
                   <button 
@@ -761,14 +762,14 @@ function Home() {
       {/* Mayoristas cercanos */}
       <section className="mayoristas-section">
         <div className="container">
-          <h2 className="section-heading">🏪 Mayoristas cercanos</h2>
+          <h2 className="section-heading"><Icon name="mayorista" /> Mayoristas cercanos</h2>
           <div className="mayoristas-list">
             {mayoristas.map((mayorista, index) => (
               <div key={index} className="mayorista-card">
                 <div className="mayorista-info">
                   <h3 className="mayorista-nombre">{mayorista.nombre}</h3>
                   <p className="mayorista-direccion">{mayorista.direccion}</p>
-                  <span className="mayorista-distancia">📍 {mayorista.distancia}</span>
+                  <span className="mayorista-distancia"><Icon name="location" /> {mayorista.distancia}</span>
                 </div>
                 <button 
                   className="btn-contactar"
@@ -787,7 +788,7 @@ function Home() {
       <section className="fleteros-section">
         <div className="container">
           <div className="fleteros-cta">
-            <h2 className="fleteros-title">🚚 ¿Necesitás un flete?</h2>
+            <h2 className="fleteros-title"><Icon name="transportista" /> ¿Necesitás un flete?</h2>
             <button 
               className="btn-buscar-fleteros"
               onClick={() => handleActionRequiresLogin('flete')}
@@ -806,7 +807,7 @@ function Home() {
           overlayClassName="modal-overlay"
           className="modal-content"
         >
-          <div className="modal-icon" aria-hidden="true">🔒</div>
+          <div className="modal-icon"><Icon name="lock" /></div>
           <h3 id="login-modal-titulo">Para continuar, necesitás crear una cuenta</h3>
           <p>Registrate gratis para acceder a todas las funcionalidades</p>
           <div className="modal-actions">
@@ -822,7 +823,7 @@ function Home() {
             onClick={() => setShowLoginModal(false)}
             aria-label="Cerrar"
           >
-            ✕
+            <Icon name="close" />
           </button>
         </Modal>
       )}

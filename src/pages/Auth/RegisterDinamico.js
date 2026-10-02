@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
+import Icon from '../../components/Icon/Icon';
 import authService from '../../services/authService';
 import usuarioPerfilesService from '../../services/usuarioPerfilesService';
 import mayoristasService from '../../services/mayoristasService';
@@ -77,7 +78,7 @@ function RegisterMejorado() {
     const configs = {
       mayorista: {
         titulo: 'Registro de Mayorista',
-        icono: '🏭',
+        icono: 'mayorista',
         color: '#667eea',
         colorDark: '#5568d3',
         perfil_id: PERFIL.MAYORISTA,
@@ -85,7 +86,7 @@ function RegisterMejorado() {
       },
       minorista: {
         titulo: 'Registro de Minorista',
-        icono: '🏪',
+        icono: 'minorista',
         color: '#764ba2',
         colorDark: '#6a4391',
         perfil_id: PERFIL.MINORISTA,
@@ -93,7 +94,7 @@ function RegisterMejorado() {
       },
       comprador: {
         titulo: 'Registro de Comprador',
-        icono: '🛍️',
+        icono: 'comprador',
         color: '#4facfe',
         colorDark: '#3d9ce3',
         perfil_id: PERFIL.COMPRADOR,
@@ -101,7 +102,7 @@ function RegisterMejorado() {
       },
       transportista: {
         titulo: 'Registro de Transportista',
-        icono: '🚚',
+        icono: 'transportista',
         color: '#f093fb',
         colorDark: '#d77fe0',
         perfil_id: PERFIL.TRANSPORTISTA,
@@ -217,15 +218,15 @@ function RegisterMejorado() {
         throw new Error('No se pudo obtener el ID del usuario creado');
       }
 
-      toast.success('✓ Usuario creado');
+      toast.success('Usuario creado');
 
       // Login automático
       await authService.login(datosComunes.email, datosComunes.password);
-      toast.success('✓ Autenticación exitosa');
+      toast.success('Autenticación exitosa');
 
       // Asignar perfil
       await usuarioPerfilesService.assign(nuevoUsuarioId, config.perfil_id);
-      toast.success('✓ Perfil asignado');
+      toast.success('Perfil asignado');
 
       // Crear el registro específico (ficha comercial / transportista / comprador).
       // Si esto falla, la cuenta queda creada y usable pero SIN la ficha, y hay
@@ -387,7 +388,7 @@ function RegisterMejorado() {
       >
         {/* Header */}
         <div className="register-header">
-          <span className="register-header-icon">{config.icono}</span>
+          <span className="register-header-icon"><Icon name={config.icono} /></span>
           <h1>{config.titulo}</h1>
           <p>Completá tus datos para empezar</p>
         </div>
@@ -431,9 +432,9 @@ function RegisterMejorado() {
                       }}
                       placeholder="Juan"
                     />
-                    <span className="input-icon">👤</span>
+                    <span className="input-icon"><Icon name="user" /></span>
                   </div>
-                  {errors.nombre && <span className="error-message">⚠️ {errors.nombre}</span>}
+                  {errors.nombre && <span className="error-message"><Icon name="warning" /> {errors.nombre}</span>}
                 </div>
 
                 <div className={`form-group-mejorado ${errors.apellido ? 'error' : ''}`}>
@@ -449,9 +450,9 @@ function RegisterMejorado() {
                       }}
                       placeholder="Pérez"
                     />
-                    <span className="input-icon">👤</span>
+                    <span className="input-icon"><Icon name="user" /></span>
                   </div>
-                  {errors.apellido && <span className="error-message">⚠️ {errors.apellido}</span>}
+                  {errors.apellido && <span className="error-message"><Icon name="warning" /> {errors.apellido}</span>}
                 </div>
               </div>
 
@@ -471,7 +472,7 @@ function RegisterMejorado() {
                   />
                   <span className="input-icon">🆔</span>
                 </div>
-                {errors.dni && <span className="error-message">⚠️ {errors.dni}</span>}
+                {errors.dni && <span className="error-message"><Icon name="warning" /> {errors.dni}</span>}
               </div>
 
               <div className={`form-group-mejorado ${errors.email ? 'error' : ''}`}>
@@ -487,9 +488,9 @@ function RegisterMejorado() {
                     }}
                     placeholder="tu@email.com"
                   />
-                  <span className="input-icon">📧</span>
+                  <span className="input-icon"><Icon name="mail" /></span>
                 </div>
-                {errors.email && <span className="error-message">⚠️ {errors.email}</span>}
+                {errors.email && <span className="error-message"><Icon name="warning" /> {errors.email}</span>}
               </div>
 
               <div className="form-row-mejorado">
@@ -506,17 +507,17 @@ function RegisterMejorado() {
                       }}
                       placeholder="••••••"
                     />
-                    <span className="input-icon">🔒</span>
+                    <span className="input-icon"><Icon name="lock" /></span>
                     <button
                       type="button"
                       className={`password-toggle ${showPassword ? 'visible' : ''}`}
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     >
-                      <span className="eye-icon">👁</span>
+                      <span className="eye-icon"><Icon name="view" /></span>
                     </button>
                   </div>
-                  {errors.password && <span className="error-message">⚠️ {errors.password}</span>}
+                  {errors.password && <span className="error-message"><Icon name="warning" /> {errors.password}</span>}
                   {datosComunes.password && (
                     <div className="password-strength">
                       <div className="strength-bar">
@@ -542,20 +543,20 @@ function RegisterMejorado() {
                       }}
                       placeholder="••••••"
                     />
-                    <span className="input-icon">🔒</span>
+                    <span className="input-icon"><Icon name="lock" /></span>
                     <button
                       type="button"
                       className={`password-toggle ${showConfirmPassword ? 'visible' : ''}`}
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     >
-                      <span className="eye-icon">👁</span>
+                      <span className="eye-icon"><Icon name="view" /></span>
                     </button>
                     {datosComunes.confirmarPassword && datosComunes.password === datosComunes.confirmarPassword && (
                       <span className="success-checkmark">✓</span>
                     )}
                   </div>
-                  {errors.confirmarPassword && <span className="error-message">⚠️ {errors.confirmarPassword}</span>}
+                  {errors.confirmarPassword && <span className="error-message"><Icon name="warning" /> {errors.confirmarPassword}</span>}
                 </div>
               </div>
 
@@ -614,7 +615,7 @@ function RegisterMejorado() {
                         }}
                         placeholder="Mi Empresa S.A."
                       />
-                      {errors.razon_social && <span className="error-message">⚠️ {errors.razon_social}</span>}
+                      {errors.razon_social && <span className="error-message"><Icon name="warning" /> {errors.razon_social}</span>}
                     </div>
 
                     <div className={`form-group-mejorado ${errors.cuit ? 'error' : ''}`}>
@@ -625,7 +626,7 @@ function RegisterMejorado() {
                         onChange={(e) => setDatosEspecificos({...datosEspecificos, cuit: e.target.value})}
                         placeholder="20-12345678-9"
                       />
-                      {errors.cuit && <span className="error-message">⚠️ {errors.cuit}</span>}
+                      {errors.cuit && <span className="error-message"><Icon name="warning" /> {errors.cuit}</span>}
                     </div>
 
                     <div className="form-group-mejorado">
@@ -635,10 +636,10 @@ function RegisterMejorado() {
                         onChange={(e) => setDatosEspecificos({...datosEspecificos, rubro_id: e.target.value})}
                       >
                         <option value="">Seleccionar rubro...</option>
-                        <option value="1">🍎 Alimentos</option>
-                        <option value="2">🥤 Bebidas</option>
-                        <option value="3">🧹 Limpieza</option>
-                        <option value="4">🐾 Mascotas</option>
+                        <option value="1">Alimentos</option>
+                        <option value="2">Bebidas</option>
+                        <option value="3">Limpieza</option>
+                        <option value="4">Mascotas</option>
                       </select>
                     </div>
 
@@ -660,7 +661,7 @@ function RegisterMejorado() {
                         onChange={(e) => setDatosEspecificos({...datosEspecificos, retiro_en_local: e.target.checked ? 'y' : 'n'})}
                       />
                       <label htmlFor="retiro">
-                        🏪 Permitir retiro en local
+                        <Icon name="local" /> Permitir retiro en local
                       </label>
                     </div>
 
@@ -689,12 +690,12 @@ function RegisterMejorado() {
                       >
                         {/* Mismos valores que TransportistaForm y AgregarPerfil */}
                         <option value="">Seleccionar...</option>
-                        <option value="Camioneta">🚙 Camioneta</option>
-                        <option value="Camión">🚛 Camión</option>
-                        <option value="Furgón">🚐 Furgón</option>
-                        <option value="Semi">🚚 Semi</option>
+                        <option value="Camioneta">Camioneta</option>
+                        <option value="Camión">Camión</option>
+                        <option value="Furgón">Furgón</option>
+                        <option value="Semi">Semi</option>
                       </select>
-                      {errors.tipo_vehiculo && <span className="error-message">⚠️ {errors.tipo_vehiculo}</span>}
+                      {errors.tipo_vehiculo && <span className="error-message"><Icon name="warning" /> {errors.tipo_vehiculo}</span>}
                     </div>
 
                     <div className={`form-group-mejorado ${errors.patente ? 'error' : ''}`}>
@@ -709,7 +710,7 @@ function RegisterMejorado() {
                         placeholder="ABC123"
                         maxLength="7"
                       />
-                      {errors.patente && <span className="error-message">⚠️ {errors.patente}</span>}
+                      {errors.patente && <span className="error-message"><Icon name="warning" /> {errors.patente}</span>}
                     </div>
 
                     <div className="form-group-mejorado">
@@ -730,7 +731,7 @@ function RegisterMejorado() {
                         onChange={(e) => setDatosEspecificos({...datosEspecificos, refrigerado: e.target.checked ? 'y' : 'n'})}
                       />
                       <label htmlFor="refrigerado">
-                        ❄️ Vehículo refrigerado
+                        <Icon name="cold" /> Vehículo refrigerado
                       </label>
                     </div>
 

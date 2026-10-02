@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import './Toast.css';
+import Icon from '../Icon/Icon';
 
 const ToastContext = createContext();
 
@@ -55,21 +56,17 @@ export const ToastProvider = ({ children }) => {
 };
 
 const Toast = ({ message, type, onClose }) => {
-  const icons = {
-    success: '✅',
-    error: '❌',
-    warning: '⚠️',
-    info: 'ℹ️',
-  };
 
   return (
     <div className={`toast toast-${type}`} onClick={onClose}>
       <div className="toast-content">
-        <span className="toast-icon">{icons[type]}</span>
+        <span className="toast-icon">
+          <Icon name={type === 'info' ? 'note' : type} />
+        </span>
         <span className="toast-message">{message}</span>
       </div>
-      <button className="toast-close" onClick={onClose}>
-        ×
+      <button className="toast-close" onClick={onClose} aria-label="Cerrar aviso">
+        <Icon name="close" />
       </button>
     </div>
   );

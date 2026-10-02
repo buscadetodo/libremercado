@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import usersService from '../../services/usersService';
 import { usePerfilActivo } from '../../context/PerfilContext';
 import MisPerfiles from '../../components/MisPerfiles/MisPerfiles';
+import Icon from '../../components/Icon/Icon';
 import './Perfil.css';
 
 function Perfil() {
@@ -165,7 +166,7 @@ function Perfil() {
   if (loading) {
     return (
       <div className="perfil-page">
-        <div className="loading">⏳ Cargando perfil...</div>
+        <div className="loading"><Icon name="loading" /> Cargando perfil...</div>
       </div>
     );
   }
@@ -173,21 +174,21 @@ function Perfil() {
   return (
     <div className="perfil-page">
       <div className="perfil-header">
-        <h1>⚙️ Mi Perfil</h1>
+        <h1><Icon name="settings" /> Mi Perfil</h1>
         <p className="page-subtitle">Administra tu información personal</p>
       </div>
 
       <div className="perfil-container">
         {error && (
           <div className="alert alert-error">
-            <span>⚠️</span>
+            <span><Icon name="warning" /></span>
             <span>{error}</span>
           </div>
         )}
 
         {success && (
           <div className="alert alert-success">
-            <span>✅</span>
+            <span><Icon name="success" /></span>
             <span>Perfil actualizado correctamente</span>
           </div>
         )}
@@ -282,14 +283,14 @@ function Perfil() {
               <div className="info-card">
                 <span className="info-label">Email Verificado</span>
                 <span className={`status-badge ${formData.email_verificado === 'y' ? 'status-active' : 'status-inactive'}`}>
-                  {formData.email_verificado === 'y' ? '✅ Verificado' : '❌ No Verificado'}
+                  {formData.email_verificado === 'y' ? <><Icon name="success" /> Verificado</> : <><Icon name="error" /> No Verificado</>}
                 </span>
               </div>
 
               <div className="info-card">
                 <span className="info-label">Estado de Cuenta</span>
                 <span className={`status-badge ${formData.estado_cuenta === 'y' ? 'status-active' : 'status-inactive'}`}>
-                  {formData.estado_cuenta === 'y' ? '✅ Activa' : '❌ Inactiva'}
+                  {formData.estado_cuenta === 'y' ? <><Icon name="success" /> Activa</> : <><Icon name="error" /> Inactiva</>}
                 </span>
               </div>
 
@@ -315,7 +316,7 @@ function Perfil() {
               Cancelar
             </button>
             <button type="submit" disabled={saving} className="btn btn-primary">
-              {saving ? '⏳ Guardando...' : '💾 Guardar Cambios'}
+              {saving ? <><Icon name="loading" /> Guardando...</> : <><Icon name="save" /> Guardar Cambios</>}
             </button>
           </div>
         </form>

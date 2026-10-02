@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
+import Icon from '../../components/Icon/Icon';
 import { useAuth } from '../../hooks';
 import authService from '../../services/authService';
 import './AuthMejorado.css';
@@ -143,7 +144,7 @@ function RegisterUniversal() {
         {/* Header */}
         <div className="login-header">
           <Link to="/" className="login-logo-wrapper" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-            <span className="login-logo-icon">🏪</span>
+            <span className="login-logo-icon"><Icon name="minorista" /></span>
             <div className="login-brand">
               <h1 className="brand-name">BuscaDeTodoOnline</h1>
               <p className="brand-tagline">Tu marketplace de confianza</p>
@@ -158,7 +159,7 @@ function RegisterUniversal() {
             {/* Banner de error de registro */}
             {registerError && (
               <div className="login-error-banner" style={{ display: 'flex' }}>
-                <span className="error-icon">⚠️</span>
+                <span className="error-icon"><Icon name="warning" /></span>
                 <div className="error-content">
                   <strong>Error al crear la cuenta</strong>
                   <p>{registerError}</p>
@@ -169,7 +170,7 @@ function RegisterUniversal() {
                   onClick={() => setRegisterError('')}
                   aria-label="Cerrar mensaje de error"
                 >
-                  ✕
+                  <Icon name="close" />
                 </button>
               </div>
             )}
@@ -188,9 +189,9 @@ function RegisterUniversal() {
                     placeholder="Juan"
                     autoComplete="given-name"
                   />
-                  <span className="input-icon" aria-hidden="true">👤</span>
+                  <span className="input-icon" aria-hidden="true"><Icon name="user" /></span>
                 </div>
-                {errors.nombre && <span className="error-message" role="alert">⚠️ {errors.nombre}</span>}
+                {errors.nombre && <span className="error-message" role="alert"><Icon name="warning" /> {errors.nombre}</span>}
               </div>
 
               <div className={`form-group-mejorado ${errors.apellido ? 'error' : ''}`}>
@@ -205,9 +206,9 @@ function RegisterUniversal() {
                     placeholder="Pérez"
                     autoComplete="family-name"
                   />
-                  <span className="input-icon" aria-hidden="true">👤</span>
+                  <span className="input-icon" aria-hidden="true"><Icon name="user" /></span>
                 </div>
-                {errors.apellido && <span className="error-message" role="alert">⚠️ {errors.apellido}</span>}
+                {errors.apellido && <span className="error-message" role="alert"><Icon name="warning" /> {errors.apellido}</span>}
               </div>
             </div>
 
@@ -227,7 +228,7 @@ function RegisterUniversal() {
                 />
                 <span className="input-icon" aria-hidden="true">🆔</span>
               </div>
-              {errors.dni && <span className="error-message" role="alert">⚠️ {errors.dni}</span>}
+              {errors.dni && <span className="error-message" role="alert"><Icon name="warning" /> {errors.dni}</span>}
             </div>
 
             {/* Email */}
@@ -243,9 +244,9 @@ function RegisterUniversal() {
                   placeholder="tu@email.com"
                   autoComplete="email"
                 />
-                <span className="input-icon" aria-hidden="true">📧</span>
+                <span className="input-icon" aria-hidden="true"><Icon name="mail" /></span>
               </div>
-              {errors.email && <span className="error-message" role="alert">⚠️ {errors.email}</span>}
+              {errors.email && <span className="error-message" role="alert"><Icon name="warning" /> {errors.email}</span>}
             </div>
 
             {/* Contraseñas */}
@@ -262,17 +263,17 @@ function RegisterUniversal() {
                     placeholder="••••••"
                     autoComplete="new-password"
                   />
-                  <span className="input-icon" aria-hidden="true">🔒</span>
+                  <span className="input-icon" aria-hidden="true"><Icon name="lock" /></span>
                   <button
                     type="button"
                     className={`password-toggle ${showPassword ? 'visible' : ''}`}
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   >
-                    <span className="eye-icon">👁</span>
+                    <span className="eye-icon"><Icon name="view" /></span>
                   </button>
                 </div>
-                {errors.password && <span className="error-message" role="alert">⚠️ {errors.password}</span>}
+                {errors.password && <span className="error-message" role="alert"><Icon name="warning" /> {errors.password}</span>}
                 {formData.password && (
                   <div className="password-strength">
                     <div className="strength-bar">
@@ -297,20 +298,20 @@ function RegisterUniversal() {
                     placeholder="••••••"
                     autoComplete="new-password"
                   />
-                  <span className="input-icon" aria-hidden="true">🔒</span>
+                  <span className="input-icon" aria-hidden="true"><Icon name="lock" /></span>
                   <button
                     type="button"
                     className={`password-toggle ${showConfirmPassword ? 'visible' : ''}`}
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   >
-                    <span className="eye-icon">👁</span>
+                    <span className="eye-icon"><Icon name="view" /></span>
                   </button>
                   {formData.confirmPassword && formData.password === formData.confirmPassword && (
                     <span className="success-checkmark">✓</span>
                   )}
                 </div>
-                {errors.confirmPassword && <span className="error-message" role="alert">⚠️ {errors.confirmPassword}</span>}
+                {errors.confirmPassword && <span className="error-message" role="alert"><Icon name="warning" /> {errors.confirmPassword}</span>}
               </div>
             </div>
 

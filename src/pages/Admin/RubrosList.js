@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRubros } from '../../hooks';
+import Icon from '../../components/Icon/Icon';
 import '../Mayoristas/Mayoristas.css';
 import './Admin.css';
 
@@ -22,12 +23,12 @@ function RubrosList() {
 
     const result = await createRubro(nuevoRubro);
     if (result.success) {
-      alert('✅ Rubro creado correctamente');
+      alert('Rubro creado correctamente');
       setNuevoRubro('');
       setShowForm(false);
       fetchRubros();
     } else {
-      alert(`❌ Error: ${result.error}`);
+      alert(`Error: ${result.error}`);
     }
   };
 
@@ -35,10 +36,10 @@ function RubrosList() {
     if (window.confirm('¿Estás seguro de eliminar este rubro?')) {
       const result = await deleteRubro(id);
       if (result.success) {
-        alert('✅ Rubro eliminado');
+        alert('Rubro eliminado');
         fetchRubros();
       } else {
-        alert(`❌ Error: ${result.error}`);
+        alert(`Error: ${result.error}`);
       }
     }
   };
@@ -47,11 +48,11 @@ function RubrosList() {
     <div className="rubros-page">
       <div className="page-header">
         <div>
-          <h1>📂 Rubros</h1>
+          <h1><Icon name="folder" /> Rubros</h1>
           <p className="page-subtitle">Gestiona los rubros del sistema</p>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="btn btn-primary">
-          {showForm ? '❌ Cancelar' : '➕ Nuevo Rubro'}
+          {showForm ? <><Icon name="close" /> Cancelar</> : <><Icon name="add" /> Nuevo Rubro</>}
         </button>
       </div>
 
@@ -68,27 +69,27 @@ function RubrosList() {
                 autoFocus
               />
               <button type="submit" className="btn btn-primary">
-                ✨ Crear Rubro
+                <Icon name="sparkles" /> Crear Rubro
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {loading && <div className="loading">⏳ Cargando rubros...</div>}
-      {error && <div className="error-message">❌ {error}</div>}
+      {loading && <div className="loading"><Icon name="loading" /> Cargando rubros...</div>}
+      {error && <div className="error-message"><Icon name="error" /> {error}</div>}
 
       <div className="admin-list">
         {rubros && rubros.length > 0 ? (
           rubros.map((rubro) => (
             <div key={rubro.id} className="admin-item">
               <div className="admin-item-content">
-                <span className="admin-item-icon">📂</span>
+                <span className="admin-item-icon"><Icon name="folder" /></span>
                 <span className="admin-item-name">{rubro.rubro}</span>
                 <span className="admin-item-id">ID: {rubro.id}</span>
               </div>
               <button onClick={() => handleDelete(rubro.id)} className="btn btn-danger btn-sm">
-                🗑️ Eliminar
+                <Icon name="delete" /> Eliminar
               </button>
             </div>
           ))

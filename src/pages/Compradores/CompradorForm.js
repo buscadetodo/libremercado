@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
 import compradoresService from '../../services/compradoresService';
 import SelectorUsuario from '../../components/SelectorUsuario/SelectorUsuario';
+import Icon from '../../components/Icon/Icon';
 import '../Mayoristas/Mayoristas.css';
 import '../Forms/Forms.css';
 
@@ -76,13 +77,13 @@ function CompradorForm() {
   };
 
   if (loading && isEdit) {
-    return <div className="loading">⏳ Cargando...</div>;
+    return <div className="loading"><Icon name="loading" /> Cargando...</div>;
   }
 
   return (
     <div className="form-page">
       <div className="form-header">
-        <h1>{isEdit ? '✏️ Editar Comprador' : '➕ Nuevo Comprador'}</h1>
+        <h1>{isEdit ? <><Icon name="edit" /> Editar Comprador</> : <><Icon name="add" /> Nuevo Comprador</>}</h1>
         <button onClick={() => navigate('/compradores')} className="btn btn-secondary">
           ← Volver
         </button>
@@ -91,7 +92,7 @@ function CompradorForm() {
       <div className="form-container">
         {error && (
           <div className="error-message">
-            ❌ {error}
+            <Icon name="error" /> {error}
           </div>
         )}
 
@@ -147,7 +148,7 @@ function CompradorForm() {
               Cancelar
             </button>
             <button type="submit" disabled={loading} className="btn btn-primary">
-              {loading ? '⏳ Guardando...' : isEdit ? '💾 Actualizar' : '✨ Crear Comprador'}
+              {loading ? <><Icon name="loading" /> Guardando...</> : isEdit ? <><Icon name="save" /> Actualizar</> : <><Icon name="sparkles" /> Crear Comprador</>}
             </button>
           </div>
         </form>
