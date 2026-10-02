@@ -3,15 +3,60 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#667eea" />
     <meta
       name="description"
-      content="BuscaDeTodoOnline - Aplicación web"
+      content="BuscaDeTodoOnline: marketplace mayorista. Encontrá mayoristas, minoristas y fleteros cerca de tu zona."
     />
-    <title>BuscaDeTodoOnline</title>
+    <title>BuscaDeTodoOnline | Marketplace mayorista</title>
+    <style>
+      /* Pantalla de arranque: se ve mientras el hosting despierta y carga el JS.
+         React la reemplaza al montar en #root. */
+      .boot-screen {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: #374151;
+        background: #f9fafb;
+        text-align: center;
+        padding: 0 16px;
+      }
+      .boot-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e5e7eb;
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: boot-spin 0.9s linear infinite;
+      }
+      .boot-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+      .boot-text {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #6b7280;
+      }
+      @keyframes boot-spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
     <noscript>Necesitas habilitar JavaScript para ejecutar esta aplicación.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot-screen" role="status" aria-live="polite">
+        <div class="boot-spinner" aria-hidden="true"></div>
+        <p class="boot-title">BuscaDeTodoOnline</p>
+        <p class="boot-text">Estamos iniciando, puede tardar unos segundos…</p>
+      </div>
+    </div>
   </body>
 </html>

@@ -549,8 +549,14 @@
   transition: all 0.3s;
 }
 
-.btn-contactar:hover {
+.btn-contactar:hover:not(:disabled) {
   background: #5568d3;
+}
+
+.btn-contactar:disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
 }
 
 /* Fleteros Section */

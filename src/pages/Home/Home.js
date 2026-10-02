@@ -185,7 +185,7 @@ function Home() {
       if (error.code) {
         switch (error.code) {
           case 1: // PERMISSION_DENIED
-            mensaje = 'Permiso denegado';
+            mensaje = 'Permiso de ubicación denegado';
             detalles = 'Has denegado el permiso de ubicación.\n\nPara usar esta función, debés permitir el acceso a tu ubicación en la configuración de tu navegador.';
             break;
           case 2: // POSITION_UNAVAILABLE
@@ -205,7 +205,7 @@ function Home() {
         detalles = 'Error al procesar la ubicación.\n\nPor favor, ingresá tu código postal manualmente.';
       }
 
-      setUbicacionError(detalles);
+      setUbicacionError(mensaje);
       setUbicacionModalData({
         tipo: 'error',
         mensaje: mensaje,
@@ -405,7 +405,7 @@ function Home() {
             {ubicacionError && (
               <div className="ubicacion-error-hint">
                 <span>⚠️</span>
-                <span>Permiso de ubicación denegado. Ingresá tu código postal manualmente.</span>
+                <span>{ubicacionError}. Ingresá tu código postal manualmente.</span>
               </div>
             )}
           </div>
@@ -559,31 +559,14 @@ function Home() {
                         )}
                       </div>
                     </div>
-                    <button
-                      className="btn-contactar"
-                      onClick={() => alert('Funcionalidad de contacto pendiente')}
-                    >
-                      Contactar
+                    {/* Sin flujo de contacto todavía: se muestra desactivado (informe QA 30/09) */}
+                    <button className="btn-contactar" disabled title="Disponible próximamente">
+                      Contacto próximamente
                     </button>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        </section>
-
-        {/* Fleteros */}
-        <section className="fleteros-section">
-          <div className="container">
-            <div className="fleteros-cta">
-              <h2 className="fleteros-title">🚚 ¿Necesitás un flete?</h2>
-              <button 
-                className="btn-buscar-fleteros"
-                onClick={() => alert('Funcionalidad de búsqueda de fleteros pendiente')}
-              >
-                Buscar fleteros en tu zona
-              </button>
-            </div>
           </div>
         </section>
 
@@ -667,7 +650,7 @@ function Home() {
           {ubicacionError && (
             <div className="ubicacion-error-hint">
               <span>⚠️</span>
-              <span>Permiso de ubicación denegado. Ingresá tu código postal manualmente.</span>
+              <span>{ubicacionError}. Ingresá tu código postal manualmente.</span>
             </div>
           )}
         </div>

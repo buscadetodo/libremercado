@@ -30,17 +30,15 @@ function NotFound() {
         <div className="notfound-links">
           <p className="notfound-links-title">Enlaces útiles:</p>
           <div className="notfound-links-grid">
-            <Link to="/dashboard" className="notfound-link">
-              📊 Dashboard
+            {/* Solo rutas públicas: las privadas redirigían al login sin sesión */}
+            <Link to="/" className="notfound-link">
+              Inicio
             </Link>
-            <Link to="/mayoristas" className="notfound-link">
-              🏭 Mayoristas
+            <Link to="/login" className="notfound-link">
+              Iniciar sesión
             </Link>
-            <Link to="/minoristas" className="notfound-link">
-              🏪 Minoristas
-            </Link>
-            <Link to="/transportistas" className="notfound-link">
-              🚚 Transportistas
+            <Link to="/registro" className="notfound-link">
+              Crear cuenta
             </Link>
           </div>
         </div>

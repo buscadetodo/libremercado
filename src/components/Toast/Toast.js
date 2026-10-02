@@ -20,10 +20,10 @@ export const ToastProvider = ({ children }) => {
     
     setToasts((prev) => [...prev, toast]);
 
-    // Auto-remove después de 4 segundos
+    // Auto-remove después de 6 segundos (con 4 no alcanzaba a leerse)
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
+    }, 6000);
 
     return id;
   }, []);
