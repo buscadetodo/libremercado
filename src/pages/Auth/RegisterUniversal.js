@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/Toast/Toast';
 import Icon from '../../components/Icon/Icon';
+import { esEmailValido } from '../../utils/validaciones';
 import { useAuth } from '../../hooks';
 import authService from '../../services/authService';
 import './AuthMejorado.css';
@@ -51,8 +52,8 @@ function RegisterUniversal() {
 
     if (!formData.email.trim()) {
       newErrors.email = 'El email es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email inválido';
+    } else if (!esEmailValido(formData.email)) {
+      newErrors.email = 'Ingresá un email válido (ej.: nombre@empresa.com)';
     }
 
     if (!formData.password) {

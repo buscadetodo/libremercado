@@ -361,25 +361,45 @@
   color: #374151;
 }
 
-/* Destacados Badges */
-.destacados-badges {
-  padding: 1.5rem 0;
-}
-
-.badges-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.badge-item {
-  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+/* Botón del buscador público (pide cuenta antes de buscar) */
+.btn-buscar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  background: #667eea;
   color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 24px;
+  border: none;
+  border-radius: 8px;
   font-weight: 600;
-  font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btn-buscar:hover {
+  background: #5568d3;
+}
+
+/* Aclaración bajo el título de una sección */
+.section-hint {
+  margin: -1rem 0 1.25rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* Marca de contenido de demostración (no es el catálogo real) */
+.demo-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.8rem;
+  font-weight: 700;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 /* Productos Section */
@@ -592,40 +612,6 @@
   cursor: not-allowed;
 }
 
-/* Fleteros Section */
-.fleteros-section {
-  padding: 3rem 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.fleteros-cta {
-  text-align: center;
-  color: white;
-}
-
-.fleteros-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 1.5rem;
-}
-
-.btn-buscar-fleteros {
-  padding: 1rem 2.5rem;
-  background: white;
-  color: #667eea;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 1.125rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-buscar-fleteros:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-}
-
 /* Modal */
 .modal-overlay {
   position: fixed;
@@ -820,6 +806,20 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .search-box {
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    flex: 1 1 160px;
+    min-width: 0;
+  }
+
+  .btn-buscar {
+    flex-basis: 100%;
+    justify-content: center;
+  }
+
   /* Ícono + campo en una fila y el botón abajo. Antes, en columna con
      align-items: center, el input se encogía y cortaba el placeholder. */
   .zona-input-group {

@@ -15,6 +15,7 @@ import diasService from '../../services/diasService';
 import horariosService from '../../services/horariosService';
 import { PERFIL } from '../../config/roles';
 import Icon from '../../components/Icon/Icon';
+import { esPatenteValida, normalizarPatente, PATENTE_AYUDA, PATENTE_MAX } from '../../utils/validaciones';
 import './AgregarPerfil.css';
 
 /**
@@ -172,6 +173,11 @@ function AgregarPerfil() {
 
     if (!tipoSeleccionado) {
       toast.error('Por favor seleccioná un tipo de perfil');
+      return;
+    }
+
+    if (tipoSeleccionado === 'transportista' && !esPatenteValida(datosEspecificos.patente)) {
+      toast.error(`Patente inválida (${PATENTE_AYUDA})`);
       return;
     }
 
@@ -472,14 +478,18 @@ function AgregarPerfil() {
             </div>
 
             <div className="ap-form-group">
-              <label>Patente *</label>
+              <label htmlFor="ap-patente">Patente *</label>
               <input
+                id="ap-patente"
                 type="text"
                 value={datosEspecificos.patente}
-                onChange={(e) => setCampo('patente', e.target.value)}
+                onChange={(e) => setCampo('patente', normalizarPatente(e.target.value))}
                 placeholder="ABC123"
+                maxLength={PATENTE_MAX}
+                aria-describedby="ap-patente-ayuda"
                 required
               />
+              <small id="ap-patente-ayuda" className="ap-ayuda">{PATENTE_AYUDA}</small>
             </div>
 
             <div className="ap-form-group">
