@@ -156,7 +156,39 @@
     font-size: 0.9rem;
   }
 
-  .logo-text {
+  /* La marca no se oculta (el ícono emoji puede no dibujarse): se achica.
+     Scoped a .navbar-logo para no afectar el header de la Home. */
+  .navbar-logo {
+    font-size: 1.05rem;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .navbar-logo .logo-icon {
+    font-size: 1.4rem;
+  }
+
+  /* Los links de texto ya están en el sidebar (hamburguesa) */
+  .navbar-menu .navbar-link {
     display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .navbar-container {
+    padding: 0 0.5rem;
+  }
+
+  .navbar-left {
+    gap: 0.25rem;
+  }
+
+  .navbar-logo .logo-icon {
+    display: none;
+  }
+
+  .navbar-button {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
   }
 }

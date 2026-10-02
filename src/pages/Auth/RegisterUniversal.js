@@ -177,9 +177,10 @@ function RegisterUniversal() {
             {/* Nombre y Apellido */}
             <div className="form-row-mejorado">
               <div className={`form-group-mejorado ${errors.nombre ? 'error' : ''}`}>
-                <label>Nombre *</label>
+                <label htmlFor="reg-nombre">Nombre *</label>
                 <div className="input-wrapper">
                   <input
+                    id="reg-nombre"
                     type="text"
                     className="has-icon"
                     value={formData.nombre}
@@ -187,15 +188,16 @@ function RegisterUniversal() {
                     placeholder="Juan"
                     autoComplete="given-name"
                   />
-                  <span className="input-icon">👤</span>
+                  <span className="input-icon" aria-hidden="true">👤</span>
                 </div>
-                {errors.nombre && <span className="error-message">⚠️ {errors.nombre}</span>}
+                {errors.nombre && <span className="error-message" role="alert">⚠️ {errors.nombre}</span>}
               </div>
 
               <div className={`form-group-mejorado ${errors.apellido ? 'error' : ''}`}>
-                <label>Apellido *</label>
+                <label htmlFor="reg-apellido">Apellido *</label>
                 <div className="input-wrapper">
                   <input
+                    id="reg-apellido"
                     type="text"
                     className="has-icon"
                     value={formData.apellido}
@@ -203,17 +205,18 @@ function RegisterUniversal() {
                     placeholder="Pérez"
                     autoComplete="family-name"
                   />
-                  <span className="input-icon">👤</span>
+                  <span className="input-icon" aria-hidden="true">👤</span>
                 </div>
-                {errors.apellido && <span className="error-message">⚠️ {errors.apellido}</span>}
+                {errors.apellido && <span className="error-message" role="alert">⚠️ {errors.apellido}</span>}
               </div>
             </div>
 
             {/* DNI */}
             <div className={`form-group-mejorado ${errors.dni ? 'error' : ''}`}>
-              <label>DNI *</label>
+              <label htmlFor="reg-dni">DNI *</label>
               <div className="input-wrapper">
                 <input
+                  id="reg-dni"
                   type="text"
                   className="has-icon"
                   value={formData.dni}
@@ -222,16 +225,17 @@ function RegisterUniversal() {
                   maxLength="8"
                   autoComplete="off"
                 />
-                <span className="input-icon">🆔</span>
+                <span className="input-icon" aria-hidden="true">🆔</span>
               </div>
-              {errors.dni && <span className="error-message">⚠️ {errors.dni}</span>}
+              {errors.dni && <span className="error-message" role="alert">⚠️ {errors.dni}</span>}
             </div>
 
             {/* Email */}
             <div className={`form-group-mejorado ${errors.email ? 'error' : ''}`}>
-              <label>Email *</label>
+              <label htmlFor="reg-email">Email *</label>
               <div className="input-wrapper">
                 <input
+                  id="reg-email"
                   type="email"
                   className="has-icon"
                   value={formData.email}
@@ -239,17 +243,18 @@ function RegisterUniversal() {
                   placeholder="tu@email.com"
                   autoComplete="email"
                 />
-                <span className="input-icon">📧</span>
+                <span className="input-icon" aria-hidden="true">📧</span>
               </div>
-              {errors.email && <span className="error-message">⚠️ {errors.email}</span>}
+              {errors.email && <span className="error-message" role="alert">⚠️ {errors.email}</span>}
             </div>
 
             {/* Contraseñas */}
             <div className="form-row-mejorado">
               <div className={`form-group-mejorado ${errors.password ? 'error' : ''}`}>
-                <label>Contraseña *</label>
+                <label htmlFor="reg-password">Contraseña *</label>
                 <div className="input-wrapper password-wrapper">
                   <input
+                    id="reg-password"
                     type={showPassword ? "text" : "password"}
                     className="has-icon has-toggle"
                     value={formData.password}
@@ -257,7 +262,7 @@ function RegisterUniversal() {
                     placeholder="••••••"
                     autoComplete="new-password"
                   />
-                  <span className="input-icon">🔒</span>
+                  <span className="input-icon" aria-hidden="true">🔒</span>
                   <button
                     type="button"
                     className={`password-toggle ${showPassword ? 'visible' : ''}`}
@@ -267,7 +272,7 @@ function RegisterUniversal() {
                     <span className="eye-icon">👁</span>
                   </button>
                 </div>
-                {errors.password && <span className="error-message">⚠️ {errors.password}</span>}
+                {errors.password && <span className="error-message" role="alert">⚠️ {errors.password}</span>}
                 {formData.password && (
                   <div className="password-strength">
                     <div className="strength-bar">
@@ -281,9 +286,10 @@ function RegisterUniversal() {
               </div>
 
               <div className={`form-group-mejorado ${errors.confirmPassword ? 'error' : ''}`}>
-                <label>Confirmar Contraseña *</label>
+                <label htmlFor="reg-confirm-password">Confirmar Contraseña *</label>
                 <div className="input-wrapper password-wrapper">
                   <input
+                    id="reg-confirm-password"
                     type={showConfirmPassword ? "text" : "password"}
                     className="has-icon has-toggle"
                     value={formData.confirmPassword}
@@ -291,7 +297,7 @@ function RegisterUniversal() {
                     placeholder="••••••"
                     autoComplete="new-password"
                   />
-                  <span className="input-icon">🔒</span>
+                  <span className="input-icon" aria-hidden="true">🔒</span>
                   <button
                     type="button"
                     className={`password-toggle ${showConfirmPassword ? 'visible' : ''}`}
@@ -304,7 +310,7 @@ function RegisterUniversal() {
                     <span className="success-checkmark">✓</span>
                   )}
                 </div>
-                {errors.confirmPassword && <span className="error-message">⚠️ {errors.confirmPassword}</span>}
+                {errors.confirmPassword && <span className="error-message" role="alert">⚠️ {errors.confirmPassword}</span>}
               </div>
             </div>
 

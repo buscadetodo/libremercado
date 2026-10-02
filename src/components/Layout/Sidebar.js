@@ -5,6 +5,7 @@ import { usePerfilActivo } from '../../context/PerfilContext';
 import { esAdmin } from '../../config/roles';
 import { FEATURE_PRODUCTOS } from '../../config/features';
 import { APP_VERSION } from '../../config/version';
+import Modal from '../Modal/Modal';
 import './Sidebar.css';
 
 function Sidebar({ onNavigate }) {
@@ -105,32 +106,32 @@ function Sidebar({ onNavigate }) {
       </aside>
 
       {showLogoutConfirm && (
-        <div
-          className="logout-modal-overlay"
-          onClick={() => setShowLogoutConfirm(false)}
+        <Modal
+          onClose={() => setShowLogoutConfirm(false)}
+          titleId="logout-modal-titulo"
+          overlayClassName="logout-modal-overlay"
+          className="logout-modal"
         >
-          <div className="logout-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="logout-modal-icon">🚪</div>
-            <h3>¿Cerrar sesión?</h3>
-            <p>¿Seguro que querés salir de tu cuenta?</p>
-            <div className="logout-modal-actions">
-              <button
-                type="button"
-                className="logout-modal-cancel"
-                onClick={() => setShowLogoutConfirm(false)}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="logout-modal-confirm"
-                onClick={confirmarLogout}
-              >
-                Cerrar sesión
-              </button>
-            </div>
+          <div className="logout-modal-icon" aria-hidden="true">🚪</div>
+          <h3 id="logout-modal-titulo">¿Cerrar sesión?</h3>
+          <p>¿Seguro que querés salir de tu cuenta?</p>
+          <div className="logout-modal-actions">
+            <button
+              type="button"
+              className="logout-modal-cancel"
+              onClick={() => setShowLogoutConfirm(false)}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              className="logout-modal-confirm"
+              onClick={confirmarLogout}
+            >
+              Cerrar sesión
+            </button>
           </div>
-        </div>
+        </Modal>
       )}
     </>
   );

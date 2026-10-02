@@ -7,6 +7,7 @@ import mayoristasService from '../../services/mayoristasService';
 import rubrosService from '../../services/rubrosService';
 import productosService from '../../services/productosService';
 import { FEATURE_PRODUCTOS } from '../../config/features';
+import Modal from '../../components/Modal/Modal';
 import './Home.css';
 
 function Home() {
@@ -321,6 +322,32 @@ function Home() {
     return coincideRubro && coincideTexto;
   });
 
+  // Modal de ubicación: es el mismo con y sin sesión
+  const cerrarUbicacionModal = () => setShowUbicacionModal(false);
+  const modalUbicacion = showUbicacionModal && (
+    <Modal
+      onClose={cerrarUbicacionModal}
+      titleId="ubicacion-modal-titulo"
+      overlayClassName="modal-overlay"
+      className="modal-content ubicacion-modal"
+    >
+      <div
+        className={`modal-icon ${ubicacionModalData.tipo === 'success' ? 'success' : 'error'}`}
+        aria-hidden="true"
+      >
+        {ubicacionModalData.tipo === 'success' ? '✅' : '⚠️'}
+      </div>
+      <h3 id="ubicacion-modal-titulo">{ubicacionModalData.mensaje}</h3>
+      <p style={{ whiteSpace: 'pre-line' }}>{ubicacionModalData.detalles}</p>
+      <button className="btn-modal-ubicacion-ok" onClick={cerrarUbicacionModal}>
+        Entendido
+      </button>
+      <button className="modal-close" onClick={cerrarUbicacionModal} aria-label="Cerrar">
+        ✕
+      </button>
+    </Modal>
+  );
+
   // Vista para usuarios autenticados
   if (isAuthenticated) {
     return (
@@ -374,11 +401,15 @@ function Home() {
         {/* Zona */}
         <section className="zona-section">
           <div className="container">
+            <label htmlFor="zona-input" className="field-label">
+              Tu zona
+            </label>
             <div className="zona-input-group">
-              <span className="zona-icon">📍</span>
+              <span className="zona-icon" aria-hidden="true">📍</span>
               <input
+                id="zona-input"
                 type="text"
-                placeholder="Ingresar código postal o ciudad"
+                placeholder="Código postal o ciudad"
                 value={codigoPostal}
                 onChange={(e) => setCodigoPostal(e.target.value)}
                 className="zona-input"
@@ -414,11 +445,15 @@ function Home() {
         {/* Buscador */}
         <section className="search-section">
           <div className="container">
+            <label htmlFor="search-input" className="field-label">
+              Buscar mayoristas
+            </label>
             <div className="search-box">
-              <span className="search-icon">🔍</span>
+              <span className="search-icon" aria-hidden="true">🔍</span>
               <input
-                type="text"
-                placeholder="Buscar mayoristas por nombre..."
+                id="search-input"
+                type="search"
+                placeholder="Nombre o descripción..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input"
@@ -560,7 +595,12 @@ function Home() {
                       </div>
                     </div>
                     {/* Sin flujo de contacto todavía: se muestra desactivado (informe QA 30/09) */}
-                    <button className="btn-contactar" disabled title="Disponible próximamente">
+                    <button
+                      className="btn-contactar"
+                      disabled
+                      title="Disponible próximamente"
+                      aria-label={`Contacto con ${m.razon_social}: disponible próximamente`}
+                    >
                       Contacto próximamente
                     </button>
                   </div>
@@ -570,30 +610,7 @@ function Home() {
           </div>
         </section>
 
-        {/* Modal Ubicación */}
-        {showUbicacionModal && (
-          <div className="modal-overlay" onClick={() => setShowUbicacionModal(false)}>
-            <div className="modal-content ubicacion-modal" onClick={(e) => e.stopPropagation()}>
-              <div className={`modal-icon ${ubicacionModalData.tipo === 'success' ? 'success' : 'error'}`}>
-                {ubicacionModalData.tipo === 'success' ? '✅' : '⚠️'}
-              </div>
-              <h3>{ubicacionModalData.mensaje}</h3>
-              <p style={{ whiteSpace: 'pre-line' }}>{ubicacionModalData.detalles}</p>
-              <button 
-                className="btn-modal-ubicacion-ok"
-                onClick={() => setShowUbicacionModal(false)}
-              >
-                Entendido
-              </button>
-              <button 
-                className="modal-close"
-                onClick={() => setShowUbicacionModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
+        {modalUbicacion}
       </div>
     );
   }
@@ -610,7 +627,8 @@ function Home() {
           </div>
           <div className="header-actions">
             <Link to="/login" className="btn-login">
-              🔐 Iniciar Sesión / Registrarse
+              <span className="btn-login-full">Iniciar sesión / Registrarse</span>
+              <span className="btn-login-short">Ingresar</span>
             </Link>
           </div>
         </div>
@@ -619,11 +637,19 @@ function Home() {
       {/* Zona */}
       <section className="zona-section">
         <div className="container">
+          <h1 className="home-hero-title">Comprá por mayor cerca de tu zona</h1>
+          <p className="home-hero-subtitle">
+            Mayoristas, minoristas y fleteros en un solo lugar
+          </p>
+          <label htmlFor="zona-input" className="field-label">
+            Tu zona
+          </label>
           <div className="zona-input-group">
-            <span className="zona-icon">📍</span>
+            <span className="zona-icon" aria-hidden="true">📍</span>
             <input
+              id="zona-input"
               type="text"
-              placeholder="Ingresar código postal o ciudad"
+              placeholder="Código postal o ciudad"
               value={codigoPostal}
               onChange={(e) => setCodigoPostal(e.target.value)}
               className="zona-input"
@@ -659,11 +685,15 @@ function Home() {
       {/* Buscador */}
       <section className="search-section">
         <div className="container">
+          <label htmlFor="search-input" className="field-label">
+            Buscar productos
+          </label>
           <div className="search-box">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon" aria-hidden="true">🔍</span>
             <input
-              type="text"
-              placeholder="Buscar productos por mayor..."
+              id="search-input"
+              type="search"
+              placeholder="Productos por mayor..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -717,6 +747,7 @@ function Home() {
                   <button 
                     className="btn-comprar"
                     onClick={() => handleActionRequiresLogin('comprar')}
+                    aria-label={`Comprar ${producto.nombre}`}
                   >
                     Comprar
                   </button>
@@ -742,6 +773,7 @@ function Home() {
                 <button 
                   className="btn-contactar"
                   onClick={() => handleActionRequiresLogin('contactar')}
+                  aria-label={`Contactar a ${mayorista.nombre}`}
                 >
                   Contactar
                 </button>
@@ -768,53 +800,34 @@ function Home() {
 
       {/* Modal Login Required */}
       {showLoginModal && (
-        <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-icon">🔒</div>
-            <h3>Para continuar, necesitás crear una cuenta</h3>
-            <p>Registrate gratis para acceder a todas las funcionalidades</p>
-            <div className="modal-actions">
-              <Link to="/registro" className="btn-modal-primary">
-                Registrarse
-              </Link>
-              <Link to="/login" className="btn-modal-secondary">
-                Ya tengo cuenta
-              </Link>
-            </div>
-            <button 
-              className="modal-close"
-              onClick={() => setShowLoginModal(false)}
-            >
-              ✕
-            </button>
+        <Modal
+          onClose={() => setShowLoginModal(false)}
+          titleId="login-modal-titulo"
+          overlayClassName="modal-overlay"
+          className="modal-content"
+        >
+          <div className="modal-icon" aria-hidden="true">🔒</div>
+          <h3 id="login-modal-titulo">Para continuar, necesitás crear una cuenta</h3>
+          <p>Registrate gratis para acceder a todas las funcionalidades</p>
+          <div className="modal-actions">
+            <Link to="/registro" className="btn-modal-primary">
+              Registrarse
+            </Link>
+            <Link to="/login" className="btn-modal-secondary">
+              Ya tengo cuenta
+            </Link>
           </div>
-        </div>
+          <button
+            className="modal-close"
+            onClick={() => setShowLoginModal(false)}
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
+        </Modal>
       )}
 
-      {/* Modal Ubicación */}
-      {showUbicacionModal && (
-        <div className="modal-overlay" onClick={() => setShowUbicacionModal(false)}>
-          <div className="modal-content ubicacion-modal" onClick={(e) => e.stopPropagation()}>
-            <div className={`modal-icon ${ubicacionModalData.tipo === 'success' ? 'success' : 'error'}`}>
-              {ubicacionModalData.tipo === 'success' ? '✅' : '⚠️'}
-            </div>
-            <h3>{ubicacionModalData.mensaje}</h3>
-            <p style={{ whiteSpace: 'pre-line' }}>{ubicacionModalData.detalles}</p>
-            <button 
-              className="btn-modal-ubicacion-ok"
-              onClick={() => setShowUbicacionModal(false)}
-            >
-              Entendido
-            </button>
-            <button 
-              className="modal-close"
-              onClick={() => setShowUbicacionModal(false)}
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
+      {modalUbicacion}
     </div>
   );
 }
