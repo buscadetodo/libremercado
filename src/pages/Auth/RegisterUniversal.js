@@ -330,6 +330,18 @@ function RegisterUniversal() {
                 <>Crear Cuenta →</>
               )}
             </button>
+
+            <p className="register-legales">
+              Al crear la cuenta aceptás los{' '}
+              <Link to="/terminos" target="_blank" rel="noopener noreferrer">
+                términos y condiciones
+              </Link>{' '}
+              y la{' '}
+              <Link to="/privacidad" target="_blank" rel="noopener noreferrer">
+                política de privacidad
+              </Link>
+              .
+            </p>
           </div>
         </form>
 

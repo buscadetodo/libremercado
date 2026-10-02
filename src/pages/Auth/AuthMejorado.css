@@ -264,6 +264,20 @@
   text-decoration: underline;
 }
 
+/* Aviso de términos bajo el botón de registro (se abre en otra pestaña
+   para no perder lo que ya se cargó en el formulario) */
+.register-legales {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: #718096;
+  line-height: 1.5;
+}
+
+.register-legales a {
+  color: #667eea;
+}
+
 /* ========================================
    LOGIN MEJORADO - Diseño Moderno
    ======================================== */

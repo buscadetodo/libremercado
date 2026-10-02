@@ -8,6 +8,7 @@ import rubrosService from '../../services/rubrosService';
 import productosService from '../../services/productosService';
 import { FEATURE_PRODUCTOS } from '../../config/features';
 import Modal from '../../components/Modal/Modal';
+import Footer from '../../components/Footer/Footer';
 import Icon from '../../components/Icon/Icon';
 import './Home.css';
 
@@ -611,6 +612,8 @@ function Home() {
           </div>
         </section>
 
+        <Footer />
+
         {modalUbicacion}
       </div>
     );
@@ -827,6 +830,8 @@ function Home() {
           </button>
         </Modal>
       )}
+
+      <Footer />
 
       {modalUbicacion}
     </div>

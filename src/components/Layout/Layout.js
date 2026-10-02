@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
+import Footer from '../Footer/Footer';
 import './Layout.css';
 
 function Layout({ children }) {
@@ -45,7 +46,10 @@ function Layout({ children }) {
           onClick={closeMobile}
           aria-hidden="true"
         />
-        <main className="main-content">{children}</main>
+        <main className="main-content">
+          <div className="main-body">{children}</div>
+          <Footer variant="compact" />
+        </main>
       </div>
     </div>
   );

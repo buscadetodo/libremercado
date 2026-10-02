@@ -1,0 +1,8 @@
+# Se indexa solo la parte pública. Los paneles requieren sesión.
+User-agent: *
+Allow: /$
+Allow: /login
+Allow: /registro
+Allow: /privacidad
+Allow: /terminos
+Disallow: /

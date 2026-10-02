@@ -13,6 +13,13 @@
   padding: 2rem 2.5rem;
   min-height: calc(100vh - 70px);
   transition: margin-left 0.2s ease;
+  /* El pie queda abajo aunque la página tenga poco contenido */
+  display: flex;
+  flex-direction: column;
+}
+
+.main-body {
+  flex: 1;
 }
 
 /* Sidebar colapsado (solo desktop) → el contenido se corre */
