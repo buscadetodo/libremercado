@@ -15,6 +15,7 @@ import { FEATURE_PRODUCTOS } from './config/features';
 // Layout
 import Layout from './components/Layout/Layout';
 import PrivateRoute from './components/PrivateRoute';
+import TituloPorRuta from './components/TituloPorRuta';
 
 // Public Pages
 import Home from './pages/Home/Home';
@@ -64,6 +65,9 @@ import UsuariosList from './pages/Admin/UsuariosList';
 import Perfil from './pages/Perfil/Perfil';
 import AgregarPerfil from './pages/Perfil/AgregarPerfil';
 
+// Legales
+import { Privacidad, Terminos } from './pages/Legal/Legal';
+
 // 404
 import NotFound from './pages/NotFound/NotFound';
 
@@ -73,9 +77,12 @@ function App() {
       <AuthProvider>
         <PerfilProvider>
           <Router>
+          <TituloPorRuta />
           <Routes>
             {/* Rutas públicas */}
           <Route path="/" element={<Home />} />
+          <Route path="/privacidad" element={<Privacidad />} />
+          <Route path="/terminos" element={<Terminos />} />
           
           {/* Auth - Sistema nuevo (Universal) */}
           <Route path="/login" element={<Login />} />
