@@ -152,9 +152,10 @@ function Login() {
             )}
             {/* Email */}
             <div className={`form-group-mejorado ${errors.email ? 'error' : ''}`}>
-              <label>Email *</label>
+              <label htmlFor="login-email">Email *</label>
               <div className="input-wrapper">
                 <input
+                  id="login-email"
                   type="email"
                   className="has-icon"
                   value={email}
@@ -166,16 +167,17 @@ function Login() {
                   placeholder="tu@email.com"
                   autoComplete="email"
                 />
-                <span className="input-icon">📧</span>
+                <span className="input-icon" aria-hidden="true">📧</span>
               </div>
-              {errors.email && <span className="error-message">⚠️ {errors.email}</span>}
+              {errors.email && <span className="error-message" role="alert">⚠️ {errors.email}</span>}
             </div>
 
             {/* Contraseña */}
             <div className={`form-group-mejorado ${errors.password ? 'error' : ''}`}>
-              <label>Contraseña *</label>
+              <label htmlFor="login-password">Contraseña *</label>
               <div className="input-wrapper password-wrapper">
                 <input
+                  id="login-password"
                   type={showPassword ? "text" : "password"}
                   className="has-icon has-toggle"
                   value={password}
@@ -187,7 +189,7 @@ function Login() {
                   placeholder="••••••"
                   autoComplete="current-password"
                 />
-                <span className="input-icon">🔒</span>
+                <span className="input-icon" aria-hidden="true">🔒</span>
                 <button
                   type="button"
                   className={`password-toggle ${showPassword ? 'visible' : ''}`}
@@ -197,7 +199,7 @@ function Login() {
                   <span className="eye-icon">👁</span>
                 </button>
               </div>
-              {errors.password && <span className="error-message">⚠️ {errors.password}</span>}
+              {errors.password && <span className="error-message" role="alert">⚠️ {errors.password}</span>}
             </div>
 
             {/* Botón submit */}
