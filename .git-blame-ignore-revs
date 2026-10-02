@@ -1,0 +1,6 @@
+# Commits que git blame debe ignorar (solo formato, sin cambios de contenido).
+# Uso local: git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub lo aplica solo.
+
+# chore: unificar fin de linea con .gitattributes
+7f2faf9ad397ad41b2ed20e4c739ad796c5a8c52
